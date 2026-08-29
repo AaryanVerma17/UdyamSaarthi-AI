@@ -1,0 +1,24 @@
+{
+  "appTitle": "UdyamSaarthi-AI",
+  "tagline": "Your local business advisor and loan planner",
+  "form": {
+    "village": "Village",
+    "block": "Block",
+    "district": "District",
+    "state": "State",
+    "ownCapital": "Your Available Capital (₹)",
+    "businessCategory": "Business You Want to Start",
+    "submit": "Generate My Report"
+  },
+  "report": {
+    "viabilityScore": "Viability Score",
+    "projectCost": "Project Cost",
+    "loanAmount": "Potential Loan",
+    "scheme": "Applicable Scheme",
+    "quarterlyInstallment": "Quarterly Installment",
+    "recommendation": "Final Recommendation",
+    "proceed": "Proceed",
+    "proceed_with_caution": "Proceed with Caution",
+    "not_recommended": "Not Recommended"
+  }
+}

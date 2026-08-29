@@ -1,0 +1,101 @@
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.app-header h1 { margin-bottom: 4px; }
+.lang-switch { margin-top: 8px; }
+.lang-switch button {
+  margin: 0 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+
+.intake-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.field-group { display: flex; flex-direction: column; gap: 4px; }
+.field-group label { font-size: 13px; font-weight: 600; color: #444; }
+.field-group input, .field-group select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+.intake-form button {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2e7d32;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+.intake-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.error-banner {
+  background: #fdecea;
+  color: #c62828;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.report { display: flex; flex-direction: column; gap: 20px; margin-top: 16px; }
+.report__section {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.report__section h3 { margin-top: 0; }
+.report__section ul { padding-left: 20px; }
+.explanation { color: #555; font-size: 14px; margin-top: 8px; }
+
+.viability-gauge { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.viability-gauge__ring {
+  width: 120px; height: 120px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.viability-gauge__inner {
+  width: 92px; height: 92px; border-radius: 50%; background: white;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.viability-gauge__score { font-size: 28px; font-weight: 700; }
+.viability-gauge__max { font-size: 12px; color: #888; }
+.viability-gauge__label { font-weight: 600; }
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.badge--proceed { background: #e8f5e9; color: #2e7d32; }
+.badge--proceed_with_caution { background: #fff8e1; color: #f9a825; }
+.badge--not_recommended { background: #fdecea; color: #c62828; }
+.narrative { margin-top: 12px; color: #444; line-height: 1.5; }
+
+.reset-btn {
+  margin-top: 20px;
+  background: none;
+  border: none;
+  color: #2e7d32;
+  cursor: pointer;
+  font-size: 14px;
+}

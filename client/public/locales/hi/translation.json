@@ -1,0 +1,24 @@
+{
+  "appTitle": "उद्यम साथी-AI",
+  "tagline": "आपका स्थानीय व्यापार सलाहकार और ऋण योजनाकार",
+  "form": {
+    "village": "गांव",
+    "block": "ब्लॉक",
+    "district": "जिला",
+    "state": "राज्य",
+    "ownCapital": "आपकी उपलब्ध पूंजी (₹)",
+    "businessCategory": "आप कौन सा व्यवसाय शुरू करना चाहते हैं",
+    "submit": "मेरी रिपोर्ट बनाएं"
+  },
+  "report": {
+    "viabilityScore": "व्यवहार्यता स्कोर",
+    "projectCost": "परियोजना लागत",
+    "loanAmount": "संभावित ऋण",
+    "scheme": "लागू योजना",
+    "quarterlyInstallment": "त्रैमासिक किस्त",
+    "recommendation": "अंतिम सिफारिश",
+    "proceed": "आगे बढ़ें",
+    "proceed_with_caution": "सावधानी से आगे बढ़ें",
+    "not_recommended": "अनुशंसित नहीं"
+  }
+}

@@ -241,3 +241,140 @@ Or all at once: `docker-compose up --build`
 - **Day 6**: bug fixes only — freeze new features
 
 If your module is running behind on the day before submission, leave the mock in place and merge what you have — a working mock beats a half-finished real model in a live demo.
+# GIT_GUIDE.md
+
+# Git Reference Guide — UdyamSaarthi-AI
+
+Quick reference for merging branches into `main`, pulling code, viewing branches, and switching between them.
+
+---
+
+## 1. Merging a Branch into `main`
+
+**Recommended way — through GitHub (required by our branch protection ruleset):**
+
+1. Push your branch: `git push -u origin <your-branch-name>`
+2. Go to the repo on GitHub — it'll show a banner "Compare & pull request." Click it.
+3. Make sure the base branch is `main` and the compare branch is yours.
+4. Add a short description, click "Create pull request."
+5. Get at least one teammate's approval (required by the ruleset).
+6. Click **Merge pull request** → **Confirm merge**.
+7. Click **Delete branch** (GitHub offers this button right after merging).
+
+**Why not merge locally with `git merge`?** You *can*, but since branch protection blocks direct pushes to `main`, a local merge would still fail when you try to push it. The GitHub PR merge button is the only path that actually lands code on `main` in this setup.
+
+**If you need to merge locally** (e.g. into your *own* feature branch, not `main`):
+```bash
+git checkout your-branch
+git merge main          # bring main's latest changes into your branch
+# resolve any conflicts, then:
+git add .
+git commit
+git push
+```
+
+---
+
+## 2. Pulling Code From a Branch to Your Local Repo
+
+**If the branch doesn't exist locally yet (someone else pushed it):**
+```bash
+git fetch origin
+git checkout kavya/ml-models-m2-m4-m9-m10
+```
+`git checkout <branch-name>` automatically sets up tracking if a matching remote branch exists and you don't already have a local one.
+
+**If you already have the branch locally and just want the latest commits on it:**
+```bash
+git checkout kavya/ml-models-m2-m4-m9-m10
+git pull
+```
+
+**To pull the latest `main` into your current branch (do this often, especially before opening a PR):**
+```bash
+git checkout main
+git pull
+git checkout your-branch-name
+git merge main
+```
+
+**Shortcut for "just get me everything new from every branch":**
+```bash
+git fetch --all
+```
+This updates your local view of every remote branch without switching or merging anything — safe to run anytime.
+
+---
+
+## 3. Seeing All Branches
+
+**Local branches only** (what you have checked out on your machine):
+```bash
+git branch
+```
+The one you're currently on is marked with `*`.
+
+**Remote branches only** (everything pushed to GitHub, whether or not you have it locally):
+```bash
+git branch -r
+```
+
+**Both local and remote, in one list:**
+```bash
+git branch -a
+```
+
+**Refresh the list first** if you suspect someone pushed a new branch you don't see yet:
+```bash
+git fetch origin
+git branch -a
+```
+
+---
+
+## 4. Switching Branches
+
+**Basic switch:**
+```bash
+git checkout branch-name
+```
+(or the newer, more explicit form: `git switch branch-name` — does the same thing)
+
+**Switch and create a new branch in one step:**
+```bash
+git checkout -b new-branch-name
+```
+
+**If Git refuses to switch because you have uncommitted changes:**
+
+**Option A — commit your work first** (recommended if it's finished or close to it):
+```bash
+git add .
+git commit -m "WIP: description of what you were doing"
+git checkout other-branch
+```
+
+**Option B — stash it temporarily** (if it's half-done and you don't want a WIP commit):
+```bash
+git stash
+git checkout other-branch
+# ... do whatever you needed on the other branch ...
+git checkout your-original-branch
+git stash pop        # brings your half-done work back
+```
+
+---
+
+## Quick Reference Table
+
+| I want to... | Command |
+|---|---|
+| See what branch I'm on | `git branch` (look for the `*`) |
+| See every branch (local + remote) | `git branch -a` |
+| Get a teammate's branch onto my machine | `git fetch origin` then `git checkout <branch-name>` |
+| Update my current branch with the latest remote commits | `git pull` |
+| Bring `main`'s latest changes into my feature branch | `git checkout main && git pull && git checkout my-branch && git merge main` |
+| Create and switch to a new branch | `git checkout -b my-new-branch` |
+| Switch branches without losing uncommitted work | `git stash` → switch → `git stash pop` |
+| Get my finished work onto `main` | Push branch → open PR on GitHub → get approval → click Merge |
+| Delete a branch after it's merged | Click "Delete branch" on the merged PR page, then locally: `git branch -d branch-name` |

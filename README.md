@@ -1,5 +1,3 @@
-Absolutely. I’ll make it **README-quality for GitHub/SIH**, taking inspiration from your technical documentation while **not including the development phases**. I’ll also avoid presenting planned features as if they are already implemented.
-
 # UdyamSaarthi-AI
 
 > ### **Hyper-Local Business Advisory & Financial Structuring Platform for Rural Entrepreneurs**

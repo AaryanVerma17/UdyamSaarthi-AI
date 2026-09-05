@@ -91,6 +91,114 @@
 .badge--not_recommended { background: #fdecea; color: #c62828; }
 .narrative { margin-top: 12px; color: #444; line-height: 1.5; }
 
+.competitor-map {
+  margin-top: 12px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 4px;
+}
+.competitor-map__empty {
+  margin-top: 12px;
+  color: #777;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.confidence-badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+.confidence-badge--verified { background: #e8f5e9; color: #2e7d32; }
+.confidence-badge--estimate { background: #fff3e0; color: #e65100; }
+
+.field-report-note {
+  font-size: 13px;
+  color: #777;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.saturation-alert {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 10px;
+}
+.saturation-alert__title {
+  font-weight: 600;
+  color: #e65100;
+  margin: 0 0 6px 0;
+}
+.saturation-alert ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.improvement-suggestions__label {
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+}
+
+.field-error {
+  color: #c62828;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.field-group input.invalid, .field-group select.invalid {
+  border-color: #c62828;
+}
+
+/* --- Responsive breakpoints (Himanshi) --- */
+@media (max-width: 600px) {
+  .page {
+    padding: 20px 12px 60px;
+  }
+  .app-header h1 {
+    font-size: 22px;
+  }
+  .app-header p {
+    font-size: 13px;
+  }
+  .intake-form {
+    padding: 16px;
+    gap: 10px;
+  }
+  .field-group input, .field-group select {
+    font-size: 16px; /* prevents iOS auto-zoom on focus */
+    padding: 12px;
+  }
+  .report__section {
+    padding: 14px 16px;
+  }
+  .viability-gauge__ring {
+    width: 96px;
+    height: 96px;
+  }
+  .viability-gauge__inner {
+    width: 74px;
+    height: 74px;
+  }
+  .viability-gauge__score {
+    font-size: 22px;
+  }
+  .competitor-map .leaflet-container {
+    height: 200px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .lang-switch button {
+    padding: 3px 8px;
+    font-size: 13px;
+  }
+}
+
 .reset-btn {
   margin-top: 20px;
   background: none;

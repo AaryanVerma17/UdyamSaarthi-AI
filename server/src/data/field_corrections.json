@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "description": "Ground-truth corrections from field visits (SCA/CA officers). Start here; migrate to a `ground_truth_corrections` Postgres table once volume grows past what a flat file can manage. Keyed by buildCorrectionKey() in fieldCorrections.js.",
+    "ttlDays": 150
+  },
+  "corrections": [
+    {
+      "key": "village:Village X|district:District Z|business:Dairy|metric:competitorCount",
+      "value": 9,
+      "verified": true,
+      "source": "CA officer field visit",
+      "verifiedAt": "2026-08-20T00:00:00.000Z",
+      "note": "Field visit counted 9 dairy outlets/stalls, including informal ones not in any online listing."
+    },
+    {
+      "key": "village:Village X|district:District Z|business:Kirana|metric:consumerBase",
+      "value": 3900,
+      "verified": false,
+      "source": "Unverified resident report (WhatsApp survey)",
+      "verifiedAt": "2026-08-15T00:00:00.000Z",
+      "note": "A resident reported a lower active population than the census estimate. Not independently confirmed — surfaced, not applied."
+    }
+  ]
+}

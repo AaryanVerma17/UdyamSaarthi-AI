@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 
+// Fail fast instead of buffering operations for 10s when disconnected —
+// without this, every /feasibility/generate call would silently hang for
+// 10 extra seconds trying to persist before giving up.
+mongoose.set("bufferCommands", false);
+
 async function connectDB() {
   const uri = process.env.MONGO_URI || "mongodb://localhost:27017/udyamsaarthi";
   try {

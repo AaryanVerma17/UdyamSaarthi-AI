@@ -19,6 +19,18 @@
     "recommendation": "अंतिम सिफारिश",
     "proceed": "आगे बढ़ें",
     "proceed_with_caution": "सावधानी से आगे बढ़ें",
-    "not_recommended": "अनुशंसित नहीं"
+    "not_recommended": "अनुशंसित नहीं",
+    "financialStructure": "वित्तीय संरचना",
+    "repaymentCapacity": "चुकौती क्षमता",
+    "workingCapitalAllocation": "कार्यशील पूंजी आवंटन",
+    "competitorMapping": "प्रतिस्पर्धी मानचित्रण",
+    "competitorsFound": "पहचाने गए प्रतिस्पर्धी पाए गए",
+    "classifiedAs": "वर्गीकृत",
+    "opportunityFinder": "अवसर खोजक",
+    "requested": "अनुरोधित",
+    "localizedPricing": "स्थानीय मूल्य निर्धारण",
+    "confidence": "विश्वसनीयता",
+    "riskAnalysis": "जोखिम विश्लेषण",
+    "startOver": "फिर से शुरू करें"
   }
 }

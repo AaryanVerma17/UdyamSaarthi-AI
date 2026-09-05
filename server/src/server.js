@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { connectDB } = require("./config/db");
+const { connectPostgres } = require("./config/postgres");
 const { errorHandler } = require("./middlewares/errorHandler");
 
 const authRoutes = require("./routes/authRoutes");
@@ -24,6 +25,7 @@ app.use(errorHandler);
 
 async function start() {
   await connectDB();
+  await connectPostgres();
   app.listen(PORT, () => {
     console.log(`[server] UdyamSaarthi-AI orchestration API listening on port ${PORT}`);
   });

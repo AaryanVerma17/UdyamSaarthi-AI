@@ -17,6 +17,7 @@ class Location(BaseModel):
 
 
 class GeoContext(BaseModel):
+    village: Optional[str] = None
     consumerBase: int
     purchasingPowerIndex: str
     existingBusinessDensity: int
@@ -26,6 +27,7 @@ class GeoContext(BaseModel):
     radiusKm: int = 8
     dataConfidence: Literal["low", "medium", "high"] = "medium"
     dataSource: str = "mock_v1"
+    lastUpdated: Optional[str] = None
 
 
 class ViabilityRequest(BaseModel):
@@ -60,6 +62,7 @@ class CompetitorMappingResponse(BaseModel):
     classification: Literal["under_served", "moderately_competitive", "highly_saturated"]
     points: List[CompetitorPoint]
     dataConfidenceNote: str = "Reflects identifiable competitors found using available data sources; informal/unlisted businesses may not be captured."
+    lastUpdated: Optional[str] = None
 
 
 class OpportunityRequest(BaseModel):
@@ -71,6 +74,7 @@ class OpportunityRequest(BaseModel):
 class OpportunityItem(BaseModel):
     business: str
     score: int
+    classification: Optional[Literal["under_served", "moderately_competitive", "highly_saturated"]] = None
 
 
 class OpportunityResponse(BaseModel):
@@ -105,9 +109,11 @@ class PricingResponse(BaseModel):
     unit: str
     confidence: Literal["low", "medium", "high"]
     basedOn: List[str]
+    lastUpdated: Optional[str] = None
 
 
 class ExplainRequest(BaseModel):
+    businessCategory: str
     viability: dict
     competitorMapping: dict
     opportunities: dict

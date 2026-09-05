@@ -41,7 +41,7 @@ export default function Home() {
         <>
           <Report report={report} />
           <button className="reset-btn" onClick={reset}>
-            ← Start Over
+            ← {t("report.startOver")}
           </button>
         </>
       )}

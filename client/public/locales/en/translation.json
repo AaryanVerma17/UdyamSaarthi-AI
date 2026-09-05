@@ -19,6 +19,18 @@
     "recommendation": "Final Recommendation",
     "proceed": "Proceed",
     "proceed_with_caution": "Proceed with Caution",
-    "not_recommended": "Not Recommended"
+    "not_recommended": "Not Recommended",
+    "financialStructure": "Financial Structure",
+    "repaymentCapacity": "Repayment Capacity",
+    "workingCapitalAllocation": "Working Capital Allocation",
+    "competitorMapping": "Competitor Mapping",
+    "competitorsFound": "identifiable competitors found",
+    "classifiedAs": "classified as",
+    "opportunityFinder": "Opportunity Finder",
+    "requested": "Requested",
+    "localizedPricing": "Localized Pricing",
+    "confidence": "confidence",
+    "riskAnalysis": "Risk Analysis",
+    "startOver": "Start Over"
   }
 }

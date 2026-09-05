@@ -1,0 +1,125 @@
+{
+  "_meta": {
+    "description": "Demo/seed dataset for the Village X / Block Y / District Z SIH demo scenario, plus a few extra villages for variety. Replace with real Census 2027 (where published) + Census 2011 + agri/mandi ingestion output. Track source and year per record.",
+    "source": "seed_demo_v1",
+    "lastUpdated": "2026-08-31"
+  },
+  "villages": [
+    {
+      "village": "Village X",
+      "block": "Block Y",
+      "district": "District Z",
+      "state": "Uttar Pradesh",
+      "lat": 26.85,
+      "lng": 80.95,
+      "consumerBase": 4200,
+      "purchasingPowerIndex": "medium",
+      "livestockIndex": "high",
+      "existingBusinesses": [
+        {
+          "name": "Sharma Dairy",
+          "category": "Dairy",
+          "lat": 26.853,
+          "lng": 80.947
+        },
+        {
+          "name": "Village Milk Co-op",
+          "category": "Dairy",
+          "lat": 26.848,
+          "lng": 80.953
+        },
+        {
+          "name": "Gupta Dairy Farm",
+          "category": "Dairy",
+          "lat": 26.855,
+          "lng": 80.945
+        },
+        {
+          "name": "Kumar Kirana Store",
+          "category": "Kirana",
+          "lat": 26.851,
+          "lng": 80.951
+        },
+        {
+          "name": "Ram Tailors",
+          "category": "Tailoring",
+          "lat": 26.849,
+          "lng": 80.949
+        },
+        {
+          "name": "Verma General Store",
+          "category": "Kirana",
+          "lat": 26.852,
+          "lng": 80.946
+        }
+      ],
+      "marketsAndHaats": [
+        "Village X Weekly Haat (Tuesdays)",
+        "Block Y Market"
+      ],
+      "distributionChannels": [
+        "local haat",
+        "cooperative society",
+        "direct retail"
+      ],
+      "mandiPrices": {
+        "milk_per_litre": [
+          30,
+          42
+        ],
+        "wheat_per_quintal": [
+          2100,
+          2300
+        ]
+      },
+      "dataConfidence": "medium",
+      "dataSource": "seed_demo_v1 (Census 2011 baseline, not yet Census 2027 verified)",
+      "lastUpdated": "2026-08-10T00:00:00.000Z"
+    },
+    {
+      "village": "Rampur",
+      "block": "Sadar",
+      "district": "Lucknow",
+      "state": "Uttar Pradesh",
+      "lat": 26.9,
+      "lng": 80.9,
+      "consumerBase": 6100,
+      "purchasingPowerIndex": "medium-high",
+      "livestockIndex": "medium",
+      "existingBusinesses": [
+        {
+          "name": "Rampur Dairy",
+          "category": "Dairy",
+          "lat": 26.901,
+          "lng": 80.902
+        },
+        {
+          "name": "City Kirana",
+          "category": "Kirana",
+          "lat": 26.899,
+          "lng": 80.898
+        }
+      ],
+      "marketsAndHaats": [
+        "Sadar Market"
+      ],
+      "distributionChannels": [
+        "direct retail",
+        "wholesale market"
+      ],
+      "mandiPrices": {
+        "milk_per_litre": [
+          32,
+          46
+        ],
+        "wheat_per_quintal": [
+          2150,
+          2350
+        ]
+      },
+      "dataConfidence": "low",
+      "dataSource": "seed_demo_v1 (limited data available)",
+      "lastUpdated": "2026-02-01T00:00:00.000Z"
+    }
+  ]
+}

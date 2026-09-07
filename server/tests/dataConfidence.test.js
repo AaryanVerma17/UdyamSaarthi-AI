@@ -1,20 +1,4 @@
-const {
-  confidenceFromAge,
-  wrapMetric,
-} = require("../src/services/dataConfidence");
-
-// Freeze time so all calls to Date.now() are deterministic.
-// This is especially important for the 90/180-day boundary tests.
-const FIXED_NOW = new Date("2026-09-05T16:20:20.000Z");
-
-beforeAll(() => {
-  jest.useFakeTimers();
-  jest.setSystemTime(FIXED_NOW);
-});
-
-afterAll(() => {
-  jest.useRealTimers();
-});
+const { confidenceFromAge, wrapMetric } = require("../src/services/dataConfidence");
 
 function daysAgo(n) {
   return new Date(
@@ -67,6 +51,8 @@ describe("dataConfidence — confidenceFromAge", () => {
 
 describe("dataConfidence — wrapMetric", () => {
   test("wraps a fresh online value as high confidence, unverified", () => {
+    // Capture the timestamp once so the expected value
+    // is exactly the same timestamp passed to wrapMetric().
     const lastUpdated = daysAgo(5);
 
     const wrapped = wrapMetric(9200, {

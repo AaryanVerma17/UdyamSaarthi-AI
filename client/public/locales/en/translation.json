@@ -1,36 +1,111 @@
 {
+  "appEyebrow": "Rural Business Intelligence",
   "appTitle": "UdyamSaarthi-AI",
-  "tagline": "Your local business advisor and loan planner",
-  "form": {
-    "village": "Village",
-    "block": "Block",
-    "district": "District",
-    "state": "State",
-    "ownCapital": "Your Available Capital (₹)",
-    "businessCategory": "Business You Want to Start",
-    "submit": "Generate My Report"
+  "tagline": "Your local business advisor and financial planning companion",
+
+  "home": {
+    "heroTitle": "Make a more informed business decision.",
+    "heroDescription": "Tell us where you want to operate, how much capital you have, and what business you are considering. UdyamSaarthi-AI combines available local evidence with financial planning to prepare a preliminary feasibility report.",
+    "infoTitle": "What you will receive",
+    "infoDescription": "The report is designed to show both opportunity and uncertainty.",
+    "info1": "Location and local-market context",
+    "info2": "Business viability and competition signals",
+    "info3": "Financial structure and repayment planning",
+    "info4": "Risks, alternatives and data limitations"
   },
+
+  "form": {
+    "heading": "Tell us about your business idea",
+    "description": "Use your best available information. More accurate location and capital inputs improve the usefulness of the assessment.",
+
+    "village": "Village",
+    "villagePlaceholder": "Enter village name",
+
+    "block": "Block",
+    "blockPlaceholder": "Enter block",
+
+    "district": "District",
+    "districtPlaceholder": "Enter district",
+
+    "state": "State",
+    "statePlaceholder": "Enter state",
+
+    "ownCapital": "Your Available Capital (₹)",
+    "capitalPlaceholder": "e.g. 100000",
+    "capitalHelp": "Enter the amount of your own capital available for the business.",
+
+    "businessCategory": "Business You Want to Start",
+
+    "submit": "Generate My Report",
+    "generating": "Preparing your report…",
+
+    "errors": {
+      "village": "Village is required.",
+      "district": "District is required.",
+      "capitalRequired": "Please enter your available capital.",
+      "capitalPositive": "Capital must be a positive number."
+    }
+  },
+
   "report": {
-    "viabilityScore": "Viability Score",
+    "title": "Business Feasibility Report",
+    "viability": "Business Viability",
+
+    "financialStructure": "Financial Structure",
     "projectCost": "Project Cost",
     "loanAmount": "Potential Loan",
-    "scheme": "Applicable Scheme",
+    "scheme": "Configured Scheme",
+    "interestRate": "Interest Rate",
+    "tenure": "Tenure",
     "quarterlyInstallment": "Quarterly Installment",
+    "repaymentCapacity": "Repayment Capacity",
+
+    "financingRuleStatus": "Financing Rule Status",
+    "provisionalFinancialWarning": "Current financial scheme parameters are provisional and must be verified against the applicable official government guideline.",
+
+    "workingCapitalAllocation": "Working Capital Allocation",
+
+    "competitorMapping": "Competition Mapping",
+    "identifiableCompetitors": "identifiable competitors found",
+    "classifiedAs": "Market classification:",
+
+    "fieldVerified": "Field verified",
+    "identifiableData": "Identifiable data",
+    "dataUnavailable": "Data unavailable",
+
+    "opportunityFinder": "Opportunity Finder",
+    "requested": "Requested",
+    "alternatives": "Potential Alternatives",
+    "improvementSuggestions": "Ways to strengthen your chosen business",
+
+    "localizedPricing": "Localized Pricing",
+    "confidence": "Confidence",
+    "estimatedPrice": "Estimated pricing",
+    "estimatedPriceDescription": "Local verified pricing was not available, so the displayed range is a development estimate and should be validated locally.",
+
+    "riskAnalysis": "Risk Analysis",
+    "mitigation": "Mitigation",
+
+    "evidence": "Evidence & Data Coverage",
+    "locationSource": "Location data source",
+    "competitorCoverage": "Competitor data coverage",
+    "pricingStatus": "Pricing evidence",
+    "schemeRuleStatus": "Scheme-rule status",
+    "dataLimitations": "Important data limitations",
+
     "recommendation": "Final Recommendation",
     "proceed": "Proceed",
     "proceed_with_caution": "Proceed with Caution",
     "not_recommended": "Not Recommended",
-    "financialStructure": "Financial Structure",
-    "repaymentCapacity": "Repayment Capacity",
-    "workingCapitalAllocation": "Working Capital Allocation",
-    "competitorMapping": "Competitor Mapping",
-    "competitorsFound": "identifiable competitors found",
-    "classifiedAs": "classified as",
-    "opportunityFinder": "Opportunity Finder",
-    "requested": "Requested",
-    "localizedPricing": "Localized Pricing",
-    "confidence": "confidence",
-    "riskAnalysis": "Risk Analysis",
+
+    "saturationTitle": "This market shows strong competition.",
+    "saturationDescription": "Competition is a signal to investigate differentiation, not proof that the business cannot work.",
+
+    "note": "Note",
     "startOver": "Start Over"
+  },
+
+  "errors": {
+    "generic": "Something went wrong while generating the report. Please try again."
   }
 }

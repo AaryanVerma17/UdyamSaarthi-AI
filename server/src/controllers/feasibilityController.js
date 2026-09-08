@@ -38,7 +38,9 @@ const {
 
 const {
   SCHEME_RULE_STATUS,
-} = require("../../../../shared/constants/schemeRules");
+} = require(
+  "../../../shared/constants/schemeRules"
+)
 
 
 /**

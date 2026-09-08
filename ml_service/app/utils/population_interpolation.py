@@ -1,61 +1,126 @@
 """
-ml_service/app/utils/population_interpolation.py
+Population estimation utilities.
 
-Implements the "never wait for the literal next census" rule from the
-data refresh strategy (see scripts/data_ingestion/README.md). Population
-and purchasing-power figures should be interpolated forward annually
-using a state-level growth rate, not left frozen at whatever the last
-census said until the next one is published — which for Census 2027 may
-be years away from full district-level rollout.
+Important:
+Interpolation is a MODEL ESTIMATE derived from available
+reference-year data.
 
-Usage:
-    from app.utils.population_interpolation import interpolate_population
-    current_estimate = interpolate_population(
-        base_population=4200, base_year=2011, growth_rate_pct=1.8, target_year=2026
-    )
+It is NOT an official Census observation.
+
+The result must therefore always expose:
+    - source year
+    - target year
+    - growth assumption
+    - estimate status
 """
-from datetime import date
+
+from typing import Optional
 
 
-def interpolate_population(base_population: int, base_year: int, growth_rate_pct: float, target_year: int = None) -> int:
+def linear_interpolate(
+    base_population: float,
+    base_year: int,
+    target_year: int,
+    growth_rate: Optional[float] = None,
+) -> dict:
     """
-    Simple compound annual growth interpolation:
-        estimate = base_population * (1 + growth_rate_pct/100) ^ (target_year - base_year)
+    Produce an explicitly labelled population estimate.
 
-    @param base_population: population figure from the base census/survey year
-    @param base_year: the year that figure was recorded (e.g. 2011)
-    @param growth_rate_pct: annual population growth rate for the state/district (e.g. 1.8 for 1.8%)
-    @param target_year: year to interpolate to; defaults to the current year
-    @returns: interpolated population estimate for target_year, rounded to the nearest whole person
+    Parameters
+    ----------
+    base_population:
+        Population from the available reference year.
 
-    Raises ValueError if target_year is before base_year (interpolating
-    backward isn't what this function is for) or if growth_rate_pct is
-    wildly implausible (a config error is more likely than reality).
+    base_year:
+        Year of the observed reference population.
+
+    target_year:
+        Desired target year.
+
+    growth_rate:
+        Annual decimal growth assumption.
+
+        Example:
+            0.012 = 1.2% annual growth
+
+    Returns
+    -------
+    dict
+
+    If target_year == base_year:
+        The result is an observed value.
+
+    If target_year > base_year:
+        The result is explicitly labelled as a model estimate.
     """
-    if target_year is None:
-        target_year = date.today().year
 
-    if target_year < base_year:
-        raise ValueError(f"target_year ({target_year}) cannot be before base_year ({base_year})")
-
-    if not (-5 <= growth_rate_pct <= 15):
+    if base_population < 0:
         raise ValueError(
-            f"growth_rate_pct={growth_rate_pct} is outside a plausible range (-5 to 15) — "
-            f"check this isn't a typo (e.g. 18 instead of 1.8) before trusting the result"
+            "base_population cannot be negative"
         )
 
-    years_elapsed = target_year - base_year
-    estimate = base_population * ((1 + growth_rate_pct / 100) ** years_elapsed)
-    return round(estimate)
+    if base_year < 0:
+        raise ValueError(
+            "base_year must be a valid year"
+        )
 
+    if target_year < 0:
+        raise ValueError(
+            "target_year must be a valid year"
+        )
 
-def years_since_last_refresh(last_updated_iso: str, reference_date: date = None) -> float:
-    """
-    Convenience helper for deciding whether a population figure is due for
-    re-interpolation (paired with dataConfidence.js's age-based decay on
-    the Node side, but usable standalone here too).
-    """
-    if reference_date is None:
-        reference_date = date.today()
-    last_updated = date.fromisoformat(last_updated_iso[:10])
-    return (reference_date - last_updated).days / 365.25
+    if target_year < base_year:
+        raise ValueError(
+            "target_year cannot precede base_year"
+        )
+
+    # ---------------------------------------------------------
+    # Same year = observed value
+    # ---------------------------------------------------------
+    if target_year == base_year:
+        return {
+            "population": round(
+                base_population
+            ),
+            "year": target_year,
+            "type": "observed",
+            "sourceYear": base_year,
+            "isEstimate": False,
+        }
+
+    # ---------------------------------------------------------
+    # Future target year requires an explicit assumption.
+    # ---------------------------------------------------------
+    if growth_rate is None:
+        raise ValueError(
+            "growth_rate is required for interpolation"
+        )
+
+    if growth_rate <= -1:
+        raise ValueError(
+            "growth_rate must be greater than -1"
+        )
+
+    years = target_year - base_year
+
+    estimated_population = (
+        base_population
+        * ((1 + growth_rate) ** years)
+    )
+
+    return {
+        "population": round(
+            estimated_population
+        ),
+        "year": target_year,
+        "type": "model_estimate",
+        "sourceYear": base_year,
+        "growthRate": growth_rate,
+        "isEstimate": True,
+        "note": (
+            "Estimated from the available "
+            "reference-year population. "
+            "This is not an official Census "
+            "observation."
+        ),
+    }

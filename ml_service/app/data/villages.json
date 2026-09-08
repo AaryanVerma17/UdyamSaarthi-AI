@@ -1,10 +1,20 @@
 {
   "metadata": {
-    "datasetVersion": "phase3-evidence-v1",
+    "datasetVersion": "phase4-location-intelligence-v1",
     "description": "Village-level evidence records used by UdyamSaarthi-AI",
     "generatedAt": "2026-09-06",
     "defaultCoverage": "partial",
-    "warning": "Records must not be interpreted as complete coverage of all local businesses or households."
+    "warning": "Records must not be interpreted as complete coverage of all local businesses or households.",
+    "dataPolicy": {
+      "sourcePriority": [
+        "official_government",
+        "verified_local",
+        "secondary_research",
+        "assumption"
+      ],
+      "demoRecordsAreNotVerified": true,
+      "census2027MustNotBeFabricated": true
+    }
   },
   "villages": [
     {
@@ -77,7 +87,9 @@
 
       "source": "seed_demo_v1",
       "sourceType": "assumption",
+      "sourceTier": "assumption",
       "authority": "development_demo",
+
       "dataYear": 2011,
       "lastUpdated": "2026-08-10T00:00:00.000Z",
 
@@ -86,7 +98,9 @@
       "geographicPrecision": "village",
       "coverage": "partial",
       "completeness": "partial",
+
       "estimated": true,
+      "isAssumption": true,
 
       "dataNotes": "Development/demo record. Census 2011 is retained only as a historical baseline; this record is not verified against Census 2027 or current field reality. Replace with verified official or local evidence before production use."
     },
@@ -143,7 +157,9 @@
 
       "source": "seed_demo_v1",
       "sourceType": "assumption",
+      "sourceTier": "assumption",
       "authority": "development_demo",
+
       "dataYear": 2011,
       "lastUpdated": "2026-02-01T00:00:00.000Z",
 
@@ -152,9 +168,11 @@
       "geographicPrecision": "village",
       "coverage": "partial",
       "completeness": "partial",
-      "estimated": true,
 
-      "dataNotes": "Development/demo record with limited coverage. Replace with verified official or local evidence before production use."
+      "estimated": true,
+      "isAssumption": true,
+
+      "dataNotes": "Development/demo record with limited coverage. The population vintage is historical and this record is not verified against current government or field evidence. Replace with verified official or local evidence before production use."
     }
   ]
 }

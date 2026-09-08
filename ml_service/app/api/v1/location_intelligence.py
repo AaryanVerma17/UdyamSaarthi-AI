@@ -1,339 +1,517 @@
 """
-UdyamSaarthi-AI — Module 1: Location Intelligence
+Module 1 — Dynamic Location Intelligence.
 
-Phase 3 responsibilities:
-- Match the requested village to available evidence.
-- Return location intelligence with provenance.
-- Preserve source, coverage and confidence.
-- Never fabricate population/business counts.
-- Never interpret unavailable data as factual zero activity.
+Phase 4 responsibility:
+
+- Resolve the requested village using hierarchical matching.
+- Return the strongest available evidence.
+- Preserve source, year, freshness, geography and coverage.
+- Explicitly distinguish observed data from estimates.
+- Never convert missing evidence into fabricated zeros.
+- Never fabricate Census 2027 values.
 """
+
+from typing import Any, Dict
 
 from fastapi import APIRouter
 
-from app.data_access.villages import find_village
-from app.data.evidence_loader import build_village_evidence
+from app.data.evidence import build_evidence
+from app.data.location_resolver import resolve_location
 from app.schemas.models import (
     GeoContext,
     Location,
-    DataProvenance,
 )
 
 
 router = APIRouter()
 
 
-# ---------------------------------------------------------------------------
-# Fallback
-# ---------------------------------------------------------------------------
-
-def _build_fallback(location: Location) -> GeoContext:
+def _overall_confidence(
+    evidence: Dict[str, Dict[str, Any]],
+) -> str:
     """
-    Conservative fallback.
+    Determine conservative overall confidence.
 
-    Zero values mean "unavailable", not "zero consumers/businesses".
+    Rules:
+
+    - no evidence -> low
+    - any low evidence -> low
+    - otherwise any medium -> medium
+    - otherwise high
     """
 
-    provenance = DataProvenance(
-        source="No matching local record",
-        sourceType="unavailable",
-        authority="none",
-        dataYear=None,
-        lastUpdated=None,
-        geographicPrecision="unknown",
-        coverage="no_matching_village_record",
-        completeness="unknown",
-        estimated=False,
-        note=(
-            "No sufficiently reliable local dataset record was found. "
-            "Values are intentionally not fabricated."
-        ),
-    )
+    if not evidence:
+        return "low"
 
-    return GeoContext(
-        village=location.village,
-        block=location.block,
-        district=location.district,
-        state=location.state,
+    values = [
+        item.get(
+            "confidence",
+            "low",
+        )
+        for item in evidence.values()
+    ]
 
-        consumerBase=0,
-        purchasingPowerIndex="unknown",
-        existingBusinessDensity=0,
+    if "low" in values:
+        return "low"
 
-        marketsAndHaats=[],
-        distributionChannels=[],
+    if "medium" in values:
+        return "medium"
 
-        livestockIndex="unknown",
-        radiusKm=8,
+    if "high" in values:
+        return "high"
 
-        dataConfidence="low",
-        dataSource="data_unavailable",
-        lastUpdated=None,
+    return "low"
 
-        provenance=provenance,
-        evidence={},
 
-        dataLimitations=[
-            "No exact village-level evidence was found in the currently loaded dataset.",
-            "Consumer base is unavailable rather than assumed.",
-            "Business density is unavailable rather than interpreted as zero competitors.",
-            "Informal and unlisted businesses may not be captured.",
-            "Government/local data coverage should be improved before treating this location as high confidence.",
-        ],
+def _metric_value(
+    metrics: Dict[str, Dict[str, Any]],
+    name: str,
+    default: Any = None,
+) -> Any:
+    """
+    Safely extract a metric value.
+    """
 
-        dataAvailabilityNote=(
-            "No sufficiently reliable local record is currently available "
-            "for this village. Zero values represent unavailable data, "
-            "not zero population or zero businesses."
-        ),
+    metric = metrics.get(name)
 
-        isExactLocationMatch=False,
+    if not isinstance(metric, dict):
+        return default
+
+    return metric.get(
+        "value",
+        default,
     )
 
 
-# ---------------------------------------------------------------------------
-# Router
-# ---------------------------------------------------------------------------
+def _metric_metadata(
+    metrics: Dict[str, Dict[str, Any]],
+    name: str,
+) -> Dict[str, Any]:
+    """
+    Safely retrieve metric metadata.
+    """
+
+    metric = metrics.get(name)
+
+    if isinstance(metric, dict):
+        return metric
+
+    return {}
+
 
 @router.post(
     "/location-intelligence",
     response_model=GeoContext,
 )
-def location_intelligence(location: Location) -> GeoContext:
+def location_intelligence(
+    location: Location,
+) -> GeoContext:
 
-    record = find_village(
+    # ----------------------------------------------------------
+    # Resolve location
+    # ----------------------------------------------------------
+
+    resolved = resolve_location(
         village=location.village,
         block=location.block,
         district=location.district,
         state=location.state,
     )
 
-    if not record:
-        return _build_fallback(location)
-
-    evidence = build_village_evidence(record)
-
-    # ---------------------------------------------------------------
-    # Limitations
-    # ---------------------------------------------------------------
-
-    limitations = []
-
-    coverage = record.get("coverage", "unknown")
-
-    if coverage != "complete":
-        limitations.append(
-            "The source does not necessarily cover every household or business."
-        )
-
-    source = (
-        record.get("source")
-        or record.get("dataSource")
-        or "unknown"
+    metrics = resolved.get(
+        "metrics",
+        {},
     )
 
-    if source == "seed_demo_v1" or source.startswith("seed_demo_v1"):
-        limitations.append(
-            "This record is demonstration data and is not verified "
-            "government/local evidence."
+    limitations = list(
+        resolved.get(
+            "limitations",
+            [],
         )
-
-    data_year = record.get("dataYear")
-
-    if data_year and data_year < 2026:
-        limitations.append(
-            f"Some underlying information is from {data_year} and should "
-            "not be interpreted as current population/business reality."
-        )
-
-    data_notes = (
-        record.get("dataNotes")
-        or record.get("dataNote")
     )
 
-    if data_notes:
-        limitations.append(str(data_notes))
+    # ----------------------------------------------------------
+    # Build metric-level evidence.
+    #
+    # Phase 3's evidence layer remains the source of
+    # confidence/provenance normalization.
+    # ----------------------------------------------------------
 
-    # Remove duplicate limitations while preserving order.
-    limitations = list(dict.fromkeys(limitations))
+    evidence: Dict[str, Dict[str, Any]] = {}
 
-    # ---------------------------------------------------------------
-    # Provenance
-    # ---------------------------------------------------------------
+    for metric_name, metric in metrics.items():
 
-    provenance = DataProvenance(
-        source=source,
+        source = metric.get(
+            "source",
+            "estimated",
+        )
 
-        sourceType=(
-            record.get("sourceType")
-            or (
-                "assumption"
-                if source == "seed_demo_v1"
-                else "local_dataset"
+        evidence[metric_name] = build_evidence(
+            metric=metric_name,
+
+            value=metric.get(
+                "value"
+            ),
+
+            source=source,
+
+            last_updated=metric.get(
+                "lastUpdated"
+            ),
+
+            data_year=metric.get(
+                "dataYear"
+            ),
+
+            geographic_match=metric.get(
+                "geographicMatch",
+                "unknown",
+            ),
+
+            coverage=metric.get(
+                "coverage",
+                "unknown",
+            ),
+
+            notes=metric.get(
+                "dataNotes"
+            ),
+        )
+
+        # Preserve estimate/assumption state
+        # from the resolved record where available.
+
+        evidence[metric_name][
+            "isAssumption"
+        ] = bool(
+            metric.get(
+                "isAssumption",
+                evidence[metric_name].get(
+                    "isAssumption",
+                    False,
+                ),
             )
-        ),
+        )
 
-        authority=record.get(
-            "authority",
-            "unknown",
-        ),
+    # ----------------------------------------------------------
+    # Overall confidence
+    # ----------------------------------------------------------
 
-        dataYear=data_year,
+    confidence = _overall_confidence(
+        evidence
+    )
 
-        lastUpdated=record.get(
-            "lastUpdated"
-        ),
+    # ----------------------------------------------------------
+    # Core metrics
+    # ----------------------------------------------------------
 
-        geographicPrecision=record.get(
-            "geographicPrecision",
-            "village",
-        ),
+    consumer_metric = _metric_metadata(
+        metrics,
+        "consumerBase",
+    )
 
-        coverage=coverage,
+    consumer_base = _metric_value(
+        metrics,
+        "consumerBase",
+        None,
+    )
 
-        completeness=record.get(
-            "completeness",
-            "unknown",
-        ),
+    business_density = _metric_value(
+        metrics,
+        "existingBusinessDensity",
+        None,
+    )
 
-        estimated=bool(
-            record.get(
-                "estimated",
-                source == "seed_demo_v1",
+    livestock_index = _metric_value(
+        metrics,
+        "livestockIndex",
+        "unknown",
+    )
+
+    purchasing_power = _metric_value(
+        metrics,
+        "purchasingPowerIndex",
+        "unknown",
+    )
+
+    markets = _metric_value(
+        metrics,
+        "marketsAndHaats",
+        [],
+    )
+
+    channels = _metric_value(
+        metrics,
+        "distributionChannels",
+        [],
+    )
+
+    # ----------------------------------------------------------
+    # Population metadata
+    # ----------------------------------------------------------
+
+    population_year = consumer_metric.get(
+        "dataYear"
+    )
+
+    population_is_estimate = bool(
+        consumer_metric.get(
+            "estimated",
+            consumer_metric.get(
+                "isAssumption",
+                False,
+            ),
+        )
+    )
+
+    # ----------------------------------------------------------
+    # Government-data availability
+    #
+    # This means government-origin evidence exists.
+    # It does NOT mean every metric is government data.
+    # ----------------------------------------------------------
+
+    government_sources = {
+        "census",
+        "udyam",
+        "asuse",
+        "government",
+        "government_market",
+    }
+
+    government_data_available = any(
+        str(
+            item.get(
+                "sourceKey",
+                item.get(
+                    "source",
+                    "",
+                ),
             )
-        ),
-
-        note=data_notes,
+        ).lower()
+        in government_sources
+        for item in evidence.values()
     )
 
-    # ---------------------------------------------------------------
-    # Confidence
-    # ---------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Registered business count
+    #
+    # This can come from a future Udyam provider.
+    # Do not infer it from existingBusinessDensity.
+    # ----------------------------------------------------------
 
-    data_confidence = record.get(
-        "dataConfidence",
-        "low",
+    registered_business_count = resolved.get(
+        "registeredBusinessCount"
     )
 
-    if data_confidence not in {
-        "low",
-        "medium",
-        "high",
-    }:
-        data_confidence = "low"
+    # ----------------------------------------------------------
+    # Informal-sector availability
+    # ----------------------------------------------------------
 
-    # ---------------------------------------------------------------
-    # Location match
-    # ---------------------------------------------------------------
-
-    exact_match = (
-        str(record.get("village", "")).strip().lower()
-        == location.village.strip().lower()
-        and
-        str(record.get("district", "")).strip().lower()
-        == location.district.strip().lower()
+    informal_business_estimate_available = bool(
+        resolved.get(
+            "informalBusinessEstimateAvailable",
+            False,
+        )
     )
 
-    # ---------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Sources
+    # ----------------------------------------------------------
+
+    sources = list(
+        dict.fromkeys(
+            str(
+                item.get(
+                    "source",
+                    "unknown",
+                )
+            )
+            for item in evidence.values()
+            if item.get(
+                "source"
+            )
+        )
+    )
+
+    if not sources:
+        sources = list(
+            dict.fromkeys(
+                str(source)
+                for source in resolved.get(
+                    "sources",
+                    []
+                )
+                if source
+            )
+        )
+
+    # ----------------------------------------------------------
+    # Last updated
+    # ----------------------------------------------------------
+
+    updated_values = [
+        item.get("lastUpdated")
+        for item in metrics.values()
+        if item.get("lastUpdated")
+    ]
+
+    last_updated = (
+        max(updated_values)
+        if updated_values
+        else None
+    )
+
+    # ----------------------------------------------------------
+    # Explicit limitations
+    # ----------------------------------------------------------
+
+    if not resolved.get(
+        "exactMatch",
+        False,
+    ):
+        if not limitations:
+            limitations.append(
+                "No exact village-level evidence "
+                "was found in the currently loaded "
+                "location datasets."
+            )
+
+    if (
+        consumer_base is None
+        and "Consumer base is unavailable rather than assumed."
+        not in limitations
+    ):
+        limitations.append(
+            "Consumer base is unavailable rather than assumed."
+        )
+
+    if (
+        business_density is None
+        and "Business density is unavailable rather than interpreted as zero competitors."
+        not in limitations
+    ):
+        limitations.append(
+            "Business density is unavailable rather than "
+            "interpreted as zero competitors."
+        )
+
+    # ----------------------------------------------------------
+    # Demonstration-data warning
+    # ----------------------------------------------------------
+
+    if any(
+        str(
+            item.get(
+                "source",
+                ""
+            )
+        ).lower()
+        == "seed_demo_v1"
+        for item in metrics.values()
+    ):
+        limitations.append(
+            "This record is demonstration data and "
+            "is not verified government/local evidence."
+        )
+
+    # ----------------------------------------------------------
+    # Historical data warning
+    # ----------------------------------------------------------
+
+    if (
+        population_year is not None
+        and population_year < 2026
+        and not population_is_estimate
+    ):
+        limitations.append(
+            f"Population evidence is from {population_year}. "
+            "It is an observed historical value and should "
+            "not be interpreted as a current population count."
+        )
+
+    # ----------------------------------------------------------
     # Return
-    # ---------------------------------------------------------------
+    # ----------------------------------------------------------
 
     return GeoContext(
-        village=record.get(
-            "village",
-            location.village,
+        village=location.village,
+        block=location.block,
+        district=location.district,
+        state=location.state,
+
+        consumerBase=consumer_base,
+
+        purchasingPowerIndex=purchasing_power,
+
+        existingBusinessDensity=business_density,
+
+        marketsAndHaats=(
+            markets
+            if isinstance(
+                markets,
+                list,
+            )
+            else []
         ),
 
-        block=record.get(
-            "block",
-            location.block,
+        distributionChannels=(
+            channels
+            if isinstance(
+                channels,
+                list,
+            )
+            else []
         ),
 
-        district=record.get(
-            "district",
-            location.district,
+        livestockIndex=livestock_index,
+
+        radiusKm=8,
+
+        dataConfidence=confidence,
+
+        dataSource=(
+            sources[0]
+            if len(sources) == 1
+            else (
+                "multiple_sources"
+                if sources
+                else "estimated"
+            )
         ),
 
-        state=record.get(
-            "state",
-            location.state,
-        ),
-
-        consumerBase=max(
-            0,
-            int(
-                record.get(
-                    "consumerBase",
-                    0,
-                )
-            ),
-        ),
-
-        purchasingPowerIndex=record.get(
-            "purchasingPowerIndex",
-            "unknown",
-        ),
-
-        existingBusinessDensity=max(
-            0,
-            int(
-                record.get(
-                    "existingBusinessDensity",
-                    len(
-                        record.get(
-                            "existingBusinesses",
-                            [],
-                        )
-                    ),
-                )
-            ),
-        ),
-
-        marketsAndHaats=record.get(
-            "marketsAndHaats",
-            [],
-        ),
-
-        distributionChannels=record.get(
-            "distributionChannels",
-            [],
-        ),
-
-        livestockIndex=record.get(
-            "livestockIndex",
-            "unknown",
-        ),
-
-        radiusKm=max(
-            1,
-            int(
-                record.get(
-                    "radiusKm",
-                    8,
-                )
-            ),
-        ),
-
-        dataConfidence=data_confidence,
-
-        dataSource=source,
-
-        lastUpdated=record.get(
-            "lastUpdated"
-        ),
-
-        provenance=provenance,
+        lastUpdated=last_updated,
 
         evidence=evidence,
 
-        dataLimitations=limitations,
-
-        dataAvailabilityNote=(
-            data_notes
-            or
-            "Figures reflect the available dataset and may not capture "
-            "informal or unlisted businesses."
+        dataLimitations=list(
+            dict.fromkeys(
+                limitations
+            )
         ),
 
-        isExactLocationMatch=exact_match,
+        isExactLocationMatch=bool(
+            resolved.get(
+                "exactMatch",
+                False,
+            )
+        ),
+
+        populationYear=population_year,
+
+        populationIsEstimate=(
+            population_is_estimate
+        ),
+
+        governmentDataAvailable=(
+            government_data_available
+        ),
+
+        registeredBusinessCount=(
+            registered_business_count
+        ),
+
+        informalBusinessEstimateAvailable=(
+            informal_business_estimate_available
+        ),
     )

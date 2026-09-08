@@ -5,15 +5,16 @@ Important:
 Village names are NOT globally unique.
 
 Matching therefore uses:
-
     village + district + state
+and optionally:
+    + block
 
-and optionally block where available.
+A village is NEVER matched using village name alone.
 """
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 DATA_FILE = (
@@ -24,24 +25,48 @@ DATA_FILE = (
 
 
 def _normalize(value: Optional[str]) -> str:
+    """
+    Normalize user/data values for safe comparison.
+    """
     if value is None:
         return ""
 
     return " ".join(
-        str(value).strip().lower().split()
+        str(value)
+        .strip()
+        .lower()
+        .split()
     )
 
 
-def load_villages():
+def load_villages() -> List[Dict[str, Any]]:
+    """
+    Load normalized village records.
+
+    Supports both:
+        {"villages": [...]}
+
+    and:
+        [...]
+    """
+
     with DATA_FILE.open(
         "r",
         encoding="utf-8",
     ) as file:
-
         payload = json.load(file)
 
     if isinstance(payload, dict):
-        return payload.get("villages", [])
+        villages = payload.get(
+            "villages",
+            [],
+        )
+
+        return (
+            villages
+            if isinstance(villages, list)
+            else []
+        )
 
     if isinstance(payload, list):
         return payload
@@ -55,23 +80,36 @@ def find_village(
     state: Optional[str] = None,
     block: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:
+    """
+    Find an exact village record.
+
+    Matching hierarchy:
+
+    1. village + block + district + state
+    2. village + district + state
+
+    Deliberately does NOT match village name alone.
+
+    This prevents a village with the same name in another
+    district/state from receiving incorrect data.
+    """
 
     target_village = _normalize(village)
+    target_block = _normalize(block)
     target_district = _normalize(district)
     target_state = _normalize(state)
-    target_block = _normalize(block)
 
     if not target_village:
         return None
 
     records = load_villages()
 
+    # ---------------------------------------------------------
     # Strongest match:
     # village + block + district + state
+    # ---------------------------------------------------------
     if target_block:
-
         for record in records:
-
             if (
                 _normalize(record.get("village"))
                 == target_village
@@ -84,9 +122,10 @@ def find_village(
             ):
                 return record
 
-    # village + district + state
+    # ---------------------------------------------------------
+    # Exact village + district + state
+    # ---------------------------------------------------------
     for record in records:
-
         if (
             _normalize(record.get("village"))
             == target_village
@@ -97,11 +136,46 @@ def find_village(
         ):
             return record
 
-    # Never match by village name alone.
-    #
-    # The same village name can exist in multiple districts.
-    #
-    # Returning the first match could silently attach
-    # incorrect population/business/economic data.
-
+    # ---------------------------------------------------------
+    # NEVER match by village name alone.
+    # ---------------------------------------------------------
     return None
+
+
+def find_by_district(
+    district: str,
+    state: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Return records for district-level fallback analysis.
+
+    IMPORTANT:
+    These records must never be silently presented as
+    exact village observations.
+    """
+
+    target_district = _normalize(district)
+    target_state = _normalize(state)
+
+    if not target_district:
+        return []
+
+    records: List[Dict[str, Any]] = []
+
+    for record in load_villages():
+        if (
+            _normalize(record.get("district"))
+            != target_district
+        ):
+            continue
+
+        if target_state:
+            if (
+                _normalize(record.get("state"))
+                != target_state
+            ):
+                continue
+
+        records.append(record)
+
+    return records

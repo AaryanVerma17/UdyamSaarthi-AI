@@ -1,11 +1,12 @@
 """
 UdyamSaarthi-AI — Pydantic models shared across ML service endpoints.
 
-Phase 3:
+Phase 4:
 - Preserves existing endpoint contracts.
 - Adds explicit evidence/provenance metadata.
 - Distinguishes observed/identifiable data from estimates.
 - Prevents missing data from being interpreted as factual zero.
+- Adds population vintage and government-data availability metadata.
 """
 
 from typing import Any, Dict, List, Optional, Literal
@@ -43,22 +44,24 @@ class Location(BaseModel):
 
 class DataProvenance(BaseModel):
     """
-    Provenance metadata for the location-level dataset.
+    Provenance metadata for location-level evidence.
 
     These fields describe where the evidence came from and how reliable
-    the geographic/data coverage is. They do NOT imply that the underlying
-    value is complete merely because the record exists.
+    the geographic/data coverage is.
     """
 
     source: str = "unknown"
 
-    # Human-readable source classification.
-    # Examples: official, verified_local, secondary, assumption,
-    # unavailable, local_dataset.
+    # Examples:
+    # official
+    # verified_local
+    # secondary
+    # assumption
+    # unavailable
+    # local_dataset
     sourceType: str = "unknown"
 
-    # Authority descriptor or numeric authority may be represented by
-    # downstream services. Keep this flexible for backwards compatibility.
+    # Can be a descriptor or numeric authority score.
     authority: Any = "unknown"
 
     dataYear: Optional[int] = None
@@ -77,8 +80,8 @@ class EvidenceItem(BaseModel):
     """
     Metric-level evidence.
 
-    Used by Phase 3 so every important location metric can carry its own
-    provenance instead of relying only on one overall confidence value.
+    Each important location metric can carry its own provenance rather
+    than relying only on one overall confidence value.
     """
 
     metric: str
@@ -87,6 +90,7 @@ class EvidenceItem(BaseModel):
     source: str = "unknown"
     sourceKey: str = "unknown"
     sourceTier: str = "assumption"
+
     authorityScore: int = 10
 
     dataYear: Optional[int] = None
@@ -103,6 +107,40 @@ class EvidenceItem(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Phase 4 location evidence
+# ---------------------------------------------------------------------------
+
+class LocationEvidence(BaseModel):
+    """
+    Standardized Phase 4 evidence object for a location metric.
+
+    This is intentionally separate from the older EvidenceItem contract
+    so Phase 4 can expose a richer normalized evidence structure while
+    existing endpoint consumers remain compatible.
+    """
+
+    metric: str
+    value: Any
+
+    source: str
+    sourceKey: str = "unknown"
+    sourceTier: str = "assumption"
+
+    dataYear: Optional[int] = None
+    lastUpdated: Optional[str] = None
+
+    geographicMatch: str = "unknown"
+    coverage: str = "unknown"
+
+    confidence: ConfidenceLevel = "low"
+
+    isEstimate: bool = False
+    isAssumption: bool = False
+
+    note: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
 # Location intelligence
 # ---------------------------------------------------------------------------
 
@@ -111,9 +149,11 @@ class GeoContext(BaseModel):
     Location intelligence returned by Module 1.
 
     IMPORTANT:
-    consumerBase=0 or existingBusinessDensity=0 can mean that the value
-    is unavailable. Downstream modules must check confidence/provenance
-    before interpreting zero as actual activity.
+
+    None means reliable evidence is unavailable.
+
+    A missing observation must NOT be interpreted as zero consumers,
+    zero businesses, or zero market activity.
     """
 
     village: Optional[str] = None
@@ -121,15 +161,19 @@ class GeoContext(BaseModel):
     district: Optional[str] = None
     state: Optional[str] = None
 
-    consumerBase: int = Field(
-        default=0,
+    # -----------------------------------------------------------------------
+    # Core location metrics
+    # -----------------------------------------------------------------------
+
+    consumerBase: Optional[int] = Field(
+        default=None,
         ge=0,
     )
 
     purchasingPowerIndex: str = "unknown"
 
-    existingBusinessDensity: int = Field(
-        default=0,
+    existingBusinessDensity: Optional[int] = Field(
+        default=None,
         ge=0,
     )
 
@@ -148,18 +192,22 @@ class GeoContext(BaseModel):
         ge=1,
     )
 
+    # -----------------------------------------------------------------------
+    # Confidence / source metadata
+    # -----------------------------------------------------------------------
+
     dataConfidence: ConfidenceLevel = "low"
 
     dataSource: str = "unknown"
 
     lastUpdated: Optional[str] = None
 
-    # Phase 3 overall provenance.
+    # Overall provenance from Phase 3.
     provenance: DataProvenance = Field(
         default_factory=DataProvenance
     )
 
-    # Phase 3 metric-level evidence.
+    # Existing Phase 3 metric-level evidence.
     evidence: Dict[str, EvidenceItem] = Field(
         default_factory=dict
     )
@@ -174,6 +222,27 @@ class GeoContext(BaseModel):
     )
 
     isExactLocationMatch: bool = False
+
+    # -----------------------------------------------------------------------
+    # Phase 4 population / government data metadata
+    # -----------------------------------------------------------------------
+
+    populationYear: Optional[int] = None
+
+    # True only when population is derived/estimated rather than directly
+    # observed for the stated population year.
+    populationIsEstimate: bool = False
+
+    governmentDataAvailable: bool = False
+
+    # Registered enterprise count from a government registry such as Udyam.
+    # Do NOT infer this from existingBusinessDensity.
+    registeredBusinessCount: Optional[int] = Field(
+        default=None,
+        ge=0,
+    )
+
+    informalBusinessEstimateAvailable: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -248,7 +317,7 @@ class CompetitorMappingResponse(BaseModel):
 
     identifiable: bool = False
 
-    # Evidence/provenance fields required by Phase 3.
+    # Evidence/provenance fields.
     estimated: bool = False
 
     source: str = "unknown"
@@ -347,7 +416,7 @@ class PricingResponse(BaseModel):
         default_factory=list
     )
 
-    # Phase 3 provenance.
+    # Phase 3/4 provenance.
     sourceType: str = "unknown"
     sourceTier: str = "assumption"
 

@@ -40,22 +40,22 @@ const {
   SCHEME_RULE_STATUS,
 } = require(
   "../../../shared/constants/schemeRules"
-)
+);
 
 
 /**
  * Master feasibility orchestration.
  *
- * PHASE 0 principles:
+ * PHASE 0 / PHASE 3 principles:
  *
- * 1. Never convert missing data into a factual zero.
+ * 1. Never convert missing data into factual zero.
  * 2. Never represent provisional financial rules as verified government rules.
  * 3. Preserve source/provenance metadata.
  * 4. Make uncertainty visible in the final report.
  * 5. Deterministic engines remain deterministic.
  * 6. AI remains explanation-only.
+ * 7. Confidence is separate from viability.
  */
-
 async function generate(req, res, next) {
   try {
     const {
@@ -64,6 +64,10 @@ async function generate(req, res, next) {
       businessCategory,
       language = "en",
     } = req.body;
+
+    // ---------------------------------------------------------------
+    // INPUT VALIDATION
+    // ---------------------------------------------------------------
 
     if (
       !location ||
@@ -83,13 +87,17 @@ async function generate(req, res, next) {
 
     if (
       typeof ownCapital !== "number" ||
-      Number.isNaN(ownCapital) ||
+      !Number.isFinite(ownCapital) ||
       ownCapital <= 0
     ) {
       throw new InvalidInputError(
         "ownCapital must be a positive number"
       );
     }
+
+    // ---------------------------------------------------------------
+    // ML LAYER
+    // ---------------------------------------------------------------
 
     let geoContext;
     let viability;
@@ -152,52 +160,80 @@ async function generate(req, res, next) {
       );
     }
 
+    // ---------------------------------------------------------------
+    // CORRECTION SCOPE
+    // ---------------------------------------------------------------
+
     const correctionScope = {
       village: location.village,
       district: location.district,
       businessCategory,
     };
 
-    /*
-     * Consumer base
-     */
+    // ===============================================================
+    // 1. CONSUMER BASE EVIDENCE
+    // ===============================================================
+
+    const consumerEvidence =
+      geoContext.evidence?.consumerBase;
+
     let consumerBaseMetric =
       wrapMetric(
         geoContext.consumerBase,
         {
           source:
+            consumerEvidence?.source ||
             geoContext.provenance?.source ||
             geoContext.dataSource ||
             "unknown",
 
+          sourceTier:
+            consumerEvidence?.sourceTier,
+
           sourceType:
-            geoContext.provenance?.sourceType ||
-            "unknown",
+            consumerEvidence?.sourceType ||
+            geoContext.provenance?.sourceType,
 
           authority:
-            geoContext.provenance?.authority ||
+            consumerEvidence?.authorityScore ??
+            geoContext.provenance?.authority,
+
+          dataYear:
+            consumerEvidence?.dataYear ??
+            geoContext.provenance?.dataYear,
+
+          lastUpdated:
+            consumerEvidence?.lastUpdated ||
+            geoContext.lastUpdated ||
+            geoContext.provenance?.lastUpdated,
+
+          geographicMatch:
+            consumerEvidence?.geographicMatch ||
+            geoContext.provenance?.geographicMatch ||
             "unknown",
 
           coverage:
+            consumerEvidence?.coverage ||
             geoContext.provenance?.coverage ||
             "unknown",
 
-          geographicPrecision:
-            geoContext.provenance
-              ?.geographicPrecision ||
-            "unknown",
-
-          completeness:
-            geoContext.provenance
-              ?.completeness ||
-            "unknown",
-
-          lastUpdated:
-            geoContext.lastUpdated,
+          isAssumption:
+            consumerEvidence?.isAssumption ??
+            geoContext.provenance?.estimated ??
+            !geoContext.isExactLocationMatch,
 
           estimated:
-            geoContext.provenance?.estimated ||
-            false,
+            consumerEvidence?.estimated ??
+            consumerEvidence?.isAssumption ??
+            geoContext.provenance?.estimated ??
+            !geoContext.isExactLocationMatch,
+
+          note:
+            consumerEvidence?.notes ||
+            consumerEvidence?.note ||
+            geoContext.provenance?.note ||
+            geoContext.dataAvailabilityNote ||
+            geoContext.dataLimitations?.join(" "),
         }
       );
 
@@ -206,8 +242,7 @@ async function generate(req, res, next) {
         consumerBaseMetric,
         buildCorrectionKey({
           ...correctionScope,
-          metric:
-            "consumerBase",
+          metric: "consumerBase",
         })
       );
 
@@ -217,46 +252,64 @@ async function generate(req, res, next) {
     geoContext.consumerBaseConfidence =
       consumerBaseMetric;
 
-    /*
-     * Competitor count
-     */
+    // ===============================================================
+    // 2. COMPETITOR EVIDENCE
+    // ===============================================================
+
     let competitorCountMetric =
       wrapMetric(
         competitorMapping.count,
         {
           source:
             competitorMapping.source ||
-            "unknown",
+            (
+              competitorMapping.lastUpdated
+                ? "ingested business listing"
+                : "estimated"
+            ),
+
+          sourceTier:
+            competitorMapping.sourceTier,
 
           sourceType:
-            competitorMapping.identifiable
-              ? "identifiable_business_records"
-              : "unavailable",
+            competitorMapping.sourceType ||
+            (
+              competitorMapping.identifiable
+                ? "identifiable_business_records"
+                : "unavailable"
+            ),
 
           authority:
-            geoContext.provenance?.authority ||
-            "unknown",
+            competitorMapping.authorityScore ??
+            geoContext.provenance?.authority,
 
-          coverage:
-            competitorMapping.coverage ||
-            "unknown",
-
-          geographicPrecision:
-            geoContext.provenance
-              ?.geographicPrecision ||
-            "unknown",
-
-          completeness:
-            geoContext.provenance
-              ?.completeness ||
-            "unknown",
+          dataYear:
+            competitorMapping.dataYear,
 
           lastUpdated:
             competitorMapping.lastUpdated,
 
+          geographicMatch:
+            competitorMapping.geographicMatch ||
+            geoContext.provenance?.geographicMatch ||
+            "unknown",
+
+          coverage:
+            competitorMapping.coverage ||
+            "partial",
+
+          isAssumption:
+            competitorMapping.isAssumption ??
+            !competitorMapping.identifiable,
+
           estimated:
-            competitorMapping.estimated ||
-            false,
+            competitorMapping.estimated ??
+            competitorMapping.isAssumption ??
+            !competitorMapping.identifiable,
+
+          note:
+            competitorMapping.dataConfidenceNote ||
+            "Reflects identifiable competitors found using available data sources; informal or unlisted businesses may not be captured.",
         }
       );
 
@@ -265,8 +318,7 @@ async function generate(req, res, next) {
         competitorCountMetric,
         buildCorrectionKey({
           ...correctionScope,
-          metric:
-            "competitorCount",
+          metric: "competitorCount",
         })
       );
 
@@ -276,21 +328,20 @@ async function generate(req, res, next) {
     competitorMapping.countConfidence =
       competitorCountMetric;
 
-    competitorMapping.classification =
-      classifyCompetitionCount(
-        competitorMapping.count
-      );
+    // ---------------------------------------------------------------
+    // IMPORTANT:
+    // Do not interpret unavailable count = 0 competitors.
+    // ---------------------------------------------------------------
 
-    /*
-     * Important:
-     *
-     * A count of zero with unavailable data
-     * must not be interpreted as "zero competitors".
-     */
     if (
-      !competitorMapping.identifiable &&
-      !competitorCountMetric.verified
+      competitorMapping.identifiable ||
+      competitorCountMetric.verified
     ) {
+      competitorMapping.classification =
+        classifyCompetitionCount(
+          competitorMapping.count
+        );
+    } else {
       competitorMapping.classification =
         "under_served";
 
@@ -300,9 +351,10 @@ async function generate(req, res, next) {
         "informal or unlisted businesses may not be captured.";
     }
 
-    /*
-     * Keep Module 4 aligned.
-     */
+    // ---------------------------------------------------------------
+    // Keep opportunities aligned with competition result.
+    // ---------------------------------------------------------------
+
     if (
       opportunities?.requestedBusiness
     ) {
@@ -310,15 +362,33 @@ async function generate(req, res, next) {
         competitorMapping.classification;
     }
 
-    /*
-     * Pricing
-     */
+    // ===============================================================
+    // 3. PRICING EVIDENCE
+    // ===============================================================
+
+    if (
+      !Array.isArray(pricing?.range) ||
+      pricing.range.length !== 2 ||
+      pricing.range.some(
+        (value) =>
+          typeof value !== "number" ||
+          !Number.isFinite(value)
+      )
+    ) {
+      throw new AppError(
+        "ml_service returned an invalid pricing range",
+        502
+      );
+    }
+
     const priceMidpoint =
       Math.round(
         (
           pricing.range[0] +
           pricing.range[1]
-        ) / 2 * 100
+        ) /
+          2 *
+          100
       ) / 100;
 
     let priceMetric =
@@ -336,18 +406,45 @@ async function generate(req, res, next) {
               pricing.basedOn
             )
               ? pricing.basedOn.join("; ")
-              : pricing.basedOn,
+              : pricing.basedOn ||
+                "unknown",
+
+          sourceTier:
+            pricing.sourceTier,
 
           sourceType:
             pricing.sourceType ||
             "unknown",
 
+          authority:
+            pricing.authorityScore,
+
+          dataYear:
+            pricing.dataYear,
+
           lastUpdated:
             pricing.lastUpdated,
 
+          geographicMatch:
+            pricing.geographicMatch ||
+            "unknown",
+
+          coverage:
+            pricing.coverage ||
+            "partial",
+
+          isAssumption:
+            pricing.isAssumption ??
+            pricing.estimated ??
+            pricing.confidence === "low",
+
           estimated:
-            pricing.estimated ||
-            false,
+            pricing.estimated ??
+            pricing.isAssumption ??
+            pricing.confidence === "low",
+
+          confidence:
+            pricing.confidence,
         }
       );
 
@@ -356,11 +453,11 @@ async function generate(req, res, next) {
         priceMetric,
         buildCorrectionKey({
           ...correctionScope,
-          metric:
-            "priceRange",
+          metric: "priceRange",
         })
       );
 
+    // A verified field correction replaces the midpoint.
     if (priceMetric.verified) {
       pricing.range = [
         priceMetric.value,
@@ -371,26 +468,46 @@ async function generate(req, res, next) {
     pricing.rangeConfidence =
       priceMetric;
 
-    /*
-     * DETERMINISTIC FINANCIAL LAYER
-     */
+    // Explicit convenience flags for frontend.
+    pricing.estimated =
+      Boolean(priceMetric.estimated);
+
+    pricing.confidence =
+      priceMetric.confidence;
+
+    // ===============================================================
+    // 4. DETERMINISTIC FINANCIAL LAYER
+    // ===============================================================
+
     const financials =
       financialEngine.calculate(
         ownCapital
       );
 
-    /*
-     * Current scheme rules are provisional.
-     */
+    // ---------------------------------------------------------------
+    // Scheme rules are currently provisional.
+    // ---------------------------------------------------------------
+
     const scheme =
       schemeRouter.route(
         financials.projectCost
       );
 
-    /*
-     * Phase 0:
-     * viability no longer invents cash flow.
-     */
+    // Guarantee provisional status is surfaced.
+    if (!scheme.ruleStatus) {
+      scheme.ruleStatus =
+        SCHEME_RULE_STATUS;
+    }
+
+    if (!scheme.applicability) {
+      scheme.applicability =
+        "provisional";
+    }
+
+    // ===============================================================
+    // 5. REPAYMENT
+    // ===============================================================
+
     const repayment =
       repaymentPlanner.build(
         financials.loanAmount,
@@ -398,15 +515,20 @@ async function generate(req, res, next) {
         viability.expectedCashFlow
       );
 
+    // ===============================================================
+    // 6. WORKING CAPITAL
+    // ===============================================================
+
     const workingCapital =
       workingCapitalPlanner.allocate(
         financials.projectCost,
         businessCategory
       );
 
-    /*
-     * RECOMMENDATION
-     */
+    // ===============================================================
+    // 7. RECOMMENDATION
+    // ===============================================================
+
     const rawRecommendation =
       deriveRecommendation(
         viability,
@@ -420,16 +542,27 @@ async function generate(req, res, next) {
     } =
       applyRecommendationGate({
         rawRecommendation,
+
         competitorClassification:
           competitorMapping.classification,
+
         opportunities,
       });
 
+    // ===============================================================
+    // 8. AI EXPLANATION
+    // ===============================================================
+
     /*
-     * AI EXPLANATION
+     * AI receives facts.
      *
-     * AI receives facts but does not determine them.
+     * AI does NOT:
+     * - calculate viability
+     * - calculate financials
+     * - determine scheme eligibility
+     * - override evidence confidence
      */
+
     let narrative;
 
     try {
@@ -448,18 +581,37 @@ async function generate(req, res, next) {
           language,
         });
     } catch (explainErr) {
+      console.warn(
+        "[feasibility] Explanation service unavailable:",
+        explainErr.message
+      );
+
       narrative = {
         language,
+
         text:
           language === "hi"
-            ? "The explanation service is temporarily unavailable. The report explicitly identifies available evidence and data limitations."
+            ? "व्याख्या सेवा अस्थायी रूप से उपलब्ध नहीं है। रिपोर्ट में उपलब्ध साक्ष्य और डेटा सीमाओं को स्पष्ट रूप से दिखाया गया है।"
             : "The explanation service is temporarily unavailable. The report explicitly identifies available evidence and data limitations.",
       };
     }
 
+    // ===============================================================
+    // 9. EVIDENCE SUMMARY
+    // ===============================================================
+
     const evidenceSummary = {
       dataPrinciple:
         "Official Government Data → Verified/Recent Local Data → Research/Secondary Data → Transparent Assumptions",
+
+      overallConfidence:
+        geoContext.dataConfidence ||
+        "low",
+
+      locationMatch:
+        geoContext.isExactLocationMatch
+          ? "exact"
+          : "not_found",
 
       locationSource:
         geoContext.provenance ||
@@ -467,21 +619,41 @@ async function generate(req, res, next) {
           source:
             geoContext.dataSource ||
             "unknown",
-          authority: "unknown",
-          coverage: "unknown",
+
+          sourceType:
+            "unknown",
+
+          authority:
+            "unknown",
+
+          coverage:
+            "unknown",
         },
+
+      sources: [
+        ...new Set(
+          [
+            geoContext.dataSource,
+            geoContext.provenance?.source,
+            consumerBaseMetric.source,
+            competitorCountMetric.source,
+            priceMetric.source,
+          ].filter(Boolean)
+        ),
+      ],
 
       competitorCoverage:
         competitorMapping.coverage ||
         "unknown",
 
       competitorInterpretation:
-        competitorMapping.identifiable
-          ? "Identifiable competitors found in available data."
+        competitorMapping.identifiable ||
+        competitorCountMetric.verified
+          ? "Identifiable competitors were found in available data. Informal or unlisted businesses may not be captured."
           : "No reliable category-specific competitor record was available. This is not proof that competitors do not exist.",
 
       pricingStatus:
-        pricing.estimated
+        priceMetric.estimated
           ? "Estimated fallback"
           : "Observed/ingested local data",
 
@@ -497,7 +669,7 @@ async function generate(req, res, next) {
         "preliminary",
 
       limitations: [
-        ...(viability.dataLimitations || []),
+        ...(geoContext.dataLimitations || []),
 
         ...(geoContext.dataAvailabilityNote
           ? [
@@ -505,7 +677,15 @@ async function generate(req, res, next) {
             ]
           : []),
 
-        ...(pricing.estimated
+        ...(viability.dataLimitations || []),
+
+        ...(competitorMapping.dataConfidenceNote
+          ? [
+              competitorMapping.dataConfidenceNote,
+            ]
+          : []),
+
+        ...(priceMetric.estimated
           ? [
               "Pricing uses a development fallback assumption because sufficiently reliable local price data was unavailable.",
             ]
@@ -514,11 +694,35 @@ async function generate(req, res, next) {
         ...(scheme.ruleStatus ===
         "provisional_assumption"
           ? [
-              "Scheme financial parameters have not yet been validated against a current official guideline.",
+              "Scheme financial parameters have not yet been validated against a current official scheme guideline.",
             ]
           : []),
       ],
+
+      metrics: {
+        consumerBase:
+          consumerBaseMetric,
+
+        competitorCount:
+          competitorCountMetric,
+
+        price:
+          priceMetric,
+      },
     };
+
+    // Remove duplicate limitations.
+    evidenceSummary.limitations =
+      [
+        ...new Set(
+          evidenceSummary.limitations
+            .filter(Boolean)
+        ),
+      ];
+
+    // ===============================================================
+    // 10. FINAL REPORT
+    // ===============================================================
 
     const report = {
       input: {
@@ -554,7 +758,7 @@ async function generate(req, res, next) {
       workingCapital,
 
       risks:
-        risks.risks ||
+        risks?.risks ||
         risks,
 
       finalRecommendation,
@@ -566,6 +770,10 @@ async function generate(req, res, next) {
 
       evidenceSummary,
     };
+
+    // ===============================================================
+    // 11. MONGODB PERSISTENCE
+    // ===============================================================
 
     try {
       const saved =
@@ -581,6 +789,10 @@ async function generate(req, res, next) {
         persistErr.message
       );
     }
+
+    // ===============================================================
+    // 12. POSTGRES LOAN PERSISTENCE
+    // ===============================================================
 
     try {
       const loanApplicationId =
@@ -617,13 +829,24 @@ async function generate(req, res, next) {
       );
     }
 
-    res.status(200).json(report);
+    // ===============================================================
+    // RESPONSE
+    // ===============================================================
+
+    res
+      .status(200)
+      .json(report);
+
   } catch (err) {
     next(err);
   }
 }
 
 
+/**
+ * Derive the raw recommendation before the
+ * recommendation gate applies additional safeguards.
+ */
 function deriveRecommendation(
   viability,
   repayment

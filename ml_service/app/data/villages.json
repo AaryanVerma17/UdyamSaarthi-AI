@@ -1,27 +1,23 @@
 {
-  "_meta": {
-    "description": "Demo/seed dataset for the Village X / Block Y / District Z SIH demo scenario, plus a few extra villages for variety. Replace with real Census 2027 (where published) + Census 2011 + agri/mandi ingestion output. Track source and year per record.",
-    "source": "seed_demo_v1",
-    "lastUpdated": "2026-08-31"
+  "metadata": {
+    "datasetVersion": "phase3-evidence-v1",
+    "description": "Village-level evidence records used by UdyamSaarthi-AI",
+    "generatedAt": "2026-09-06",
+    "defaultCoverage": "partial",
+    "warning": "Records must not be interpreted as complete coverage of all local businesses or households."
   },
   "villages": [
     {
       "village": "Village X",
       "block": "Block Y",
       "district": "District Z",
-      "state": "Uttar Pradesh",
-      "lat": 26.85,
-      "lng": 80.95,
+      "state": "State Example",
+
       "consumerBase": 4200,
       "purchasingPowerIndex": "medium",
-      "livestockIndex": "high",
+      "existingBusinessDensity": 5,
+
       "existingBusinesses": [
-        {
-          "name": "Sharma Dairy",
-          "category": "Dairy",
-          "lat": 26.853,
-          "lng": 80.947
-        },
         {
           "name": "Village Milk Co-op",
           "category": "Dairy",
@@ -53,15 +49,21 @@
           "lng": 80.946
         }
       ],
+
       "marketsAndHaats": [
         "Village X Weekly Haat (Tuesdays)",
         "Block Y Market"
       ],
+
       "distributionChannels": [
         "local haat",
         "cooperative society",
         "direct retail"
       ],
+
+      "livestockIndex": "high",
+      "radiusKm": 8,
+
       "mandiPrices": {
         "milk_per_litre": [
           30,
@@ -72,20 +74,36 @@
           2300
         ]
       },
-      "dataConfidence": "medium",
-      "dataSource": "seed_demo_v1 (Census 2011 baseline, not yet Census 2027 verified)",
-      "lastUpdated": "2026-08-10T00:00:00.000Z"
+
+      "source": "seed_demo_v1",
+      "sourceType": "assumption",
+      "authority": "development_demo",
+      "dataYear": 2011,
+      "lastUpdated": "2026-08-10T00:00:00.000Z",
+
+      "dataConfidence": "low",
+      "geographicMatch": "exact",
+      "geographicPrecision": "village",
+      "coverage": "partial",
+      "completeness": "partial",
+      "estimated": true,
+
+      "dataNotes": "Development/demo record. Census 2011 is retained only as a historical baseline; this record is not verified against Census 2027 or current field reality. Replace with verified official or local evidence before production use."
     },
+
     {
       "village": "Rampur",
       "block": "Sadar",
       "district": "Lucknow",
       "state": "Uttar Pradesh",
+
       "lat": 26.9,
       "lng": 80.9,
+
       "consumerBase": 6100,
       "purchasingPowerIndex": "medium-high",
-      "livestockIndex": "medium",
+      "existingBusinessDensity": 2,
+
       "existingBusinesses": [
         {
           "name": "Rampur Dairy",
@@ -100,13 +118,18 @@
           "lng": 80.898
         }
       ],
+
+      "livestockIndex": "medium",
+
       "marketsAndHaats": [
         "Sadar Market"
       ],
+
       "distributionChannels": [
         "direct retail",
         "wholesale market"
       ],
+
       "mandiPrices": {
         "milk_per_litre": [
           32,
@@ -117,9 +140,21 @@
           2350
         ]
       },
+
+      "source": "seed_demo_v1",
+      "sourceType": "assumption",
+      "authority": "development_demo",
+      "dataYear": 2011,
+      "lastUpdated": "2026-02-01T00:00:00.000Z",
+
       "dataConfidence": "low",
-      "dataSource": "seed_demo_v1 (limited data available)",
-      "lastUpdated": "2026-02-01T00:00:00.000Z"
+      "geographicMatch": "exact",
+      "geographicPrecision": "village",
+      "coverage": "partial",
+      "completeness": "partial",
+      "estimated": true,
+
+      "dataNotes": "Development/demo record with limited coverage. Replace with verified official or local evidence before production use."
     }
   ]
 }

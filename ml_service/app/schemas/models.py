@@ -1,16 +1,34 @@
 """
-Pydantic request/response models shared across ml_service endpoints.
+UdyamSaarthi-AI — Pydantic models shared across ML service endpoints.
 
-PHASE 0:
-- Adds explicit data provenance.
-- Distinguishes identifiable data from estimates.
-- Prevents downstream modules from treating missing data as exact data.
+Phase 3:
+- Preserves existing endpoint contracts.
+- Adds explicit evidence/provenance metadata.
+- Distinguishes observed/identifiable data from estimates.
+- Prevents missing data from being interpreted as factual zero.
 """
 
-from typing import List, Optional, Literal
+from typing import Any, Dict, List, Optional, Literal
 
 from pydantic import BaseModel, Field
 
+
+# ---------------------------------------------------------------------------
+# Common types
+# ---------------------------------------------------------------------------
+
+ConfidenceLevel = Literal["low", "medium", "high"]
+
+CompetitionClassification = Literal[
+    "under_served",
+    "moderately_competitive",
+    "highly_saturated",
+]
+
+
+# ---------------------------------------------------------------------------
+# Location
+# ---------------------------------------------------------------------------
 
 class Location(BaseModel):
     village: str
@@ -19,21 +37,89 @@ class Location(BaseModel):
     state: Optional[str] = None
 
 
+# ---------------------------------------------------------------------------
+# Evidence / provenance
+# ---------------------------------------------------------------------------
+
 class DataProvenance(BaseModel):
+    """
+    Provenance metadata for the location-level dataset.
+
+    These fields describe where the evidence came from and how reliable
+    the geographic/data coverage is. They do NOT imply that the underlying
+    value is complete merely because the record exists.
+    """
+
     source: str = "unknown"
+
+    # Human-readable source classification.
+    # Examples: official, verified_local, secondary, assumption,
+    # unavailable, local_dataset.
     sourceType: str = "unknown"
-    authority: str = "unknown"
+
+    # Authority descriptor or numeric authority may be represented by
+    # downstream services. Keep this flexible for backwards compatibility.
+    authority: Any = "unknown"
+
     dataYear: Optional[int] = None
     lastUpdated: Optional[str] = None
+
     geographicPrecision: str = "unknown"
     coverage: str = "unknown"
     completeness: str = "unknown"
+
     estimated: bool = False
+
     note: Optional[str] = None
 
 
+class EvidenceItem(BaseModel):
+    """
+    Metric-level evidence.
+
+    Used by Phase 3 so every important location metric can carry its own
+    provenance instead of relying only on one overall confidence value.
+    """
+
+    metric: str
+    value: Any
+
+    source: str = "unknown"
+    sourceKey: str = "unknown"
+    sourceTier: str = "assumption"
+    authorityScore: int = 10
+
+    dataYear: Optional[int] = None
+    lastUpdated: Optional[str] = None
+
+    geographicMatch: str = "unknown"
+    coverage: str = "unknown"
+
+    confidence: ConfidenceLevel = "low"
+
+    isAssumption: bool = False
+
+    notes: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Location intelligence
+# ---------------------------------------------------------------------------
+
 class GeoContext(BaseModel):
+    """
+    Location intelligence returned by Module 1.
+
+    IMPORTANT:
+    consumerBase=0 or existingBusinessDensity=0 can mean that the value
+    is unavailable. Downstream modules must check confidence/provenance
+    before interpreting zero as actual activity.
+    """
+
     village: Optional[str] = None
+    block: Optional[str] = None
+    district: Optional[str] = None
+    state: Optional[str] = None
 
     consumerBase: int = Field(
         default=0,
@@ -47,8 +133,13 @@ class GeoContext(BaseModel):
         ge=0,
     )
 
-    marketsAndHaats: List[str] = []
-    distributionChannels: List[str] = []
+    marketsAndHaats: List[str] = Field(
+        default_factory=list
+    )
+
+    distributionChannels: List[str] = Field(
+        default_factory=list
+    )
 
     livestockIndex: str = "unknown"
 
@@ -57,22 +148,37 @@ class GeoContext(BaseModel):
         ge=1,
     )
 
-    dataConfidence: Literal[
-        "low",
-        "medium",
-        "high",
-    ] = "low"
+    dataConfidence: ConfidenceLevel = "low"
 
     dataSource: str = "unknown"
+
     lastUpdated: Optional[str] = None
 
-    provenance: DataProvenance = DataProvenance()
+    # Phase 3 overall provenance.
+    provenance: DataProvenance = Field(
+        default_factory=DataProvenance
+    )
+
+    # Phase 3 metric-level evidence.
+    evidence: Dict[str, EvidenceItem] = Field(
+        default_factory=dict
+    )
+
+    dataLimitations: List[str] = Field(
+        default_factory=list
+    )
 
     dataAvailabilityNote: str = (
         "Data availability is limited. "
         "Do not interpret missing observations as zero activity."
     )
 
+    isExactLocationMatch: bool = False
+
+
+# ---------------------------------------------------------------------------
+# Viability
+# ---------------------------------------------------------------------------
 
 class ViabilityRequest(BaseModel):
     geoContext: GeoContext
@@ -83,10 +189,17 @@ class ViabilityResponse(BaseModel):
     score: int
     label: str
     explanation: str
+
     breakEvenMonths: Optional[int] = None
     expectedCashFlow: Optional[float] = None
-    drivers: List[str]
-    swot: dict
+
+    drivers: List[str] = Field(
+        default_factory=list
+    )
+
+    swot: dict = Field(
+        default_factory=dict
+    )
 
     estimateStatus: Literal[
         "evidence_based",
@@ -94,8 +207,14 @@ class ViabilityResponse(BaseModel):
         "insufficient_data",
     ] = "preliminary"
 
-    dataLimitations: List[str] = []
+    dataLimitations: List[str] = Field(
+        default_factory=list
+    )
 
+
+# ---------------------------------------------------------------------------
+# Competitor mapping
+# ---------------------------------------------------------------------------
 
 class CompetitorPoint(BaseModel):
     lat: float
@@ -115,25 +234,41 @@ class CompetitorMappingResponse(BaseModel):
         ge=0,
     )
 
-    classification: Literal[
-        "under_served",
-        "moderately_competitive",
-        "highly_saturated",
-    ]
+    classification: CompetitionClassification
 
-    points: List[CompetitorPoint] = []
+    points: List[CompetitorPoint] = Field(
+        default_factory=list
+    )
 
+    # Important user-facing limitation.
     dataConfidenceNote: str = (
         "Reflects identifiable competitors found using available "
         "data sources. Informal or unlisted businesses may not be captured."
     )
 
-    lastUpdated: Optional[str] = None
     identifiable: bool = False
+
+    # Evidence/provenance fields required by Phase 3.
     estimated: bool = False
+
     source: str = "unknown"
+    sourceType: str = "unknown"
+    sourceTier: str = "assumption"
+
+    authorityScore: Optional[int] = None
+
+    dataYear: Optional[int] = None
+    lastUpdated: Optional[str] = None
+
+    geographicMatch: str = "unknown"
     coverage: str = "unknown"
 
+    isAssumption: bool = False
+
+
+# ---------------------------------------------------------------------------
+# Opportunity finder
+# ---------------------------------------------------------------------------
 
 class OpportunityRequest(BaseModel):
     geoContext: GeoContext
@@ -146,11 +281,7 @@ class OpportunityItem(BaseModel):
     score: int
 
     classification: Optional[
-        Literal[
-            "under_served",
-            "moderately_competitive",
-            "highly_saturated",
-        ]
+        CompetitionClassification
     ] = None
 
     evidenceStatus: str = "preliminary"
@@ -158,17 +289,29 @@ class OpportunityItem(BaseModel):
 
 class OpportunityResponse(BaseModel):
     requestedBusiness: OpportunityItem
-    alternatives: List[OpportunityItem]
-    improvementSuggestions: List[str] = []
 
+    alternatives: List[OpportunityItem] = Field(
+        default_factory=list
+    )
+
+    improvementSuggestions: List[str] = Field(
+        default_factory=list
+    )
+
+
+# ---------------------------------------------------------------------------
+# Risk analysis
+# ---------------------------------------------------------------------------
 
 class RiskItem(BaseModel):
     type: str
+
     severity: Literal[
         "low",
         "medium",
         "high",
     ]
+
     description: str
     mitigation: str
 
@@ -179,8 +322,14 @@ class RiskRequest(BaseModel):
 
 
 class RiskResponse(BaseModel):
-    risks: List[RiskItem]
+    risks: List[RiskItem] = Field(
+        default_factory=list
+    )
 
+
+# ---------------------------------------------------------------------------
+# Pricing
+# ---------------------------------------------------------------------------
 
 class PricingRequest(BaseModel):
     geoContext: GeoContext
@@ -189,30 +338,55 @@ class PricingRequest(BaseModel):
 
 class PricingResponse(BaseModel):
     range: List[float]
+
     unit: str
 
-    confidence: Literal[
-        "low",
-        "medium",
-        "high",
-    ]
+    confidence: ConfidenceLevel
 
-    basedOn: List[str]
-    lastUpdated: Optional[str] = None
-    estimated: bool = False
+    basedOn: List[str] = Field(
+        default_factory=list
+    )
+
+    # Phase 3 provenance.
     sourceType: str = "unknown"
+    sourceTier: str = "assumption"
 
+    authorityScore: Optional[int] = None
+
+    dataYear: Optional[int] = None
+    lastUpdated: Optional[str] = None
+
+    geographicMatch: str = "unknown"
+    coverage: str = "unknown"
+
+    estimated: bool = False
+    isAssumption: bool = False
+
+
+# ---------------------------------------------------------------------------
+# AI explanation
+# ---------------------------------------------------------------------------
 
 class ExplainRequest(BaseModel):
+    """
+    AI receives already-computed facts.
+
+    The AI explanation endpoint must not become the source of truth for
+    financial, scheme, competition, pricing, or viability calculations.
+    """
+
     businessCategory: str
+
     viability: dict
     competitorMapping: dict
     opportunities: dict
+
     financials: dict
     scheme: dict
     repayment: dict
     workingCapital: dict
-    risks: object
+
+    risks: Any
     pricing: dict
 
     language: Literal[
@@ -225,8 +399,10 @@ class ExplainResponse(BaseModel):
     language: str
     text: str
 
-    finalRecommendation: Literal[
-        "proceed",
-        "proceed_with_caution",
-        "not_recommended",
-    ]
+    finalRecommendation: Optional[
+        Literal[
+            "proceed",
+            "proceed_with_caution",
+            "not_recommended",
+        ]
+    ] = None

@@ -1,101 +1,318 @@
 """
-scripts/data_ingestion/ingest.py — Piyush
+UdyamSaarthi-AI evidence ingestion pipeline.
 
-Builds ml_service/app/data/villages.json from source datasets, following
-the team's official-source-priority decision:
+Input:
+    CSV containing normalized village/location data.
 
-    Official Government Data -> Verified/Recent Local Data ->
-    Research/Secondary Data -> Kaggle/Other datasets
+Output:
+    ml_service/app/data/villages.json
 
-Today this script ships with a CSV -> JSON normalizer plus a manual-entry
-path, since public Census 2027 datasets are still being progressively
-published. Point SOURCE_CSV at whatever you've collected (Census 2011/2027,
-MoSPI, Agriculture/Animal Husbandry Dept. exports, mandi price sheets) and
-run it — every record keeps its source name and year so downstream
-consumers (location_intelligence.py) can show data confidence honestly.
+This script intentionally does NOT scrape arbitrary websites.
 
-Usage:
-    python ingest.py --source path/to/villages_raw.csv --out ../../ml_service/app/data/villages.json
-    python ingest.py --add-manual   # interactive fallback for quick demo data entry
+Official datasets should be downloaded/obtained through
+their permitted publication/API mechanisms and then
+normalized into the CSV schema before ingestion.
 """
+
 import argparse
 import csv
 import json
-import sys
-from datetime import date
+
+from datetime import datetime, timezone
 from pathlib import Path
 
-REQUIRED_FIELDS = ["village", "block", "district", "state", "lat", "lng", "consumerBase"]
+
+OUTPUT_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "ml_service"
+    / "app"
+    / "data"
+    / "villages.json"
+)
 
 
-def load_existing(out_path: Path) -> dict:
-    if out_path.exists():
-        with open(out_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"_meta": {"description": "Ingested village dataset", "source": "ingest.py", "lastUpdated": str(date.today())}, "villages": []}
+REQUIRED_COLUMNS = {
+    "village",
+    "district",
+    "state",
+    "consumerBase",
+    "source",
+    "dataYear",
+    "lastUpdated",
+}
 
 
-def ingest_csv(source_csv: Path, source_name: str) -> list:
-    """
-    Expected CSV columns (extend as your real sources provide more):
-    village, block, district, state, lat, lng, consumerBase, purchasingPowerIndex,
-    livestockIndex, dataConfidence
-    """
-    records = []
-    with open(source_csv, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            missing = [field for field in REQUIRED_FIELDS if not row.get(field)]
-            if missing:
-                print(f"[ingest] Skipping row, missing fields {missing}: {row}", file=sys.stderr)
-                continue
-            records.append({
-                "village": row["village"],
-                "block": row["block"],
-                "district": row["district"],
-                "state": row["state"],
-                "lat": float(row["lat"]),
-                "lng": float(row["lng"]),
-                "consumerBase": int(row["consumerBase"]),
-                "purchasingPowerIndex": row.get("purchasingPowerIndex", "medium"),
-                "livestockIndex": row.get("livestockIndex", "medium"),
-                "existingBusinesses": [],
-                "marketsAndHaats": [],
-                "distributionChannels": [],
-                "mandiPrices": {},
-                "dataConfidence": row.get("dataConfidence", "low"),
-                "dataSource": f"{source_name} ({date.today().isoformat()})",
-            })
-    return records
+def parse_args():
+
+    parser = argparse.ArgumentParser(
+        description="Build UdyamSaarthi evidence dataset."
+    )
+
+    parser.add_argument(
+        "--input",
+        required=True,
+        help="Normalized input CSV path.",
+    )
+
+    parser.add_argument(
+        "--output",
+        default=str(OUTPUT_PATH),
+        help="Output JSON path.",
+    )
+
+    return parser.parse_args()
+
+
+def clean(value):
+
+    if value is None:
+        return ""
+
+    return str(value).strip()
+
+
+def parse_number(value, default=0):
+
+    try:
+        return int(float(clean(value)))
+
+    except (TypeError, ValueError):
+        return default
+
+
+def validate_headers(fieldnames):
+
+    missing = REQUIRED_COLUMNS - set(
+        fieldnames or []
+    )
+
+    if missing:
+
+        raise ValueError(
+            "Missing required columns: "
+            + ", ".join(sorted(missing))
+        )
+
+
+def normalize_row(row):
+
+    source = (
+        clean(row.get("source"))
+        or "unknown"
+    )
+
+    return {
+        "village": clean(
+            row.get("village")
+        ),
+
+        "block": clean(
+            row.get("block")
+        ),
+
+        "district": clean(
+            row.get("district")
+        ),
+
+        "state": clean(
+            row.get("state")
+        ),
+
+        "consumerBase": parse_number(
+            row.get("consumerBase")
+        ),
+
+        "purchasingPowerIndex": (
+            clean(
+                row.get(
+                    "purchasingPowerIndex"
+                )
+            )
+            or "unknown"
+        ),
+
+        "existingBusinessDensity": parse_number(
+            row.get(
+                "existingBusinessDensity"
+            )
+        ),
+
+        "marketsAndHaats": [
+            item.strip()
+            for item in clean(
+                row.get("marketsAndHaats")
+            ).split("|")
+            if item.strip()
+        ],
+
+        "distributionChannels": [
+            item.strip()
+            for item in clean(
+                row.get(
+                    "distributionChannels"
+                )
+            ).split("|")
+            if item.strip()
+        ],
+
+        "livestockIndex": (
+            clean(
+                row.get("livestockIndex")
+            )
+            or "unknown"
+        ),
+
+        "radiusKm": parse_number(
+            row.get("radiusKm"),
+            default=8,
+        ),
+
+        "source": source,
+
+        "dataYear": (
+            parse_number(
+                row.get("dataYear")
+            )
+            if clean(
+                row.get("dataYear")
+            )
+            else None
+        ),
+
+        "lastUpdated": clean(
+            row.get("lastUpdated")
+        ) or None,
+
+        "dataConfidence": (
+            clean(
+                row.get("dataConfidence")
+            )
+            or "low"
+        ),
+
+        "geographicMatch": (
+            clean(
+                row.get(
+                    "geographicMatch"
+                )
+            )
+            or "exact"
+        ),
+
+        "coverage": (
+            clean(
+                row.get("coverage")
+            )
+            or "partial"
+        ),
+
+        "dataNotes": (
+            clean(
+                row.get("dataNotes")
+            )
+            or None
+        ),
+    }
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--source", type=Path, help="Path to a source CSV file")
-    parser.add_argument("--source-name", default="unspecified_source", help="Label recorded as dataSource, e.g. 'census_2027' or 'mospi_2026'")
-    parser.add_argument("--out", type=Path, default=Path(__file__).parent.parent.parent / "ml_service" / "app" / "data" / "villages.json")
-    args = parser.parse_args()
 
-    data = load_existing(args.out)
+    args = parse_args()
 
-    if args.source:
-        new_records = ingest_csv(args.source, args.source_name)
-        existing_names = {v["village"] for v in data["villages"]}
-        added = 0
-        for record in new_records:
-            if record["village"] not in existing_names:
-                data["villages"].append(record)
-                added += 1
-        print(f"[ingest] Added {added} new village records from {args.source}")
-    else:
-        print("[ingest] No --source provided. Run with --source path/to/file.csv to ingest real data.")
-        print("[ingest] See README.md in this folder for the prioritized source list.")
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
-    data["_meta"]["lastUpdated"] = str(date.today())
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    with open(args.out, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f"[ingest] Wrote {len(data['villages'])} total village records to {args.out}")
+    if not input_path.exists():
+
+        raise FileNotFoundError(
+            f"Input file does not exist: "
+            f"{input_path}"
+        )
+
+    records = []
+
+    with input_path.open(
+        "r",
+        encoding="utf-8-sig",
+        newline="",
+    ) as file:
+
+        reader = csv.DictReader(file)
+
+        validate_headers(
+            reader.fieldnames
+        )
+
+        for row_number, row in enumerate(
+            reader,
+            start=2,
+        ):
+
+            record = normalize_row(row)
+
+            if not record["village"]:
+
+                raise ValueError(
+                    f"Row {row_number}: "
+                    "village is required."
+                )
+
+            if not record["district"]:
+
+                raise ValueError(
+                    f"Row {row_number}: "
+                    "district is required."
+                )
+
+            if not record["state"]:
+
+                raise ValueError(
+                    f"Row {row_number}: "
+                    "state is required."
+                )
+
+            records.append(record)
+
+    payload = {
+        "metadata": {
+            "datasetVersion": "phase3-evidence-v1",
+            "generatedAt": datetime.now(
+                timezone.utc
+            ).isoformat(),
+
+            "recordCount": len(records),
+
+            "description": (
+                "Normalized evidence records. "
+                "Coverage and confidence depend "
+                "on the underlying source."
+            ),
+        },
+
+        "villages": records,
+    }
+
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    with output_path.open(
+        "w",
+        encoding="utf-8",
+    ) as file:
+
+        json.dump(
+            payload,
+            file,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    print(
+        f"Created {output_path} "
+        f"with {len(records)} records."
+    )
 
 
 if __name__ == "__main__":

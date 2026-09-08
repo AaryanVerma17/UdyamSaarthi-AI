@@ -1,33 +1,68 @@
-# Data Ingestion Scripts (Piyush)
+# UdyamSaarthi-AI Data Ingestion
 
-Placeholder for scripts that pull and normalize:
-- Census 2027 data (where officially published) + Census 2011 fallback
-- MoSPI, Agriculture Dept., Animal Husbandry Dept. datasets
-- State/District statistical reports, NABARD, RBI, mandi/market data
-- **GST registration/cancellation data and the Udyam registration portal**
-  (new — added as a proxy signal for fast business churn; see refresh
-  strategy below). Alongside OSM/Places, this is now a documented source
-  for Module 3 (Competitor Mapping).
+The ingestion layer converts approved, normalized source data into the
+location evidence dataset used by the ML service.
 
-Per the team's data-source-hierarchy decision, prioritize official
-sources over Kaggle/secondary datasets, and record source + date/year +
-geographic granularity for every dataset ingested. Output should feed
-`ml_service/app/data/` in a format `location_intelligence.py` can consume.
+## Source priority
 
-## Data Refresh Strategy (architectural rule — not just a suggestion)
+Data should be preferred in this order:
 
-Different data changes at different rates. Treating all of it as "refresh
-whenever we get around to it" is what causes census-staleness problems.
-The rule:
+1. Official Government Data
+2. Verified / Recent Local Data
+3. Research / Secondary Data
+4. Assumption / Model Estimate
 
-| Data | Refresh strategy | Enforced in |
-|---|---|---|
-| Population / purchasing power (Census) | Annual interpolation between census years using state growth rates — **never wait for the literal next census.** See `ml_service/app/utils/population_interpolation.py`. | Module 1 |
-| Competitor existence/count | Quarterly re-scrape, independent of the census cycle | Module 3 |
-| Fast churn (shop opened/closed) | GST registration/cancellation data or the Udyam registration portal as a proxy signal, plus field corrections (`server/src/services/fieldCorrections.js`) for anything the registration feeds miss | Module 3 |
+## Important coverage rule
 
-If you're building or touching Module 1 or Module 3's data pipeline,
-this table is the contract you're implementing against — a data source
-that doesn't fit one of these rows needs a row added here first, not a
-one-off refresh schedule invented on the spot.
+No dataset should be described as representing every business or household
+unless the underlying methodology actually provides complete coverage.
 
+For example:
+
+- Udyam data represents registered MSMEs.
+- Survey data represents statistical estimates and should not be interpreted
+  as a complete local business directory.
+- Census data provides population/demographic information for its applicable
+  reference period.
+- Local field data may improve visibility into businesses missing from online
+  or administrative datasets.
+
+## Required evidence fields
+
+Every ingested record should preserve:
+
+- village
+- block
+- district
+- state
+- source
+- dataYear
+- lastUpdated
+- geographicMatch
+- coverage
+- dataConfidence
+- dataNotes
+
+## CSV format
+
+The normalized CSV should contain:
+
+```text
+village
+block
+district
+state
+consumerBase
+purchasingPowerIndex
+existingBusinessDensity
+marketsAndHaats
+distributionChannels
+livestockIndex
+radiusKm
+source
+dataYear
+lastUpdated
+dataConfidence
+geographicMatch
+coverage
+dataNotes

@@ -1,13 +1,14 @@
-import { useState } from "react";
+import {
+  useMemo,
+  useState,
+} from "react";
+
 import { useTranslation } from "react-i18next";
 
-const BUSINESS_CATEGORIES = [
-  "Dairy",
-  "Kirana",
-  "Tailoring",
-  "Food Processing",
-  "Repair Shop",
-];
+import StepIndicator from "./StepIndicator";
+import LocationStep from "./LocationStep";
+import BusinessStep from "./BusinessStep";
+import CapitalStep from "./CapitalStep";
 
 const INITIAL_FORM = {
   village: "",
@@ -15,9 +16,14 @@ const INITIAL_FORM = {
   district: "",
   state: "",
   ownCapital: "",
-  businessCategory:
-    BUSINESS_CATEGORIES[0],
+  businessCategory: "Dairy",
 };
+
+const STEP_KEYS = [
+  "location",
+  "business",
+  "capital",
+];
 
 export default function IntakeForm({
   onSubmit,
@@ -28,49 +34,103 @@ export default function IntakeForm({
   const [form, setForm] =
     useState(INITIAL_FORM);
 
+  const [currentStep, setCurrentStep] =
+    useState(1);
+
   const [errors, setErrors] =
     useState({});
 
   const [touched, setTouched] =
     useState({});
 
+  const steps = useMemo(
+    () =>
+      STEP_KEYS.map((key) => ({
+        key,
+        label: t(
+          `form.steps.${key}`
+        ),
+      })),
+    [t]
+  );
 
-  function validate(values) {
+  function validate(
+    values,
+    step = null
+  ) {
     const nextErrors = {};
 
-    if (!values.village.trim()) {
-      nextErrors.village =
-        t("form.errors.village");
-    }
+    const shouldValidateLocation =
+      step === null || step === 1;
 
-    if (!values.district.trim()) {
-      nextErrors.district =
-        t("form.errors.district");
-    }
+    const shouldValidateBusiness =
+      step === null || step === 2;
 
-    if (!values.ownCapital) {
-      nextErrors.ownCapital =
-        t(
-          "form.errors.capitalRequired"
+    const shouldValidateCapital =
+      step === null || step === 3;
+
+    if (shouldValidateLocation) {
+      if (!values.village.trim()) {
+        nextErrors.village = t(
+          "validation.villageRequired"
         );
-    } else {
-      const capital =
-        Number(values.ownCapital);
+      }
 
-      if (
-        Number.isNaN(capital) ||
-        capital <= 0
-      ) {
-        nextErrors.ownCapital =
+      if (!values.district.trim()) {
+        nextErrors.district = t(
+          "validation.districtRequired"
+        );
+      }
+
+      if (!values.state.trim()) {
+        nextErrors.state = t(
+          "validation.stateRequired"
+        );
+      }
+    }
+
+    if (shouldValidateBusiness) {
+      if (!values.businessCategory) {
+        nextErrors.businessCategory =
           t(
-            "form.errors.capitalPositive"
+            "validation.businessRequired"
           );
+      }
+    }
+
+    if (shouldValidateCapital) {
+      if (
+        values.ownCapital === "" ||
+        values.ownCapital === null ||
+        values.ownCapital === undefined
+      ) {
+        nextErrors.ownCapital = t(
+          "validation.capitalRequired"
+        );
+      } else {
+        const capital = Number(
+          values.ownCapital
+        );
+
+        if (
+          !Number.isFinite(capital) ||
+          capital <= 0
+        ) {
+          nextErrors.ownCapital = t(
+            "validation.capitalPositive"
+          );
+        } else if (
+          !Number.isInteger(capital)
+        ) {
+          nextErrors.ownCapital = t(
+            "validation.capitalInteger"
+          );
+        }
       }
     }
 
     return nextErrors;
   }
-
 
   function handleChange(event) {
     const {
@@ -78,57 +138,138 @@ export default function IntakeForm({
       value,
     } = event.target;
 
-    const nextForm = {
-      ...form,
+    setForm((previous) => ({
+      ...previous,
       [name]: value,
-    };
-
-    setForm(nextForm);
+    }));
 
     if (touched[name]) {
-      setErrors(
-        validate(nextForm)
-      );
+      const nextValues = {
+        ...form,
+        [name]: value,
+      };
+
+      setErrors((previous) => ({
+        ...previous,
+        ...validate(
+          nextValues,
+          currentStep
+        ),
+      }));
     }
   }
 
-
   function handleBlur(event) {
-    const { name } =
-      event.target;
+    const { name } = event.target;
 
     setTouched((previous) => ({
       ...previous,
       [name]: true,
     }));
 
-    setErrors(
-      validate(form)
+    setErrors((previous) => ({
+      ...previous,
+      ...validate(
+        form,
+        currentStep
+      ),
+    }));
+  }
+
+  function markStepTouched(step) {
+    if (step === 1) {
+      setTouched((previous) => ({
+        ...previous,
+        village: true,
+        district: true,
+        state: true,
+      }));
+    }
+
+    if (step === 2) {
+      setTouched((previous) => ({
+        ...previous,
+        businessCategory: true,
+      }));
+    }
+
+    if (step === 3) {
+      setTouched((previous) => ({
+        ...previous,
+        ownCapital: true,
+      }));
+    }
+  }
+
+  function handleNext() {
+    const stepErrors = validate(
+      form,
+      currentStep
+    );
+
+    markStepTouched(currentStep);
+
+    setErrors((previous) => ({
+      ...previous,
+      ...stepErrors,
+    }));
+
+    if (
+      Object.keys(stepErrors).length > 0
+    ) {
+      return;
+    }
+
+    setCurrentStep((previous) =>
+      Math.min(
+        previous + 1,
+        steps.length
+      )
     );
   }
 
+  function handleBack() {
+    setErrors({});
+
+    setCurrentStep((previous) =>
+      Math.max(previous - 1, 1)
+    );
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
 
     const validationErrors =
-      validate(form);
+      validate(form, null);
 
-    setErrors(
-      validationErrors
-    );
+    setErrors(validationErrors);
 
     setTouched({
       village: true,
       district: true,
+      state: true,
+      businessCategory: true,
       ownCapital: true,
     });
 
     if (
-      Object.keys(
-        validationErrors
-      ).length > 0
+      Object.keys(validationErrors)
+        .length > 0
     ) {
+      if (
+        validationErrors.village ||
+        validationErrors.district ||
+        validationErrors.state
+      ) {
+        setCurrentStep(1);
+      } else if (
+        validationErrors.businessCategory
+      ) {
+        setCurrentStep(2);
+      } else {
+        setCurrentStep(3);
+      }
+
       return;
     }
 
@@ -136,246 +277,115 @@ export default function IntakeForm({
       location: {
         village:
           form.village.trim(),
-
         block:
           form.block.trim(),
-
         district:
           form.district.trim(),
-
         state:
           form.state.trim(),
       },
 
-      ownCapital:
-        Number(form.ownCapital),
+      ownCapital: Number(
+        form.ownCapital
+      ),
 
       businessCategory:
         form.businessCategory,
     });
   }
 
+  function renderCurrentStep() {
+    if (currentStep === 1) {
+      return (
+        <LocationStep
+          form={form}
+          errors={errors}
+          touched={touched}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      );
+    }
+
+    if (currentStep === 2) {
+      return (
+        <BusinessStep
+          value={
+            form.businessCategory
+          }
+          onChange={handleChange}
+        />
+      );
+    }
+
+    return (
+      <CapitalStep
+        value={form.ownCapital}
+        error={errors.ownCapital}
+        touched={touched.ownCapital}
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
+    );
+  }
+
+  const isLastStep =
+    currentStep === steps.length;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="intake-form"
-      noValidate
-    >
-      <div className="form-header">
-        <h2>
-          {t("form.heading")}
-        </h2>
+    <section className="intake-container">
+      <StepIndicator
+        currentStep={currentStep}
+        steps={steps}
+      />
 
-        <p>
-          {t("form.description")}
-        </p>
-      </div>
-
-      <div className="form-grid">
-        <div className="field-group">
-          <label htmlFor="village">
-            {t("form.village")} *
-          </label>
-
-          <input
-            id="village"
-            name="village"
-            value={form.village}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            autoComplete="address-level3"
-            placeholder={t(
-              "form.villagePlaceholder"
-            )}
-            className={
-              touched.village &&
-              errors.village
-                ? "invalid"
-                : ""
-            }
-            aria-invalid={Boolean(
-              touched.village &&
-              errors.village
-            )}
-          />
-
-          {touched.village &&
-            errors.village && (
-              <span className="field-error">
-                {errors.village}
-              </span>
-            )}
-        </div>
-
-
-        <div className="field-group">
-          <label htmlFor="block">
-            {t("form.block")}
-          </label>
-
-          <input
-            id="block"
-            name="block"
-            value={form.block}
-            onChange={handleChange}
-            autoComplete="address-level2"
-            placeholder={t(
-              "form.blockPlaceholder"
-            )}
-          />
-        </div>
-
-
-        <div className="field-group">
-          <label htmlFor="district">
-            {t("form.district")} *
-          </label>
-
-          <input
-            id="district"
-            name="district"
-            value={form.district}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            autoComplete="address-level2"
-            placeholder={t(
-              "form.districtPlaceholder"
-            )}
-            className={
-              touched.district &&
-              errors.district
-                ? "invalid"
-                : ""
-            }
-            aria-invalid={Boolean(
-              touched.district &&
-              errors.district
-            )}
-          />
-
-          {touched.district &&
-            errors.district && (
-              <span className="field-error">
-                {errors.district}
-              </span>
-            )}
-        </div>
-
-
-        <div className="field-group">
-          <label htmlFor="state">
-            {t("form.state")}
-          </label>
-
-          <input
-            id="state"
-            name="state"
-            value={form.state}
-            onChange={handleChange}
-            autoComplete="address-level1"
-            placeholder={t(
-              "form.statePlaceholder"
-            )}
-          />
-        </div>
-
-
-        <div className="field-group">
-          <label htmlFor="ownCapital">
-            {t("form.ownCapital")} *
-          </label>
-
-          <input
-            id="ownCapital"
-            type="number"
-            min="1"
-            step="1"
-            inputMode="numeric"
-            name="ownCapital"
-            value={form.ownCapital}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder={t(
-              "form.capitalPlaceholder"
-            )}
-            className={
-              touched.ownCapital &&
-              errors.ownCapital
-                ? "invalid"
-                : ""
-            }
-            aria-invalid={Boolean(
-              touched.ownCapital &&
-              errors.ownCapital
-            )}
-          />
-
-          <p className="field-help">
-            {t(
-              "form.capitalHelp"
-            )}
-          </p>
-
-          {touched.ownCapital &&
-            errors.ownCapital && (
-              <span className="field-error">
-                {errors.ownCapital}
-              </span>
-            )}
-        </div>
-
-
-        <div className="field-group">
-          <label htmlFor="businessCategory">
-            {t(
-              "form.businessCategory"
-            )}
-          </label>
-
-          <select
-            id="businessCategory"
-            name="businessCategory"
-            value={
-              form.businessCategory
-            }
-            onChange={handleChange}
-          >
-            {BUSINESS_CATEGORIES.map(
-              (business) => (
-                <option
-                  key={business}
-                  value={business}
-                >
-                  {business}
-                </option>
-              )
-            )}
-          </select>
-        </div>
-      </div>
-
-
-      <button
-        type="submit"
-        className="primary-btn"
-        disabled={isLoading}
+      <form
+        onSubmit={handleSubmit}
+        className="intake-form guided-intake-form"
+        noValidate
       >
-        {isLoading ? (
-          <span className="loading-state">
-            <span
-              className="spinner"
-              aria-hidden="true"
-            />
+        {renderCurrentStep()}
 
-            {t(
-              "form.generating"
-            )}
-          </span>
-        ) : (
-          t("form.submit")
-        )}
-      </button>
-    </form>
+        <div className="guided-form-actions">
+          {currentStep > 1 ? (
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={handleBack}
+              disabled={isLoading}
+            >
+              ← {t("form.back")}
+            </button>
+          ) : (
+            <span />
+          )}
+
+          {!isLastStep ? (
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={handleNext}
+              disabled={isLoading}
+            >
+              {t("form.continue")} →
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="primary-btn"
+              disabled={isLoading}
+            >
+              {isLoading
+                ? t("form.generating")
+                : t("form.submit")}
+            </button>
+          )}
+        </div>
+
+        <div className="required-note">
+          * {t("form.requiredFields")}
+        </div>
+      </form>
+    </section>
   );
 }

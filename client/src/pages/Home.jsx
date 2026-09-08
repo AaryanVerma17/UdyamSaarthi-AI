@@ -3,16 +3,10 @@ import { useTranslation } from "react-i18next";
 import IntakeForm from "../components/forms/IntakeForm";
 import LanguageSwitcher from "../components/common/LanguageSwitcher";
 
-import {
-  useReportStore,
-} from "../store/reportStore";
-
-import {
-  generateFeasibilityReport,
-} from "../services/api";
+import { useReportStore } from "../store/reportStore";
+import { generateFeasibilityReport } from "../services/api";
 
 import Report from "./Report";
-
 
 export default function Home() {
   const {
@@ -30,27 +24,24 @@ export default function Home() {
     reset,
   } = useReportStore();
 
-
   async function handleSubmit(input) {
     setLoading(true);
+    setError(null);
 
     try {
       const result =
         await generateFeasibilityReport({
           ...input,
-          language:
-            i18n.language,
+          language: i18n.language,
         });
 
       setReport(result);
     } catch (err) {
       const message =
-        err?.response?.data
-          ?.message ||
+        err?.userMessage ||
+        err?.response?.data?.message ||
         err?.message ||
-        t(
-          "errors.generic"
-        );
+        t("errors.generic");
 
       setError(message);
     } finally {
@@ -58,15 +49,18 @@ export default function Home() {
     }
   }
 
-
   return (
     <main className="page">
+
+      {/* ============================
+          HEADER
+      ============================= */}
       <header className="app-header">
+
         <div className="app-header__brand">
+
           <p className="app-header__eyebrow">
-            {t(
-              "appEyebrow"
-            )}
+            {t("appEyebrow")}
           </p>
 
           <h1>
@@ -76,147 +70,172 @@ export default function Home() {
           <p className="app-header__tagline">
             {t("tagline")}
           </p>
+
         </div>
 
         <div className="app-header__controls">
           <LanguageSwitcher />
         </div>
+
       </header>
 
 
+      {/* ============================
+          INTAKE SCREEN
+      ============================= */}
       {!report && (
         <>
+
           <section className="hero-card">
+
             <div className="hero-card__content">
+
               <h2>
-                {t(
-                  "home.heroTitle"
-                )}
+                {t("home.heroTitle")}
               </h2>
 
               <p>
-                {t(
-                  "home.heroDescription"
-                )}
+                {t("home.heroDescription")}
               </p>
+
             </div>
+
           </section>
 
 
           <div className="intake-layout">
+
+            {/* Phase 2 Guided Intake */}
+
             <IntakeForm
-              onSubmit={
-                handleSubmit
-              }
-              isLoading={
-                isLoading
-              }
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
             />
 
+
+            {/* Information Panel */}
+
             <aside className="info-card">
+
               <h3>
-                {t(
-                  "home.infoTitle"
-                )}
+                {t("home.infoTitle")}
               </h3>
 
               <p>
-                {t(
-                  "home.infoDescription"
-                )}
+                {t("home.infoDescription")}
               </p>
 
+
               <ul className="info-list">
+
                 <li>
+
                   <span className="info-list__icon">
                     1
                   </span>
 
                   <span>
-                    {t(
-                      "home.info1"
-                    )}
+                    {t("home.info1")}
                   </span>
+
                 </li>
 
+
                 <li>
+
                   <span className="info-list__icon">
                     2
                   </span>
 
                   <span>
-                    {t(
-                      "home.info2"
-                    )}
+                    {t("home.info2")}
                   </span>
+
                 </li>
 
+
                 <li>
+
                   <span className="info-list__icon">
                     3
                   </span>
 
                   <span>
-                    {t(
-                      "home.info3"
-                    )}
+                    {t("home.info3")}
                   </span>
+
                 </li>
 
+
                 <li>
+
                   <span className="info-list__icon">
                     4
                   </span>
 
                   <span>
-                    {t(
-                      "home.info4"
-                    )}
+                    {t("home.info4")}
                   </span>
+
                 </li>
+
               </ul>
+
             </aside>
+
           </div>
+
+
+          {/* Error */}
+
+          {error && (
+            <div
+              className="error-banner"
+              role="alert"
+            >
+
+              <span className="error-banner__icon">
+                !
+              </span>
+
+              <span>
+                {error}
+              </span>
+
+            </div>
+          )}
+
         </>
       )}
 
 
-      {error && (
-        <div
-          className="error-banner"
-          role="alert"
-        >
-          <span className="error-banner__icon">
-            !
-          </span>
-
-          <span>
-            {error}
-          </span>
-        </div>
-      )}
-
-
+      {/* ============================
+          REPORT SCREEN
+      ============================= */}
       {report && (
         <>
+
           <Report
             report={report}
           />
 
+
           <div className="report-actions">
+
             <button
               type="button"
               className="reset-btn"
               onClick={reset}
             >
               ←{" "}
-              {t(
-                "report.startOver"
-              )}
+              {t("report.startOver")}
             </button>
+
           </div>
+
         </>
       )}
+
     </main>
   );
 }

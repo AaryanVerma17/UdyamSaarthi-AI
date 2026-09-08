@@ -18,23 +18,57 @@
     "heading": "Tell us about your business idea",
     "description": "Use your best available information. More accurate location and capital inputs improve the usefulness of the assessment.",
 
+    "steps": {
+      "location": "Location",
+      "business": "Business",
+      "capital": "Capital"
+    },
+
+    "step1Label": "Step 1",
+    "locationTitle": "Where is your business?",
+    "locationDescription": "Tell us where you plan to operate so we can understand the local business environment.",
+
     "village": "Village",
     "villagePlaceholder": "Enter village name",
 
     "block": "Block",
-    "blockPlaceholder": "Enter block",
+    "blockPlaceholder": "Enter block name",
+    "blockHint": "Optional — leave blank if you are not sure.",
 
     "district": "District",
-    "districtPlaceholder": "Enter district",
+    "districtPlaceholder": "Enter district name",
 
     "state": "State",
-    "statePlaceholder": "Enter state",
+    "statePlaceholder": "Enter state name",
+
+    "locationEvidenceNote": "Your location helps us connect the assessment with available local and regional evidence.",
+
+    "step2Label": "Step 2",
+    "businessTitle": "What business do you want to start?",
+    "businessDescription": "Choose the business you are considering.",
+
+    "businessCategory": "Business You Want to Start",
+
+    "businessEvidenceNote": "Business-specific analysis will use the selected category together with available location evidence.",
+
+    "step3Label": "Step 3",
+    "capitalTitle": "What capital do you have?",
+    "capitalDescription": "Enter the amount of your own money that you can invest in the business.",
 
     "ownCapital": "Your Available Capital (₹)",
     "capitalPlaceholder": "e.g. 100000",
     "capitalHelp": "Enter the amount of your own capital available for the business.",
 
-    "businessCategory": "Business You Want to Start",
+    "capitalHint": "Enter a positive whole-number amount in Indian rupees.",
+
+    "capitalExampleTitle": "Example",
+    "capitalExampleText": "If you can invest ₹50,000 from your own funds, enter 50000.",
+
+    "capitalEvidenceNote": "Your own capital helps determine the financial structure and feasibility of the business.",
+
+    "continue": "Continue",
+    "back": "Back",
+    "requiredFields": "Required fields",
 
     "submit": "Generate My Report",
     "generating": "Preparing your report…",
@@ -43,8 +77,38 @@
       "village": "Village is required.",
       "district": "District is required.",
       "capitalRequired": "Please enter your available capital.",
-      "capitalPositive": "Capital must be a positive number."
+      "capitalPositive": "Capital must be a positive number.",
+      "stateRequired": "State is required.",
+      "businessRequired": "Please select a business category.",
+      "capitalInteger": "Capital must be a whole number."
     }
+  },
+
+  "validation": {
+    "villageRequired": "Village is required.",
+    "districtRequired": "District is required.",
+    "stateRequired": "State is required.",
+    "businessRequired": "Please select a business category.",
+    "capitalRequired": "Own capital is required.",
+    "capitalPositive": "Capital must be greater than ₹0.",
+    "capitalInteger": "Capital must be a whole number."
+  },
+
+  "businessCategories": {
+    "Dairy": "Dairy",
+    "DairyDescription": "Milk, livestock and dairy-related activities.",
+
+    "Kirana": "Kirana",
+    "KiranaDescription": "Local grocery and everyday household products.",
+
+    "Tailoring": "Tailoring",
+    "TailoringDescription": "Clothing alteration, stitching and tailoring services.",
+
+    "Food Processing": "Food Processing",
+    "Food ProcessingDescription": "Processing, packaging and value addition of food products.",
+
+    "Repair Shop": "Repair Shop",
+    "Repair ShopDescription": "Repair and maintenance services for common products or equipment."
   },
 
   "report": {

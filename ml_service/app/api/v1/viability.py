@@ -1,27 +1,6 @@
 """
 Module 2 — Business Viability Engine
-
-PHASE 0 BASELINE
-
-This remains a deterministic baseline until sufficient historical outcome
-data exists for a trained model.
-
-Important:
-
-- Business-type scores are NOT treated as facts.
-- Missing location data does not become a fabricated score.
-- Cash flow and break-even are NOT presented as exact financial forecasts.
-- Low-evidence cases are explicitly marked as preliminary.
-
-Later phases will replace this baseline with:
-
-Demand
-+ local pricing
-+ competition
-+ capital requirement
-+ operating economics
-+ repayment capacity
-+ local resource availability
+PHASE 5: Evidence-weighted deterministic scoring
 """
 
 from fastapi import APIRouter
@@ -33,327 +12,308 @@ from app.schemas.models import (
 
 from app.data_access.villages import find_village
 
-
 router = APIRouter()
 
 
-# These are temporary model priors only.
-# They must eventually be replaced by evidence-backed business economics.
+# ---------------------------------------------------------------------
+# Base business priors
+# ---------------------------------------------------------------------
+
 BUSINESS_BASE_SCORE = {
-    "Dairy": 55,
-    "Kirana": 50,
-    "Tailoring": 52,
-    "Food Processing": 54,
-    "Repair Shop": 50,
+    "Dairy": 58,
+    "Kirana": 54,
+    "Tailoring": 55,
+    "Food Processing": 57,
+    "Repair Shop": 53,
 }
 
-
 PURCHASING_POWER_SCORE = {
-    "low": -8,
-    "low-medium": -3,
+    "low": -10,
+    "low-medium": -4,
     "medium": 0,
-    "medium-high": 5,
-    "high": 10,
+    "medium-high": 6,
+    "high": 12,
     "unknown": 0,
 }
 
+LIVESTOCK_SCORE = {
+    "low": 0,
+    "medium": 4,
+    "high": 8,
+    "unknown": 0,
+}
 
-LIVESTOCK_RELEVANCE = {
-    "Dairy": True,
-    "Food Processing": True,
+MARKET_SCORE = {
+    0: -6,
+    1: 2,
+    2: 5,
+    3: 7,
 }
 
 
-def _category_competitor_count(
-    geo_context,
-    business_category: str,
-):
-    village_record = (
-        find_village(
-            geo_context.village
-        )
-        if geo_context.village
-        else None
-    )
+# ---------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------
 
-    if village_record:
-        return len(
-            [
-                business
-                for business
-                in village_record.get(
-                    "existingBusinesses",
-                    [],
-                )
-                if business.get(
-                    "category",
-                    "",
-                ).strip().lower()
-                == business_category.strip().lower()
-            ]
-        )
-
-    return None
-
-
-def _has_location_evidence(
-    geo_context,
-):
+def has_location_evidence(ctx):
     return (
-        geo_context.consumerBase > 0
-        or geo_context.purchasingPowerIndex
-        != "unknown"
-        or geo_context.livestockIndex
-        != "unknown"
-        or bool(
-            geo_context.marketsAndHaats
-        )
-        or bool(
-            geo_context.distributionChannels
-        )
+        ctx.consumerBase > 0
+        or ctx.purchasingPowerIndex != "unknown"
+        or ctx.livestockIndex != "unknown"
+        or len(ctx.marketsAndHaats) > 0
+        or len(ctx.distributionChannels) > 0
     )
 
 
-def compute_score(
-    geo_context,
-    business_category: str,
-) -> int:
-    """
-    Deterministic baseline score.
+def competitor_count(ctx, business):
+    if not ctx.village:
+        return None
 
-    Returns a score only when some location evidence exists.
+    record = find_village(ctx.village)
 
-    With no evidence, returns a cautious neutral baseline rather than
-    pretending that the business has been evaluated accurately.
-    """
+    if not record:
+        return None
 
-    if not _has_location_evidence(
-        geo_context
-    ):
+    return len(
+        [
+            b
+            for b in record.get("existingBusinesses", [])
+            if b.get("category", "").lower() == business.lower()
+        ]
+    )
+
+
+# ---------------------------------------------------------------------
+# Scoring
+# ---------------------------------------------------------------------
+
+def compute_score(ctx, business):
+
+    if not has_location_evidence(ctx):
         return 50
 
-    score = BUSINESS_BASE_SCORE.get(
-        business_category,
-        50,
-    )
+    score = BUSINESS_BASE_SCORE.get(business, 50)
 
     score += PURCHASING_POWER_SCORE.get(
-        geo_context.purchasingPowerIndex,
+        ctx.purchasingPowerIndex,
         0,
     )
 
-    if (
-        LIVESTOCK_RELEVANCE.get(
-            business_category
-        )
-        and geo_context.livestockIndex
-        in ("medium", "high")
-    ):
-        score += (
-            8
-            if geo_context.livestockIndex
-            == "high"
-            else 4
+    if business in ["Dairy", "Food Processing"]:
+        score += LIVESTOCK_SCORE.get(
+            ctx.livestockIndex,
+            0,
         )
 
-    competitor_count = (
-        _category_competitor_count(
-            geo_context,
-            business_category,
-        )
+    market_count = min(
+        len(ctx.marketsAndHaats),
+        3,
     )
 
-    if competitor_count is not None:
-        score -= min(
-            competitor_count * 3,
-            18,
-        )
+    score += MARKET_SCORE[market_count]
 
-    if geo_context.consumerBase >= 5000:
-        score += 6
-    elif (
-        geo_context.consumerBase > 0
-        and geo_context.consumerBase < 2000
-    ):
+    if ctx.consumerBase >= 6000:
+        score += 8
+    elif ctx.consumerBase >= 3500:
+        score += 4
+    elif ctx.consumerBase < 1800:
         score -= 6
 
-    if (
-        geo_context.dataConfidence
-        == "low"
-    ):
-        score = round(
-            score * 0.85
-            + 50 * 0.15
-        )
+    competitors = competitor_count(ctx, business)
 
-    return max(
-        0,
-        min(
-            100,
-            round(score),
-        ),
-    )
-
-
-def build_explanation(
-    business_category,
-    geo_context,
-    score,
-    label,
-):
-    reasons = []
-
-    competitor_count = (
-        _category_competitor_count(
-            geo_context,
-            business_category,
-        )
-    )
-
-    if (
-        geo_context.livestockIndex
-        in ("medium", "high")
-        and LIVESTOCK_RELEVANCE.get(
-            business_category
-        )
-    ):
-        reasons.append(
-            f"{geo_context.livestockIndex} "
-            "livestock activity"
-        )
-
-    if (
-        geo_context.purchasingPowerIndex
-        in ("medium-high", "high")
-    ):
-        reasons.append(
-            "relatively stronger purchasing power"
-        )
-
-    if competitor_count is not None:
-        if competitor_count <= 3:
-            reasons.append(
-                "limited identifiable competition"
-            )
-        elif competitor_count > 7:
-            reasons.append(
-                "high identifiable competition"
+    if competitors is not None:
+        if competitors <= 2:
+            score += 5
+        elif competitors <= 5:
+            score -= 2
+        else:
+            score -= min(
+                competitors * 3,
+                18,
             )
 
-    if not reasons:
-        reasons.append(
-            "limited available local evidence"
+    if ctx.dataConfidence == "low":
+        score = round(score * 0.9 + 5)
+
+    return max(0, min(100, score))
+
+
+# ---------------------------------------------------------------------
+# Drivers
+# ---------------------------------------------------------------------
+
+def build_drivers(ctx, business):
+
+    drivers = []
+
+    if ctx.consumerBase >= 5000:
+        drivers.append(
+            "Strong local consumer base"
         )
 
-    evidence_note = (
-        " This is a preliminary baseline assessment, "
-        "not a guaranteed business outcome."
+    if ctx.purchasingPowerIndex in [
+        "medium-high",
+        "high",
+    ]:
+        drivers.append(
+            "Above-average purchasing power"
+        )
+
+    if (
+        business == "Dairy"
+        and ctx.livestockIndex in [
+            "medium",
+            "high",
+        ]
+    ):
+        drivers.append(
+            "Favorable livestock ecosystem"
+        )
+
+    if len(ctx.marketsAndHaats) >= 2:
+        drivers.append(
+            "Multiple nearby markets improve access"
+        )
+
+    return drivers
+
+
+# ---------------------------------------------------------------------
+# SWOT
+# ---------------------------------------------------------------------
+
+def build_swot(ctx, business, score):
+
+    strengths = []
+    weaknesses = []
+    opportunities = []
+    threats = []
+
+    if ctx.consumerBase >= 5000:
+        strengths.append(
+            "Large addressable local customer base"
+        )
+
+    if business == "Dairy" and ctx.livestockIndex == "high":
+        strengths.append(
+            "Strong livestock ecosystem"
+        )
+
+    if ctx.dataConfidence == "low":
+        weaknesses.append(
+            "Limited verified village-level evidence"
+        )
+
+    if len(ctx.marketsAndHaats) <= 1:
+        weaknesses.append(
+            "Market access is relatively limited"
+        )
+
+    opportunities.append(
+        "Differentiate through quality and local trust"
     )
+
+    threats.append(
+        "Competition and input-price volatility"
+    )
+
+    return {
+        "strengths": strengths,
+        "weaknesses": weaknesses,
+        "opportunities": opportunities,
+        "threats": threats,
+    }
+
+
+# ---------------------------------------------------------------------
+# Explanation
+# ---------------------------------------------------------------------
+
+def explanation(score, business):
+
+    if score >= 75:
+        return (
+            f"{business} demonstrates strong local viability based on "
+            "available evidence, but should still be validated with field demand."
+        )
+
+    if score >= 50:
+        return (
+            f"{business} appears moderately viable. The opportunity exists, "
+            "but differentiation and local validation remain important."
+        )
 
     return (
-        f"{business_category} shows "
-        f"{label.lower()} under the current "
-        f"evidence available for this area, "
-        f"driven by {', '.join(reasons)}."
-        f"{evidence_note}"
+        f"{business} currently shows limited viability under the available "
+        "evidence and requires further validation before investment."
     )
 
+
+# ---------------------------------------------------------------------
+# Endpoint
+# ---------------------------------------------------------------------
 
 @router.post(
     "/viability",
     response_model=ViabilityResponse,
 )
-def score_viability(
-    payload: ViabilityRequest,
-):
+def score_viability(payload: ViabilityRequest):
+
     score = compute_score(
         payload.geoContext,
         payload.businessCategory,
     )
 
-    label = (
-        "High Potential"
-        if score >= 75
-        else (
-            "Moderate Potential"
-            if score >= 50
-            else "Low Potential"
-        )
-    )
+    if score >= 75:
+        label = "High Potential"
+    elif score >= 50:
+        label = "Moderate Potential"
+    else:
+        label = "Low Potential"
 
-    explanation = build_explanation(
-        payload.businessCategory,
-        payload.geoContext,
-        score,
-        label,
-    )
-
-    has_evidence = _has_location_evidence(
+    evidence = has_location_evidence(
         payload.geoContext
     )
 
-    data_limitations = []
+    limitations = []
 
-    if not has_evidence:
-        data_limitations.append(
-            "No reliable village-specific market record was available."
+    if not evidence:
+        limitations.append(
+            "No reliable village-specific market evidence was available."
         )
 
-    if (
-        payload.geoContext.dataConfidence
-        == "low"
-    ):
-        data_limitations.append(
-            "Available location evidence has low confidence."
+    if payload.geoContext.dataConfidence == "low":
+        limitations.append(
+            "Available evidence has low confidence."
         )
 
-    if not data_limitations:
-        data_limitations.append(
-            "This is a deterministic baseline and should be validated "
-            "against local operating costs and demand."
+    if not limitations:
+        limitations.append(
+            "Results should be validated with local operating economics."
         )
 
     return ViabilityResponse(
         score=score,
         label=label,
-        explanation=explanation,
-
-        # Phase 0 deliberately does not invent financial forecasts.
+        explanation=explanation(
+            score,
+            payload.businessCategory,
+        ),
         breakEvenMonths=None,
         expectedCashFlow=None,
-
-        drivers=[
-            "local_demand",
-            "competition_density",
-            "purchasing_power",
-            "livestock_activity",
-        ],
-
-        swot={
-            "strengths": (
-                [
-                    "Some local evidence supports the business opportunity."
-                ]
-                if has_evidence
-                else []
-            ),
-            "weaknesses": [
-                "Detailed business-level operating economics "
-                "are not yet available."
-            ],
-            "opportunities": [
-                "Validate underserved customer needs locally."
-            ],
-            "threats": [
-                "Competition and input-price uncertainty."
-            ],
-        },
-
+        drivers=build_drivers(
+            payload.geoContext,
+            payload.businessCategory,
+        ),
+        swot=build_swot(
+            payload.geoContext,
+            payload.businessCategory,
+            score,
+        ),
         estimateStatus=(
             "preliminary"
-            if has_evidence
+            if evidence
             else "insufficient_data"
         ),
-
-        dataLimitations=data_limitations,
+        dataLimitations=limitations,
     )

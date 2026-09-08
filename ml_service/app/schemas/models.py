@@ -298,41 +298,66 @@ class CompetitorMappingRequest(BaseModel):
 
 
 class CompetitorMappingResponse(BaseModel):
-    count: int = Field(
-        default=0,
+    """
+    Competition evidence for the requested business category.
+
+    IMPORTANT:
+    count=None means competition evidence is unavailable.
+    It does NOT mean zero competitors.
+    """
+
+    count: Optional[int] = Field(
+        default=None,
         ge=0,
     )
 
-    classification: CompetitionClassification
+    classification: Literal[
+        "under_served",
+        "moderately_competitive",
+        "highly_saturated",
+        "data_unavailable",
+    ] = "data_unavailable"
 
     points: List[CompetitorPoint] = Field(
         default_factory=list
     )
 
-    # Important user-facing limitation.
-    dataConfidenceNote: str = (
-        "Reflects identifiable competitors found using available "
-        "data sources. Informal or unlisted businesses may not be captured."
-    )
-
     identifiable: bool = False
 
-    # Evidence/provenance fields.
-    estimated: bool = False
+    category: Optional[str] = None
 
-    source: str = "unknown"
-    sourceType: str = "unknown"
-    sourceTier: str = "assumption"
+    radiusKm: int = Field(
+        default=8,
+        gt=0,
+    )
 
-    authorityScore: Optional[int] = None
+    source: Optional[str] = None
+
+    sourceTier: Optional[str] = None
 
     dataYear: Optional[int] = None
-    lastUpdated: Optional[str] = None
 
-    geographicMatch: str = "unknown"
     coverage: str = "unknown"
 
-    isAssumption: bool = False
+    geographicMatch: str = "unknown"
+
+    confidence: Literal[
+        "low",
+        "medium",
+        "high",
+    ] = "low"
+
+    radiusValidated: bool = False
+
+    deduplicatedCount: int = 0
+
+    dataConfidenceNote: str = (
+        "Competition reflects identifiable businesses "
+        "found using available data. Informal or "
+        "unlisted businesses may not be captured."
+    )
+
+    lastUpdated: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------

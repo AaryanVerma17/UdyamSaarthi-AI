@@ -1,14 +1,26 @@
 /**
- * UdyamSaarthi-AI — Evidence Confidence Utilities
+ * server/src/services/dataConfidence.js
  *
- * Confidence is determined using:
- * - source authority
- * - freshness
- * - geographic precision
- * - coverage
- *
- * Confidence is separate from business viability.
+ * PHASE 0:
+ * Evidence/provenance-aware confidence while preserving the
+ * original freshness-based confidence API.
  */
+
+const HIGH_CONFIDENCE_MAX_DAYS = 90;
+const MEDIUM_CONFIDENCE_MAX_DAYS = 180;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const CONFIDENCE_RANK = {
+  low: 1,
+  medium: 2,
+  high: 3,
+};
+
+const CONFIDENCE_BY_RANK = {
+  1: "low",
+  2: "medium",
+  3: "high",
+};
 
 const SOURCE_TIERS = {
   official_government: 100,
@@ -17,23 +29,9 @@ const SOURCE_TIERS = {
   assumption: 10,
 };
 
-const CONFIDENCE_RANK = {
-  high: 3,
-  medium: 2,
-  low: 1,
-};
-
-const CONFIDENCE_BY_RANK = {
-  3: "high",
-  2: "medium",
-  1: "low",
-};
-
-
-// ---------------------------------------------------------------------------
-// Date helpers
-// ---------------------------------------------------------------------------
-
+/**
+ * Parse a date safely.
+ */
 function parseDate(value) {
   if (!value) return null;
 
@@ -46,22 +44,54 @@ function parseDate(value) {
   return date;
 }
 
+/**
+ * Original freshness-based confidence API.
+ *
+ * < 90 days   => high
+ * < 180 days  => medium
+ * >= 180 days => low
+ */
+function confidenceFromAge(lastUpdated) {
+  const updatedDate = parseDate(lastUpdated);
 
-// ---------------------------------------------------------------------------
-// Freshness
-// ---------------------------------------------------------------------------
-
-function freshnessScore(lastUpdated) {
-  const date = parseDate(lastUpdated);
-
-  if (!date) return 0;
+  if (!updatedDate) {
+    return "low";
+  }
 
   const ageDays =
-    Math.max(
-      0,
-      Date.now() - date.getTime()
-    ) /
-    (1000 * 60 * 60 * 24);
+    (Date.now() - updatedDate.getTime()) / MS_PER_DAY;
+
+  if (ageDays < 0) {
+    return "low";
+  }
+
+  if (ageDays < HIGH_CONFIDENCE_MAX_DAYS) {
+    return "high";
+  }
+
+  if (ageDays < MEDIUM_CONFIDENCE_MAX_DAYS) {
+    return "medium";
+  }
+
+  return "low";
+}
+
+/**
+ * Freshness score used by the evidence model.
+ */
+function freshnessScore(lastUpdated) {
+  const updatedDate = parseDate(lastUpdated);
+
+  if (!updatedDate) {
+    return 15;
+  }
+
+  const ageDays =
+    (Date.now() - updatedDate.getTime()) / MS_PER_DAY;
+
+  if (ageDays < 0) {
+    return 15;
+  }
 
   if (ageDays <= 30) return 100;
   if (ageDays <= 90) return 90;
@@ -72,68 +102,67 @@ function freshnessScore(lastUpdated) {
   return 15;
 }
 
-
-// ---------------------------------------------------------------------------
-// Geographic quality
-// ---------------------------------------------------------------------------
-
+/**
+ * Geographic precision score.
+ */
 function geographicScore(match) {
-  return {
-    exact: 100,
-    district: 75,
-    state: 55,
-    unknown: 25,
-  }[match] ?? 25;
+  return (
+    {
+      exact: 100,
+      village: 100,
+      district: 75,
+      state: 55,
+      unknown: 25,
+    }[match] ?? 25
+  );
 }
 
-
-// ---------------------------------------------------------------------------
-// Coverage quality
-// ---------------------------------------------------------------------------
-
+/**
+ * Coverage score.
+ */
 function coverageScore(coverage) {
-  return {
-    complete: 100,
-    known: 75,
-    partial: 55,
-    unknown: 25,
-  }[coverage] ?? 25;
+  return (
+    {
+      complete: 100,
+      known: 75,
+      local: 75,
+      partial: 55,
+      unknown: 25,
+      no_matching_village_record: 25,
+    }[coverage] ?? 25
+  );
 }
 
-
-// ---------------------------------------------------------------------------
-// Source inference
-// ---------------------------------------------------------------------------
-
+/**
+ * Infer source tier where callers have only supplied a source name.
+ */
 function inferSourceTier(source) {
   if (!source) {
     return "assumption";
   }
 
-  const normalized =
-    String(source).toLowerCase();
+  const normalized = String(source).toLowerCase();
 
   if (
     normalized.includes("census") ||
     normalized.includes("udyam") ||
     normalized.includes("government") ||
-    normalized.includes("asuse") ||
-    normalized.includes("official")
+    normalized.includes("asuse")
   ) {
     return "official_government";
   }
 
   if (
     normalized.includes("verified") ||
-    normalized.includes("field") ||
-    normalized.includes("local")
+    normalized.includes("field")
   ) {
     return "verified_local";
   }
 
   if (
     normalized.includes("research") ||
-    normalized.includes("secondary")
+    normalized.includes("secondary") ||
+    normalized.includes("osm")
   ) {
     return "secondary_research";
   }
@@ -141,16 +170,17 @@ function inferSourceTier(source) {
   return "assumption";
 }
 
-
-// ---------------------------------------------------------------------------
-// Overall evidence confidence
-// ---------------------------------------------------------------------------
-
+/**
+ * Evidence-based confidence.
+ *
+ * This remains available for callers that explicitly want
+ * the evidence scoring model.
+ */
 function confidenceFromEvidence({
   sourceTier,
   lastUpdated,
-  geographicMatch = "unknown",
-  coverage = "unknown",
+  geographicMatch = "exact",
+  coverage = "known",
   isAssumption = false,
 }) {
   if (
@@ -161,21 +191,16 @@ function confidenceFromEvidence({
   }
 
   const authority =
-    SOURCE_TIERS[sourceTier] ??
-    40;
+    SOURCE_TIERS[sourceTier] ?? 40;
 
   const freshness =
     freshnessScore(lastUpdated);
 
   const geography =
-    geographicScore(
-      geographicMatch
-    );
+    geographicScore(geographicMatch);
 
   const coverageValue =
-    coverageScore(
-      coverage
-    );
+    coverageScore(coverage);
 
   const score =
     authority * 0.4 +
@@ -183,43 +208,34 @@ function confidenceFromEvidence({
     geography * 0.2 +
     coverageValue * 0.15;
 
-  if (score >= 80) {
-    return "high";
-  }
-
-  if (score >= 60) {
-    return "medium";
-  }
+  if (score >= 80) return "high";
+  if (score >= 60) return "medium";
 
   return "low";
 }
 
-
-// ---------------------------------------------------------------------------
-// Confidence downgrade
-// ---------------------------------------------------------------------------
-
+/**
+ * Lower confidence by exactly one level.
+ *
+ * high -> medium
+ * medium -> low
+ * low -> low
+ */
 function stepDownConfidence(confidence) {
   const rank =
     CONFIDENCE_RANK[confidence] ??
-    1;
+    CONFIDENCE_RANK.low;
 
   return (
     CONFIDENCE_BY_RANK[
-      Math.max(
-        1,
-        rank - 1
-      )
-    ] ||
-    "low"
+      Math.max(1, rank - 1)
+    ] || "low"
   );
 }
 
-
-// ---------------------------------------------------------------------------
-// Human-readable confidence explanation
-// ---------------------------------------------------------------------------
-
+/**
+ * Human-readable confidence explanation.
+ */
 function confidenceNote({
   confidence,
   sourceType,
@@ -228,66 +244,48 @@ function confidenceNote({
   coverage = "unknown",
 }) {
   if (estimated) {
-    return (
-      "This value is an estimate because sufficiently "
-      + "specific evidence was unavailable."
-    );
+    return "This value is an estimate because sufficiently specific evidence was unavailable.";
   }
 
   if (confidence === "low") {
-    return (
-      "Evidence is limited, indirect, incomplete, "
-      + "or not sufficiently recent."
-    );
+    return "Evidence is limited, indirect, incomplete, or not sufficiently recent.";
   }
 
-  if (geographicMatch !== "exact") {
-    return (
-      "Evidence is available but does not exactly "
-      + "match the requested village."
-    );
+  if (
+    geographicMatch !== "unknown" &&
+    geographicMatch !== "exact"
+  ) {
+    return "Evidence is available but does not exactly match the requested village.";
   }
 
   if (coverage === "partial") {
-    return (
-      "The source provides partial coverage and may "
-      + "not represent every household or business."
-    );
+    return "The source provides partial coverage and may not represent every household or business.";
   }
 
   if (sourceType === "secondary") {
-    return (
-      "This value comes from a secondary source rather "
-      + "than an official local record."
-    );
+    return "This value comes from a secondary source rather than an official local record.";
   }
 
-  return null;
+  return "The available data is relatively recent and reliable for the stated coverage.";
 }
 
-
-// ---------------------------------------------------------------------------
-// Metric wrapper
-// ---------------------------------------------------------------------------
-
+/**
+ * Wrap a metric with auditable provenance.
+ *
+ * IMPORTANT:
+ * Preserve the original freshness-based confidence behavior
+ * unless the caller explicitly provides a confidence value.
+ *
+ * Evidence metadata is retained for auditability, but it does
+ * not silently change the original confidence API.
+ */
 function wrapMetric(value, metadata = {}) {
   const source =
-    metadata.source ||
-    "Unknown source";
+    metadata.source ?? "unknown";
 
   const sourceTier =
     metadata.sourceTier ||
     inferSourceTier(source);
-
-  const isAssumption =
-    metadata.isAssumption ??
-    (
-      sourceTier === "assumption"
-    );
-
-  const estimated =
-    metadata.estimated ??
-    isAssumption;
 
   const sourceType =
     metadata.sourceType ||
@@ -301,40 +299,62 @@ function wrapMetric(value, metadata = {}) {
             : "assumption"
     );
 
-  const confidence =
-    metadata.confidence ||
-    confidenceFromEvidence({
-      sourceTier,
+  const estimated =
+    metadata.estimated ??
+    metadata.isAssumption ??
+    sourceTier === "assumption";
 
-      lastUpdated:
-        metadata.lastUpdated,
+  let confidence;
 
-      geographicMatch:
-        metadata.geographicMatch ||
-        "unknown",
+  /*
+   * Explicit confidence always wins.
+   */
+  if (metadata.confidence) {
+    confidence = metadata.confidence;
+  }
 
-      coverage:
-        metadata.coverage ||
-        "unknown",
+  /*
+   * Verified data is always high confidence.
+   */
+  else if (metadata.verified) {
+    confidence = "high";
+  }
 
-      isAssumption,
-    });
+  /*
+   * Preserve the original freshness-based API.
+   *
+   * < 90 days  -> high
+   * < 180 days -> medium
+   * >= 180     -> low
+   */
+  else {
+    confidence = confidenceFromAge(
+      metadata.lastUpdated
+    );
+  }
 
   const authority =
     metadata.authority ??
     SOURCE_TIERS[sourceTier] ??
     40;
 
-  const result = {
+  const geographicMatch =
+    metadata.geographicMatch ||
+    metadata.geographicPrecision ||
+    "unknown";
+
+  const coverage =
+    metadata.coverage ||
+    "unknown";
+
+  return {
     value,
 
     min:
-      metadata.min ??
-      null,
+      metadata.min ?? null,
 
     max:
-      metadata.max ??
-      null,
+      metadata.max ?? null,
 
     confidence,
 
@@ -347,57 +367,46 @@ function wrapMetric(value, metadata = {}) {
     authority,
 
     dataYear:
-      metadata.dataYear ??
-      null,
+      metadata.dataYear ?? null,
 
     lastUpdated:
-      metadata.lastUpdated ??
-      null,
+      metadata.lastUpdated ?? null,
 
-    geographicMatch:
-      metadata.geographicMatch ||
+    geographicMatch,
+
+    coverage,
+
+    geographicPrecision:
+      metadata.geographicPrecision ||
       "unknown",
 
-    coverage:
-      metadata.coverage ||
+    completeness:
+      metadata.completeness ||
       "unknown",
 
     verified:
-      Boolean(
-        metadata.verified
-      ),
+      Boolean(metadata.verified),
 
     isAssumption:
-
-      Boolean(
-        isAssumption
-      ),
+      Boolean(metadata.isAssumption),
 
     estimated:
-      Boolean(
-        estimated
-      ),
+      Boolean(estimated),
 
     note:
       metadata.note ??
       confidenceNote({
         confidence,
         sourceType,
-        estimated,
-        geographicMatch:
-          metadata.geographicMatch ||
-          "unknown",
-        coverage:
-          metadata.coverage ||
-          "unknown",
+        estimated: Boolean(estimated),
+        geographicMatch,
+        coverage,
       }),
   };
-
-  return result;
 }
 
-
 module.exports = {
+  confidenceFromAge,
   confidenceFromEvidence,
   freshnessScore,
   wrapMetric,
@@ -405,4 +414,6 @@ module.exports = {
   confidenceNote,
   inferSourceTier,
   SOURCE_TIERS,
+  HIGH_CONFIDENCE_MAX_DAYS,
+  MEDIUM_CONFIDENCE_MAX_DAYS,
 };

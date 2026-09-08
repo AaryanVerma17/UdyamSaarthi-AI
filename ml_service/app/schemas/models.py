@@ -1,12 +1,15 @@
 """
 Pydantic request/response models shared across ml_service endpoints.
-These mirror the exact contracts from the technical documentation
-(§6.7-6.13 / §14.7 / Appendix C) so the Node.js server can rely on a
-stable shape while the underlying logic is swapped from mock -> real
-ML models over the sprints.
+
+PHASE 0:
+- Adds explicit data provenance.
+- Distinguishes identifiable data from estimates.
+- Prevents downstream modules from treating missing data as exact data.
 """
+
 from typing import List, Optional, Literal
-from pydantic import BaseModel
+
+from pydantic import BaseModel, Field
 
 
 class Location(BaseModel):
@@ -16,18 +19,59 @@ class Location(BaseModel):
     state: Optional[str] = None
 
 
+class DataProvenance(BaseModel):
+    source: str = "unknown"
+    sourceType: str = "unknown"
+    authority: str = "unknown"
+    dataYear: Optional[int] = None
+    lastUpdated: Optional[str] = None
+    geographicPrecision: str = "unknown"
+    coverage: str = "unknown"
+    completeness: str = "unknown"
+    estimated: bool = False
+    note: Optional[str] = None
+
+
 class GeoContext(BaseModel):
     village: Optional[str] = None
-    consumerBase: int
-    purchasingPowerIndex: str
-    existingBusinessDensity: int
-    marketsAndHaats: List[str]
-    distributionChannels: List[str]
-    livestockIndex: str
-    radiusKm: int = 8
-    dataConfidence: Literal["low", "medium", "high"] = "medium"
-    dataSource: str = "mock_v1"
+
+    consumerBase: int = Field(
+        default=0,
+        ge=0,
+    )
+
+    purchasingPowerIndex: str = "unknown"
+
+    existingBusinessDensity: int = Field(
+        default=0,
+        ge=0,
+    )
+
+    marketsAndHaats: List[str] = []
+    distributionChannels: List[str] = []
+
+    livestockIndex: str = "unknown"
+
+    radiusKm: int = Field(
+        default=8,
+        ge=1,
+    )
+
+    dataConfidence: Literal[
+        "low",
+        "medium",
+        "high",
+    ] = "low"
+
+    dataSource: str = "unknown"
     lastUpdated: Optional[str] = None
+
+    provenance: DataProvenance = DataProvenance()
+
+    dataAvailabilityNote: str = (
+        "Data availability is limited. "
+        "Do not interpret missing observations as zero activity."
+    )
 
 
 class ViabilityRequest(BaseModel):
@@ -39,10 +83,18 @@ class ViabilityResponse(BaseModel):
     score: int
     label: str
     explanation: str
-    breakEvenMonths: int
-    expectedCashFlow: float
+    breakEvenMonths: Optional[int] = None
+    expectedCashFlow: Optional[float] = None
     drivers: List[str]
     swot: dict
+
+    estimateStatus: Literal[
+        "evidence_based",
+        "preliminary",
+        "insufficient_data",
+    ] = "preliminary"
+
+    dataLimitations: List[str] = []
 
 
 class CompetitorPoint(BaseModel):
@@ -58,11 +110,29 @@ class CompetitorMappingRequest(BaseModel):
 
 
 class CompetitorMappingResponse(BaseModel):
-    count: int
-    classification: Literal["under_served", "moderately_competitive", "highly_saturated"]
-    points: List[CompetitorPoint]
-    dataConfidenceNote: str = "Reflects identifiable competitors found using available data sources; informal/unlisted businesses may not be captured."
+    count: int = Field(
+        default=0,
+        ge=0,
+    )
+
+    classification: Literal[
+        "under_served",
+        "moderately_competitive",
+        "highly_saturated",
+    ]
+
+    points: List[CompetitorPoint] = []
+
+    dataConfidenceNote: str = (
+        "Reflects identifiable competitors found using available "
+        "data sources. Informal or unlisted businesses may not be captured."
+    )
+
     lastUpdated: Optional[str] = None
+    identifiable: bool = False
+    estimated: bool = False
+    source: str = "unknown"
+    coverage: str = "unknown"
 
 
 class OpportunityRequest(BaseModel):
@@ -74,7 +144,16 @@ class OpportunityRequest(BaseModel):
 class OpportunityItem(BaseModel):
     business: str
     score: int
-    classification: Optional[Literal["under_served", "moderately_competitive", "highly_saturated"]] = None
+
+    classification: Optional[
+        Literal[
+            "under_served",
+            "moderately_competitive",
+            "highly_saturated",
+        ]
+    ] = None
+
+    evidenceStatus: str = "preliminary"
 
 
 class OpportunityResponse(BaseModel):
@@ -85,7 +164,11 @@ class OpportunityResponse(BaseModel):
 
 class RiskItem(BaseModel):
     type: str
-    severity: Literal["low", "medium", "high"]
+    severity: Literal[
+        "low",
+        "medium",
+        "high",
+    ]
     description: str
     mitigation: str
 
@@ -107,9 +190,17 @@ class PricingRequest(BaseModel):
 class PricingResponse(BaseModel):
     range: List[float]
     unit: str
-    confidence: Literal["low", "medium", "high"]
+
+    confidence: Literal[
+        "low",
+        "medium",
+        "high",
+    ]
+
     basedOn: List[str]
     lastUpdated: Optional[str] = None
+    estimated: bool = False
+    sourceType: str = "unknown"
 
 
 class ExplainRequest(BaseModel):
@@ -123,10 +214,19 @@ class ExplainRequest(BaseModel):
     workingCapital: dict
     risks: object
     pricing: dict
-    language: Literal["hi", "en"] = "en"
+
+    language: Literal[
+        "hi",
+        "en",
+    ] = "en"
 
 
 class ExplainResponse(BaseModel):
     language: str
     text: str
-    finalRecommendation: Literal["proceed", "proceed_with_caution", "not_recommended"]
+
+    finalRecommendation: Literal[
+        "proceed",
+        "proceed_with_caution",
+        "not_recommended",
+    ]

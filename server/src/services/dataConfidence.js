@@ -1,73 +1,115 @@
 /**
- * server/src/services/dataConfidence.js
+ * Module 5 — Financial Calculator
  *
- * Confidence decay + metric wrapping. Every metric that flows through here
- * stops being a bare number and becomes an auditable object: value, range,
- * source, freshness, and whether a human ever confirmed it on the ground.
+ * PHASE 0:
+ * - Keeps calculations deterministic.
+ * - Removes the assumption that the global 10% rule is universally valid.
+ * - Accepts a financing rule explicitly.
+ * - Returns rule provenance so the report cannot silently present an
+ *   assumption as an official scheme requirement.
  *
- * Confidence decay rule (as specified):
- *   age < 90 days   -> "high"
- *   age < 180 days  -> "medium"
- *   age >= 180 days -> "low"
- *   no lastUpdated  -> "low" (we cannot claim freshness we don't know)
+ * No LLM / ML is involved.
  */
 
-const HIGH_CONFIDENCE_MAX_DAYS = 90;
-const MEDIUM_CONFIDENCE_MAX_DAYS = 180;
+const {
+  OWN_CAPITAL_PERCENTAGE,
+} = require("../../../shared/constants/schemeRules");
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const {
+  InvalidInputError,
+} = require("../middlewares/errorHandler");
 
 /**
- * @param {string|Date|null|undefined} lastUpdated - ISO date string or Date
- * @returns {"high"|"medium"|"low"}
+ * Validate a financing rule before using it.
  */
-function confidenceFromAge(lastUpdated) {
-  if (!lastUpdated) return "low";
+function validateFinancingRule(financingRule) {
+  if (!financingRule || typeof financingRule !== "object") {
+    throw new InvalidInputError("financingRule is required");
+  }
 
-  const updatedTime = new Date(lastUpdated).getTime();
-  if (Number.isNaN(updatedTime)) return "low"; // unparseable date -> can't trust it
+  const percentage = financingRule.ownCapitalPercentage;
 
-  const ageDays = (Date.now() - updatedTime) / MS_PER_DAY;
-
-  if (ageDays < 0) return "low"; // a future date is a data-quality bug, not "fresh"
-  if (ageDays < HIGH_CONFIDENCE_MAX_DAYS) return "high";
-  if (ageDays < MEDIUM_CONFIDENCE_MAX_DAYS) return "medium";
-  return "low";
+  if (
+    typeof percentage !== "number" ||
+    Number.isNaN(percentage) ||
+    percentage <= 0 ||
+    percentage >= 100
+  ) {
+    throw new InvalidInputError(
+      "financingRule.ownCapitalPercentage must be between 0 and 100"
+    );
+  }
 }
 
 /**
- * Wraps a raw metric value into the standard confidence-tagged shape.
- * This is the shape every Module 1/3/10 metric should take by the time it
- * reaches report assembly.
+ * Calculate project cost and loan amount.
  *
- * @param {number|string} value
- * @param {object} meta
- * @param {number} [meta.min] - lower bound of a range, if applicable
- * @param {number} [meta.max] - upper bound of a range, if applicable
- * @param {string} [meta.source] - human-readable data source label
- * @param {string} [meta.lastUpdated] - ISO date the underlying data was last refreshed
- * @param {boolean} [meta.verified] - true if this value came from a field-verified correction
- * @returns {{value:*, min:?number, max:?number, source:string, lastUpdated:?string, confidence:"high"|"medium"|"low", verified:boolean}}
+ * @param {number} ownCapital
+ * @param {object} financingRule
+ *
+ * @returns {{
+ *   ownCapital:number,
+ *   projectCost:number,
+ *   loanAmount:number,
+ *   ownCapitalPercentage:number,
+ *   financingRuleStatus:string,
+ *   financingRuleSource:object
+ * }}
  */
-function wrapMetric(value, meta = {}) {
-  const { min = null, max = null, source = "unknown", lastUpdated = null, verified = false } = meta;
+function calculate(
+  ownCapital,
+  financingRule = {
+    ownCapitalPercentage: OWN_CAPITAL_PERCENTAGE,
+    ruleStatus: "provisional_assumption",
+    ruleSource: {
+      type: "development_assumption",
+      authority: "not_verified",
+      sourceUrl: null,
+      version: "phase0-baseline-v1",
+      effectiveFrom: null,
+      verifiedAt: null,
+    },
+  }
+) {
+  if (
+    typeof ownCapital !== "number" ||
+    Number.isNaN(ownCapital) ||
+    ownCapital <= 0
+  ) {
+    throw new InvalidInputError(
+      "ownCapital must be a positive number"
+    );
+  }
+
+  validateFinancingRule(financingRule);
+
+  const marginFraction =
+    financingRule.ownCapitalPercentage / 100;
+
+  const projectCost =
+    Math.round(
+      (ownCapital / marginFraction) * 100
+    ) / 100;
+
+  const loanAmount =
+    Math.round(
+      projectCost * (1 - marginFraction) * 100
+    ) / 100;
 
   return {
-    value,
-    min,
-    max,
-    source,
-    lastUpdated,
-    // A verified field correction is always high confidence by definition —
-    // someone checked it on the ground. Otherwise confidence decays by age.
-    confidence: verified ? "high" : confidenceFromAge(lastUpdated),
-    verified: !!verified,
+    ownCapital,
+    projectCost,
+    loanAmount,
+    ownCapitalPercentage:
+      financingRule.ownCapitalPercentage,
+    financingRuleStatus:
+      financingRule.ruleStatus || "unknown",
+    financingRuleSource:
+      financingRule.ruleSource || null,
   };
 }
 
 module.exports = {
-  confidenceFromAge,
-  wrapMetric,
-  HIGH_CONFIDENCE_MAX_DAYS,
-  MEDIUM_CONFIDENCE_MAX_DAYS,
+  calculate,
+  validateFinancingRule,
 };

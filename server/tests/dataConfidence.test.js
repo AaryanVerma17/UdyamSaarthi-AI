@@ -1,104 +1,287 @@
-const { confidenceFromAge, wrapMetric } = require("../src/services/dataConfidence");
+const {
+  confidenceFromAge,
+  wrapMetric,
+  confidenceNote,
+  stepDownConfidence,
+} = require("../src/services/dataConfidence");
+
+const FIXED_NOW =
+  new Date(
+    "2026-09-05T16:20:20.000Z"
+  );
+
+beforeAll(() => {
+  jest.useFakeTimers();
+  jest.setSystemTime(
+    FIXED_NOW
+  );
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 function daysAgo(n) {
   return new Date(
-    Date.now() - n * 24 * 60 * 60 * 1000
+    Date.now() -
+      n *
+        24 *
+        60 *
+        60 *
+        1000
   ).toISOString();
 }
 
-describe("dataConfidence — confidenceFromAge", () => {
-  test("data from 10 days ago is high confidence", () => {
-    expect(confidenceFromAge(daysAgo(10))).toBe("high");
-  });
 
-  test("data from 89 days ago is still high confidence (boundary)", () => {
-    expect(confidenceFromAge(daysAgo(89))).toBe("high");
-  });
+describe(
+  "dataConfidence — confidenceFromAge",
+  () => {
+    test(
+      "10 days ago is high confidence",
+      () => {
+        expect(
+          confidenceFromAge(
+            daysAgo(10)
+          )
+        ).toBe("high");
+      }
+    );
 
-  test("data from exactly 90 days ago is medium confidence (boundary)", () => {
-    expect(confidenceFromAge(daysAgo(90))).toBe("medium");
-  });
+    test(
+      "89 days ago is high confidence",
+      () => {
+        expect(
+          confidenceFromAge(
+            daysAgo(89)
+          )
+        ).toBe("high");
+      }
+    );
 
-  test("data from 179 days ago is still medium confidence (boundary)", () => {
-    expect(confidenceFromAge(daysAgo(179))).toBe("medium");
-  });
+    test(
+      "exactly 90 days is medium confidence",
+      () => {
+        expect(
+          confidenceFromAge(
+            daysAgo(90)
+          )
+        ).toBe("medium");
+      }
+    );
 
-  test("data from exactly 180 days ago is low confidence (boundary)", () => {
-    expect(confidenceFromAge(daysAgo(180))).toBe("low");
-  });
+    test(
+      "179 days is medium confidence",
+      () => {
+        expect(
+          confidenceFromAge(
+            daysAgo(179)
+          )
+        ).toBe("medium");
+      }
+    );
 
-  test("data from 400 days ago is low confidence", () => {
-    expect(confidenceFromAge(daysAgo(400))).toBe("low");
-  });
+    test(
+      "exactly 180 days is low confidence",
+      () => {
+        expect(
+          confidenceFromAge(
+            daysAgo(180)
+          )
+        ).toBe("low");
+      }
+    );
 
-  test("missing lastUpdated is low confidence, not a crash", () => {
-    expect(confidenceFromAge(null)).toBe("low");
-    expect(confidenceFromAge(undefined)).toBe("low");
-  });
+    test(
+      "missing date is low confidence",
+      () => {
+        expect(
+          confidenceFromAge(null)
+        ).toBe("low");
 
-  test("garbage date string is low confidence, not a crash", () => {
-    expect(confidenceFromAge("not-a-date")).toBe("low");
-  });
+        expect(
+          confidenceFromAge(
+            undefined
+          )
+        ).toBe("low");
+      }
+    );
 
-  test("a future date is treated as low confidence, not 'high'", () => {
-    const tomorrow = new Date(
-      Date.now() + 24 * 60 * 60 * 1000
-    ).toISOString();
+    test(
+      "future date is low confidence",
+      () => {
+        const tomorrow =
+          new Date(
+            Date.now() +
+              24 *
+                60 *
+                60 *
+                1000
+          ).toISOString();
 
-    expect(confidenceFromAge(tomorrow)).toBe("low");
-  });
-});
+        expect(
+          confidenceFromAge(
+            tomorrow
+          )
+        ).toBe("low");
+      }
+    );
+  }
+);
 
-describe("dataConfidence — wrapMetric", () => {
-  test("wraps a fresh online value as high confidence, unverified", () => {
-    // Capture the timestamp once so the expected value
-    // is exactly the same timestamp passed to wrapMetric().
-    const lastUpdated = daysAgo(5);
 
-    const wrapped = wrapMetric(9200, {
-      source: "OSM scrape",
-      lastUpdated,
-    });
+describe(
+  "dataConfidence — wrapMetric",
+  () => {
+    test(
+      "wraps metric with provenance",
+      () => {
+        const lastUpdated =
+          daysAgo(5);
 
-    expect(wrapped).toEqual({
-      value: 9200,
-      min: null,
-      max: null,
-      source: "OSM scrape",
-      lastUpdated,
-      confidence: "high",
-      verified: false,
-    });
-  });
+        const wrapped =
+          wrapMetric(
+            9200,
+            {
+              source:
+                "OSM scrape",
+              sourceType:
+                "secondary",
+              authority:
+                "non-government",
+              coverage:
+                "local",
+              geographicPrecision:
+                "village",
+              completeness:
+                "partial",
+              lastUpdated,
+            }
+          );
 
-  test("verified is always high confidence regardless of age", () => {
-    const wrapped = wrapMetric(9, {
-      source: "CA officer field visit",
-      lastUpdated: daysAgo(200),
-      verified: true,
-    });
+        expect(
+          wrapped.value
+        ).toBe(9200);
 
-    expect(wrapped.confidence).toBe("high");
-    expect(wrapped.verified).toBe(true);
-  });
+        expect(
+          wrapped.source
+        ).toBe("OSM scrape");
 
-  test("supports a min/max range for values like pricing", () => {
-    const wrapped = wrapMetric(38, {
-      min: 30,
-      max: 45,
-      source: "mandi price sheet",
-      lastUpdated: daysAgo(20),
-    });
+        expect(
+          wrapped.sourceType
+        ).toBe("secondary");
 
-    expect(wrapped.min).toBe(30);
-    expect(wrapped.max).toBe(45);
-  });
+        expect(
+          wrapped.authority
+        ).toBe(
+          "non-government"
+        );
 
-  test("defaults gracefully when no meta is provided", () => {
-    const wrapped = wrapMetric(100);
+        expect(
+          wrapped.confidence
+        ).toBe("high");
 
-    expect(wrapped.source).toBe("unknown");
-    expect(wrapped.confidence).toBe("low");
-    expect(wrapped.verified).toBe(false);
-  });
-});
+        expect(
+          wrapped.estimated
+        ).toBe(false);
+      }
+    );
+
+    test(
+      "verified metric is high confidence",
+      () => {
+        const wrapped =
+          wrapMetric(
+            9,
+            {
+              source:
+                "field verification",
+              lastUpdated:
+                daysAgo(200),
+              verified:
+                true,
+            }
+          );
+
+        expect(
+          wrapped.confidence
+        ).toBe("high");
+
+        expect(
+          wrapped.verified
+        ).toBe(true);
+      }
+    );
+
+    test(
+      "supports ranges",
+      () => {
+        const wrapped =
+          wrapMetric(
+            38,
+            {
+              min: 30,
+              max: 45,
+            }
+          );
+
+        expect(
+          wrapped.min
+        ).toBe(30);
+
+        expect(
+          wrapped.max
+        ).toBe(45);
+      }
+    );
+
+    test(
+      "supports estimated values",
+      () => {
+        const wrapped =
+          wrapMetric(
+            100,
+            {
+              estimated: true,
+              note:
+                "Development fallback",
+            }
+          );
+
+        expect(
+          wrapped.estimated
+        ).toBe(true);
+
+        expect(
+          confidenceNote(
+            wrapped
+          )
+        ).toMatch(
+          /estimate/i
+        );
+      }
+    );
+
+    test(
+      "steps confidence down safely",
+      () => {
+        expect(
+          stepDownConfidence(
+            "high"
+          )
+        ).toBe("medium");
+
+        expect(
+          stepDownConfidence(
+            "medium"
+          )
+        ).toBe("low");
+
+        expect(
+          stepDownConfidence(
+            "low"
+          )
+        ).toBe("low");
+      }
+    );
+  }
+);

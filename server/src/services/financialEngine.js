@@ -21,6 +21,9 @@
 const DEFAULT_OWN_CAPITAL_PERCENTAGE = 10;
 const DEFAULT_FINANCING_PERCENTAGE = 90;
 
+/**
+ * Validate positive monetary input.
+ */
 function assertPositiveMoney(value, fieldName) {
   const numeric = Number(value);
 
@@ -31,6 +34,9 @@ function assertPositiveMoney(value, fieldName) {
   return numeric;
 }
 
+/**
+ * Round monetary values to two decimal places.
+ */
 function roundMoney(value) {
   return (
     Math.round((Number(value) + Number.EPSILON) * 100) / 100
@@ -103,7 +109,8 @@ function calculate(ownCapital, options = {}) {
 
     financingPercentage,
 
-    projectCost: roundMoney(projectCost),
+    projectCost:
+      roundMoney(projectCost),
 
     theoreticalLoanAmount:
       roundMoney(theoreticalLoan),
@@ -153,27 +160,24 @@ function applySchemeLimit(financials, scheme) {
     );
   }
 
-  // const projectCost =
-  //   Number(financials.projectCost);
+  /*
+   * Read and validate the project cost.
+   */
+  const projectCost =
+    Number(financials.projectCost);
 
-  // const theoreticalLoan =
-  //   Number(
-  //     financials.theoreticalLoanAmount ??
-  //     financials.loanAmount
-  //   );
-  function applySchemeLimit(financials, scheme) {
-  if (!financials || !scheme) {
-    throw new Error(
-      "financials and scheme are required"
-    );
-  }
-
-  const projectCost = Number(financials.projectCost);
-
-  const theoreticalLoan = Number(
-    financials.theoreticalLoanAmount ??
+  /*
+   * Prefer theoreticalLoanAmount.
+   *
+   * loanAmount is used as a fallback so that
+   * the function remains compatible with older
+   * financial objects.
+   */
+  const theoreticalLoan =
+    Number(
+      financials.theoreticalLoanAmount ??
       financials.loanAmount
-  );
+    );
 
   if (
     !Number.isFinite(projectCost) ||
@@ -184,11 +188,25 @@ function applySchemeLimit(financials, scheme) {
     );
   }
 
-  const maxLoan = Number(scheme.maxLoan);
-  const maxProjectCost = Number(
-    scheme.maxProjectCost
-  );
+  /*
+   * Convert scheme limits to numbers.
+   *
+   * If a scheme does not define a limit,
+   * Number(undefined) becomes NaN and the
+   * corresponding limit is treated as unlimited.
+   */
+  const maxLoan =
+    Number(scheme.maxLoan);
 
+  const maxProjectCost =
+    Number(scheme.maxProjectCost);
+
+  /*
+   * Apply maximum loan limit.
+   *
+   * The actual loan cannot exceed the
+   * scheme's maximum permitted loan.
+   */
   const loanAmount =
     Number.isFinite(maxLoan)
       ? Math.min(
@@ -197,15 +215,33 @@ function applySchemeLimit(financials, scheme) {
         )
       : theoreticalLoan;
 
+  /*
+   * Check whether the total project cost
+   * falls within the scheme's project-cost
+   * eligibility limit.
+   */
   const projectCostWithinSchemeLimit =
     !Number.isFinite(maxProjectCost) ||
     projectCost <= maxProjectCost;
 
-  const fundingGap = Math.max(
-    0,
-    theoreticalLoan - loanAmount
-  );
+  /*
+   * Funding gap is the portion of the
+   * theoretical financing requirement that
+   * cannot be covered by the scheme loan.
+   */
+  const fundingGap =
+    Math.max(
+      0,
+      theoreticalLoan -
+      loanAmount
+    );
 
+  /*
+   * The scheme is fully feasible only when:
+   *
+   * 1. Project cost is within scheme limit.
+   * 2. There is no funding gap.
+   */
   const schemeFeasible =
     projectCostWithinSchemeLimit &&
     fundingGap === 0;
@@ -213,99 +249,32 @@ function applySchemeLimit(financials, scheme) {
   return {
     ...financials,
 
-    loanAmount: roundMoney(
-      loanAmount
-    ),
-
-    fundingGap: roundMoney(
-      fundingGap
-    ),
-
-    schemeFeasible,
-
-    financialFeasibility: {
-      projectCostWithinSchemeLimit,
-
-      loanWithinSchemeLimit:
-        Number.isFinite(maxLoan)
-          ? loanAmount <= maxLoan
-          : true,
-
-      fundingGap: roundMoney(
-        fundingGap
-      ),
-
-      status: schemeFeasible
-        ? "within_scheme_limits"
-        : "additional_funding_required",
-    },
-
-    schemeLimitApplied:
-      loanAmount < theoreticalLoan,
-
-    maxLoan:
-      Number.isFinite(maxLoan)
-        ? maxLoan
-        : null,
-
-    maxProjectCost:
-      Number.isFinite(maxProjectCost)
-        ? maxProjectCost
-        : null,
-  };
-}
-
-  if (
-    !Number.isFinite(projectCost) ||
-    !Number.isFinite(theoreticalLoan)
-  ) {
-    throw new Error(
-      "Invalid financial values"
-    );
-  }
-
-  const maxLoan =
-    Number(scheme.maxLoan);
-
-  const maxProjectCost =
-    Number(scheme.maxProjectCost);
-
-  const loanAmount =
-    Number.isFinite(maxLoan)
-      ? Math.min(
-          theoreticalLoan,
-          maxLoan
-        )
-      : theoreticalLoan;
-
-  const projectCostWithinLimit =
-    !Number.isFinite(maxProjectCost) ||
-    projectCost <= maxProjectCost;
-
-  const fundingGap =
-    Math.max(
-      0,
-      theoreticalLoan - loanAmount
-    );
-
-  const schemeFeasible =
-    projectCostWithinLimit &&
-    fundingGap === 0;
-
-  return {
-    ...financials,
-
+    /*
+     * Scheme-adjusted loan amount.
+     */
     loanAmount:
       roundMoney(loanAmount),
 
+    /*
+     * Amount still requiring additional
+     * funding beyond the scheme loan.
+     */
     fundingGap:
       roundMoney(fundingGap),
 
     schemeFeasible,
 
+    /*
+     * True when the theoretical loan was
+     * reduced because of the scheme limit.
+     */
     schemeLimitApplied:
       loanAmount < theoreticalLoan,
 
+    /*
+     * Expose scheme limits for downstream
+     * reporting and explainability.
+     */
     maxLoan:
       Number.isFinite(maxLoan)
         ? maxLoan
@@ -316,6 +285,14 @@ function applySchemeLimit(financials, scheme) {
         ? maxProjectCost
         : null,
 
+    /*
+     * Detailed financial feasibility result.
+     *
+     * This is intentionally separate from
+     * schemeFeasible so the frontend/report
+     * can explain WHY a project is or isn't
+     * feasible.
+     */
     financialFeasibility: {
       projectCostWithinSchemeLimit,
 

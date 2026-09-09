@@ -153,14 +153,107 @@ function applySchemeLimit(financials, scheme) {
     );
   }
 
-  const projectCost =
-    Number(financials.projectCost);
+  // const projectCost =
+  //   Number(financials.projectCost);
 
-  const theoreticalLoan =
-    Number(
-      financials.theoreticalLoanAmount ??
-      financials.loanAmount
+  // const theoreticalLoan =
+  //   Number(
+  //     financials.theoreticalLoanAmount ??
+  //     financials.loanAmount
+  //   );
+  function applySchemeLimit(financials, scheme) {
+  if (!financials || !scheme) {
+    throw new Error(
+      "financials and scheme are required"
     );
+  }
+
+  const projectCost = Number(financials.projectCost);
+
+  const theoreticalLoan = Number(
+    financials.theoreticalLoanAmount ??
+      financials.loanAmount
+  );
+
+  if (
+    !Number.isFinite(projectCost) ||
+    !Number.isFinite(theoreticalLoan)
+  ) {
+    throw new Error(
+      "Invalid financial values"
+    );
+  }
+
+  const maxLoan = Number(scheme.maxLoan);
+  const maxProjectCost = Number(
+    scheme.maxProjectCost
+  );
+
+  const loanAmount =
+    Number.isFinite(maxLoan)
+      ? Math.min(
+          theoreticalLoan,
+          maxLoan
+        )
+      : theoreticalLoan;
+
+  const projectCostWithinSchemeLimit =
+    !Number.isFinite(maxProjectCost) ||
+    projectCost <= maxProjectCost;
+
+  const fundingGap = Math.max(
+    0,
+    theoreticalLoan - loanAmount
+  );
+
+  const schemeFeasible =
+    projectCostWithinSchemeLimit &&
+    fundingGap === 0;
+
+  return {
+    ...financials,
+
+    loanAmount: roundMoney(
+      loanAmount
+    ),
+
+    fundingGap: roundMoney(
+      fundingGap
+    ),
+
+    schemeFeasible,
+
+    financialFeasibility: {
+      projectCostWithinSchemeLimit,
+
+      loanWithinSchemeLimit:
+        Number.isFinite(maxLoan)
+          ? loanAmount <= maxLoan
+          : true,
+
+      fundingGap: roundMoney(
+        fundingGap
+      ),
+
+      status: schemeFeasible
+        ? "within_scheme_limits"
+        : "additional_funding_required",
+    },
+
+    schemeLimitApplied:
+      loanAmount < theoreticalLoan,
+
+    maxLoan:
+      Number.isFinite(maxLoan)
+        ? maxLoan
+        : null,
+
+    maxProjectCost:
+      Number.isFinite(maxProjectCost)
+        ? maxProjectCost
+        : null,
+  };
+}
 
   if (
     !Number.isFinite(projectCost) ||

@@ -26,17 +26,13 @@
  * The system must NEVER convert missing cash flow to zero.
  */
 
-
 /**
  * Validate a non-negative numeric value.
  */
 function assertNonNegative(value, fieldName) {
   const numeric = Number(value);
 
-  if (
-    !Number.isFinite(numeric) ||
-    numeric < 0
-  ) {
+  if (!Number.isFinite(numeric) || numeric < 0) {
     throw new Error(
       `${fieldName} must be a valid non-negative number`
     );
@@ -44,7 +40,6 @@ function assertNonNegative(value, fieldName) {
 
   return numeric;
 }
-
 
 /**
  * Round currency values to two decimals.
@@ -56,7 +51,6 @@ function roundMoney(value) {
     ) / 100
   );
 }
-
 
 /**
  * Add months to a Date.
@@ -71,7 +65,6 @@ function addMonths(date, months) {
   return result;
 }
 
-
 /**
  * Convert Date to YYYY-MM-DD.
  */
@@ -81,14 +74,21 @@ function toISODate(date) {
     .slice(0, 10);
 }
 
-
 /**
  * Standard periodic amortisation payment.
  *
- * principal
- * annualRate → percentage, e.g. 8 means 8%
- * periodsPerYear → 4 for quarterly
- * numberOfPayments
+ * principal:
+ *   Loan principal
+ *
+ * annualRate:
+ *   Annual interest rate as percentage.
+ *   Example: 8 means 8%.
+ *
+ * periodsPerYear:
+ *   4 for quarterly repayment.
+ *
+ * numberOfPayments:
+ *   Total number of repayment periods.
  */
 function calculatePeriodicPayment(
   principal,
@@ -132,7 +132,6 @@ function calculatePeriodicPayment(
     100 /
     periodsPerYear;
 
-
   // Zero-interest case.
   if (periodicRate === 0) {
     return (
@@ -141,40 +140,76 @@ function calculatePeriodicPayment(
     );
   }
 
+  const growthFactor = Math.pow(
+    1 + periodicRate,
+    numberOfPayments
+  );
 
-  const payment =
+  return (
     principal *
     periodicRate *
-    Math.pow(
-      1 + periodicRate,
-      numberOfPayments
-    ) /
-    (
-      Math.pow(
-        1 + periodicRate,
-        numberOfPayments
-      ) - 1
-    );
-
-
-  return payment;
+    growthFactor /
+    (growthFactor - 1)
+  );
 }
 
+/**
+ * Normalise expected monthly cash flow.
+ *
+ * IMPORTANT:
+ * null / undefined / "" remain null.
+ * Invalid values also become null.
+ *
+ * This prevents:
+ *
+ * Number(null) === 0
+ *
+ * from incorrectly treating missing evidence as zero cash flow.
+ */
+function normaliseExpectedCashFlow(
+  expectedCashFlow
+) {
+  if (
+    expectedCashFlow === null ||
+    expectedCashFlow === undefined ||
+    expectedCashFlow === ""
+  ) {
+    return null;
+  }
+
+  const numeric =
+    Number(expectedCashFlow);
+
+  if (
+    !Number.isFinite(numeric) ||
+    numeric < 0
+  ) {
+    return null;
+  }
+
+  return numeric;
+}
 
 /**
  * Build quarterly repayment plan.
  *
- * loanAmount
+ * loanAmount:
+ *   Loan amount.
+ *
  * scheme:
- *   interestRate
- *   tenureYears
- *   moratoriumMonths
+ *   {
+ *     interestRate,
+ *     tenureYears,
+ *     moratoriumMonths
+ *   }
  *
  * expectedCashFlow:
- *   monthly expected business cash flow
+ *   Monthly expected business cash flow.
  *
  * options:
- *   startDate
+ *   {
+ *     startDate
+ *   }
  */
 function build(
   loanAmount,
@@ -182,39 +217,63 @@ function build(
   expectedCashFlow,
   options = {}
 ) {
-
   const principal =
     assertNonNegative(
       loanAmount,
       "loanAmount"
     );
 
+  if (!scheme) {
+    throw new Error(
+      "scheme is required"
+    );
+  }
 
+  const moratoriumMonths =
+    scheme.moratoriumMonths === null ||
+    scheme.moratoriumMonths === undefined ||
+    scheme.moratoriumMonths === ""
+      ? 0
+      : Number(
+          scheme.moratoriumMonths
+        );
+
+  if (
+    !Number.isFinite(
+      moratoriumMonths
+    ) ||
+    moratoriumMonths < 0
+  ) {
+    throw new Error(
+      "scheme.moratoriumMonths is invalid"
+    );
+  }
+
+  /*
+   * Zero-loan case.
+   *
+   * Still return a deterministic structure so
+   * callers do not have to special-case it.
+   */
   if (principal <= 0) {
     return {
       quarterlyInstallment: 0,
+
       totalInterestPayable: 0,
+
       totalRepayment: 0,
 
-      moratoriumMonths:
-        Number(
-          scheme?.moratoriumMonths || 0
-        ),
+      moratoriumMonths,
 
-      moratoriumEndDate:
-        null,
+      moratoriumEndDate: null,
 
-      repaymentCapacity:
-        "Unknown",
+      repaymentCapacity: "Unknown",
 
-      monthlyExpectedCashFlow:
-        null,
+      monthlyExpectedCashFlow: null,
 
-      quarterlyExpectedCashFlow:
-        null,
+      quarterlyExpectedCashFlow: null,
 
-      repaymentCoverageRatio:
-        null,
+      repaymentCoverageRatio: null,
 
       repaymentSchedule: [],
 
@@ -225,31 +284,15 @@ function build(
     };
   }
 
-
-  if (!scheme) {
-    throw new Error(
-      "scheme is required"
-    );
-  }
-
-
   const annualRate =
     Number(
       scheme.interestRate
     );
 
-
   const tenureYears =
     Number(
       scheme.tenureYears
     );
-
-
-  const moratoriumMonths =
-    Number(
-      scheme.moratoriumMonths || 0
-    );
-
 
   if (
     !Number.isFinite(annualRate) ||
@@ -260,7 +303,6 @@ function build(
     );
   }
 
-
   if (
     !Number.isFinite(tenureYears) ||
     tenureYears <= 0
@@ -270,19 +312,7 @@ function build(
     );
   }
 
-
-  if (
-    !Number.isFinite(moratoriumMonths) ||
-    moratoriumMonths < 0
-  ) {
-    throw new Error(
-      "scheme.moratoriumMonths is invalid"
-    );
-  }
-
-
   const periodsPerYear = 4;
-
 
   const totalPayments =
     Math.round(
@@ -290,6 +320,11 @@ function build(
       periodsPerYear
     );
 
+  if (totalPayments <= 0) {
+    throw new Error(
+      "scheme.tenureYears results in no repayment periods"
+    );
+  }
 
   const quarterlyPayment =
     calculatePeriodicPayment(
@@ -299,14 +334,10 @@ function build(
       totalPayments
     );
 
-
   const startDate =
     options.startDate
-      ? new Date(
-          options.startDate
-        )
+      ? new Date(options.startDate)
       : new Date();
-
 
   if (
     Number.isNaN(
@@ -318,46 +349,39 @@ function build(
     );
   }
 
-
   const moratoriumEndDate =
     addMonths(
       startDate,
       moratoriumMonths
     );
 
+  let balance = principal;
 
-  let balance =
-    principal;
+  let totalInterest = 0;
 
+  const repaymentSchedule = [];
 
-  let totalInterest =
-    0;
-
-
-  const repaymentSchedule =
-    [];
-
-
-  // ---------------------------------------------------------------
-  // Quarterly amortisation
-  // ---------------------------------------------------------------
-
+  /*
+   * ---------------------------------------------------------------
+   * QUARTERLY AMORTISATION
+   * ---------------------------------------------------------------
+   *
+   * Interest is calculated on the opening balance
+   * for each quarterly repayment period.
+   */
   for (
     let period = 1;
     period <= totalPayments;
     period += 1
   ) {
-
     const dueDate =
       addMonths(
         moratoriumEndDate,
         period * 3
       );
 
-
     const openingBalance =
       balance;
-
 
     const quarterlyInterest =
       openingBalance *
@@ -367,14 +391,14 @@ function build(
         periodsPerYear
       );
 
-
     let principalComponent =
       quarterlyPayment -
       quarterlyInterest;
 
-
-    // Protect against floating-point
-    // overshoot in the final period.
+    /*
+     * Protect against floating-point overshoot
+     * in the final period.
+     */
     if (
       principalComponent >
       balance
@@ -383,19 +407,19 @@ function build(
         balance;
     }
 
-
-    // Prevent negative principal.
+    /*
+     * Never allow a negative principal
+     * component.
+     */
     principalComponent =
       Math.max(
         0,
         principalComponent
       );
 
-
     const actualPayment =
       principalComponent +
       quarterlyInterest;
-
 
     balance =
       Math.max(
@@ -404,18 +428,14 @@ function build(
         principalComponent
       );
 
-
     totalInterest +=
       quarterlyInterest;
-
 
     repaymentSchedule.push({
       period,
 
       dueDate:
-        toISODate(
-          dueDate
-        ),
+        toISODate(dueDate),
 
       openingBalance:
         roundMoney(
@@ -443,59 +463,51 @@ function build(
         ),
     });
 
-
-    if (
-      balance <= 0.01
-    ) {
+    if (balance <= 0.01) {
       break;
     }
   }
 
-
-  // ---------------------------------------------------------------
-  // Expected cash flow
-  // ---------------------------------------------------------------
-  //
-  // Input is monthly.
-  //
-  // Repayment is quarterly.
-  //
-  // Therefore:
-  //
-  // monthly cash flow × 3
-  //          ↓
-  // quarterly cash flow
-  //
-  // must be compared against:
-  //
-  // quarterly repayment.
-  // ---------------------------------------------------------------
-
-  const parsedCashFlow =
-    Number(
+  /*
+   * ---------------------------------------------------------------
+   * EXPECTED CASH FLOW
+   * ---------------------------------------------------------------
+   *
+   * Input:
+   *   monthly expected cash flow
+   *
+   * Repayment:
+   *   quarterly
+   *
+   * Conversion:
+   *
+   *   monthly cash flow × 3
+   *          ↓
+   *   quarterly cash flow
+   */
+  const monthlyCashFlow =
+    normaliseExpectedCashFlow(
       expectedCashFlow
     );
-
-
-  const monthlyCashFlow =
-    Number.isFinite(
-      parsedCashFlow
-    ) &&
-    parsedCashFlow >= 0
-      ? parsedCashFlow
-      : null;
-
 
   const quarterlyCashFlow =
     monthlyCashFlow !== null
       ? monthlyCashFlow * 3
       : null;
 
-
-  // ---------------------------------------------------------------
-  // Repayment coverage
-  // ---------------------------------------------------------------
-
+  /*
+   * ---------------------------------------------------------------
+   * REPAYMENT COVERAGE
+   * ---------------------------------------------------------------
+   *
+   * Coverage ratio:
+   *
+   * quarterly expected cash flow
+   * --------------------------------
+   * quarterly repayment
+   *
+   * Missing cash flow → null.
+   */
   const repaymentRatio =
     quarterlyCashFlow !== null &&
     quarterlyPayment > 0
@@ -503,43 +515,39 @@ function build(
         quarterlyPayment
       : null;
 
-
+  /*
+   * ---------------------------------------------------------------
+   * REPAYMENT CAPACITY
+   * ---------------------------------------------------------------
+   */
   let repaymentCapacity =
     "Unknown";
-
 
   if (
     repaymentRatio !== null
   ) {
-
     if (
       repaymentRatio >= 1.5
     ) {
-
       repaymentCapacity =
         "High";
-
     } else if (
       repaymentRatio >= 1.1
     ) {
-
       repaymentCapacity =
         "Medium";
-
     } else {
-
       repaymentCapacity =
         "Low";
     }
   }
 
-
-  // ---------------------------------------------------------------
-  // Final result
-  // ---------------------------------------------------------------
-
+  /*
+   * ---------------------------------------------------------------
+   * FINAL RESULT
+   * ---------------------------------------------------------------
+   */
   return {
-
     quarterlyInstallment:
       roundMoney(
         quarterlyPayment
@@ -565,6 +573,9 @@ function build(
 
     repaymentCapacity,
 
+    /*
+     * Missing cash flow stays null.
+     */
     monthlyExpectedCashFlow:
       monthlyCashFlow !== null
         ? roundMoney(
@@ -594,7 +605,6 @@ function build(
     deterministic: true,
   };
 }
-
 
 module.exports = {
   build,

@@ -273,48 +273,38 @@ class GeoContext(BaseModel):
 # ---------------------------------------------------------------------------
 
 class ViabilityRequest(BaseModel):
-    geoContext: GeoContext
+    """
+    Request contract for the dynamic viability engine.
 
+    geoContext is intentionally flexible because the location,
+    competition and evidence layers evolve independently.
+    """
+    geoContext: Any
     businessCategory: str
 
 
 class ViabilityResponse(BaseModel):
+
     score: int = Field(
-        default=0,
         ge=0,
         le=100,
     )
 
-    label: str
-
-    explanation: str
-
-    breakEvenMonths: Optional[int] = None
-
-    expectedCashFlow: Optional[float] = None
-
-    drivers: List[str] = Field(
-        default_factory=list
-    )
-
-    swot: dict = Field(
-        default_factory=dict
-    )
+    label: Literal[
+        "High Potential",
+        "Moderate Potential",
+        "Low Potential",
+    ]
 
     estimateStatus: Literal[
-        "evidence_based",
-        "preliminary",
-        "insufficient_data",
         "evidence_supported",
         "partially_evidence_supported",
         "planning_estimate",
-    ] = "preliminary"
+        "evidence_based",
+        "preliminary",
+        "insufficient_data",
+    ]
 
-    dataLimitations: List[str] = Field(
-        default_factory=list
-    )
-
-    # Phase 5 / dynamic viability compatibility.
     signals: Dict[str, float] = Field(
         default_factory=dict
     )
@@ -323,7 +313,15 @@ class ViabilityResponse(BaseModel):
         default_factory=dict
     )
 
+    drivers: List[str] = Field(
+        default_factory=list
+    )
+
     limitations: List[str] = Field(
+        default_factory=list
+    )
+
+    dataLimitations: List[str] = Field(
         default_factory=list
     )
 
@@ -332,6 +330,17 @@ class ViabilityResponse(BaseModel):
     )
 
     businessEconomics: Dict[str, Any] = Field(
+        default_factory=dict
+    )
+
+    expectedCashFlow: Optional[float] = None
+
+    breakEvenMonths: Optional[float] = None
+
+    explanation: str = ""
+
+    # Preserve the existing report contract.
+    swot: Dict[str, Any] = Field(
         default_factory=dict
     )
 

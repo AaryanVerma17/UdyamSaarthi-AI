@@ -1,115 +1,249 @@
 /**
- * Module 5 — Financial Calculator
+ * Module 5 — Deterministic Financial Engine
  *
- * PHASE 0:
- * - Keeps calculations deterministic.
- * - Removes the assumption that the global 10% rule is universally valid.
- * - Accepts a financing rule explicitly.
- * - Returns rule provenance so the report cannot silently present an
- *   assumption as an official scheme requirement.
+ * Phase 6
  *
- * No LLM / ML is involved.
+ * No ML.
+ * No LLM.
+ * No external API.
+ *
+ * Responsibilities:
+ * 1. Calculate theoretical project cost from own capital.
+ * 2. Calculate theoretical financing requirement.
+ * 3. Apply scheme-specific loan limits.
+ * 4. Calculate funding gap.
+ *
+ * Important:
+ * The financial engine does NOT choose a government scheme.
+ * Scheme selection belongs to schemeRouter.js.
  */
 
-const {
-  OWN_CAPITAL_PERCENTAGE,
-} = require("../../../shared/constants/schemeRules");
+const DEFAULT_OWN_CAPITAL_PERCENTAGE = 10;
+const DEFAULT_FINANCING_PERCENTAGE = 90;
 
-const {
-  InvalidInputError,
-} = require("../middlewares/errorHandler");
+function assertPositiveMoney(value, fieldName) {
+  const numeric = Number(value);
 
-/**
- * Validate a financing rule before using it.
- */
-function validateFinancingRule(financingRule) {
-  if (!financingRule || typeof financingRule !== "object") {
-    throw new InvalidInputError("financingRule is required");
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    throw new Error(`${fieldName} must be a positive number`);
   }
 
-  const percentage = financingRule.ownCapitalPercentage;
+  return numeric;
+}
 
-  if (
-    typeof percentage !== "number" ||
-    Number.isNaN(percentage) ||
-    percentage <= 0 ||
-    percentage >= 100
-  ) {
-    throw new InvalidInputError(
-      "financingRule.ownCapitalPercentage must be between 0 and 100"
-    );
-  }
+function roundMoney(value) {
+  return (
+    Math.round((Number(value) + Number.EPSILON) * 100) / 100
+  );
 }
 
 /**
- * Calculate project cost and loan amount.
+ * Calculate theoretical financing structure.
  *
- * @param {number} ownCapital
- * @param {object} financingRule
+ * Example:
  *
- * @returns {{
- *   ownCapital:number,
- *   projectCost:number,
- *   loanAmount:number,
- *   ownCapitalPercentage:number,
- *   financingRuleStatus:string,
- *   financingRuleSource:object
- * }}
+ * Own capital = ₹50,000
+ * Own contribution = 10%
+ *
+ * Theoretical project cost = ₹5,00,000
+ * Theoretical loan = ₹4,50,000
+ *
+ * Scheme limits are NOT applied here.
  */
-function calculate(
-  ownCapital,
-  financingRule = {
-    ownCapitalPercentage: OWN_CAPITAL_PERCENTAGE,
-    ruleStatus: "provisional_assumption",
-    ruleSource: {
-      type: "development_assumption",
-      authority: "not_verified",
-      sourceUrl: null,
-      version: "phase0-baseline-v1",
-      effectiveFrom: null,
-      verifiedAt: null,
-    },
-  }
-) {
+function calculate(ownCapital, options = {}) {
+  const capital = assertPositiveMoney(
+    ownCapital,
+    "ownCapital"
+  );
+
+  const ownCapitalPercentage =
+    Number.isFinite(
+      Number(options.ownCapitalPercentage)
+    )
+      ? Number(options.ownCapitalPercentage)
+      : DEFAULT_OWN_CAPITAL_PERCENTAGE;
+
+  const financingPercentage =
+    Number.isFinite(
+      Number(options.financingPercentage)
+    )
+      ? Number(options.financingPercentage)
+      : DEFAULT_FINANCING_PERCENTAGE;
+
   if (
-    typeof ownCapital !== "number" ||
-    Number.isNaN(ownCapital) ||
-    ownCapital <= 0
+    ownCapitalPercentage <= 0 ||
+    ownCapitalPercentage > 100
   ) {
-    throw new InvalidInputError(
-      "ownCapital must be a positive number"
+    throw new Error(
+      "ownCapitalPercentage must be between 0 and 100"
     );
   }
 
-  validateFinancingRule(financingRule);
-
-  const marginFraction =
-    financingRule.ownCapitalPercentage / 100;
+  if (
+    financingPercentage < 0 ||
+    financingPercentage > 100
+  ) {
+    throw new Error(
+      "financingPercentage must be between 0 and 100"
+    );
+  }
 
   const projectCost =
-    Math.round(
-      (ownCapital / marginFraction) * 100
-    ) / 100;
+    capital /
+    (ownCapitalPercentage / 100);
 
-  const loanAmount =
-    Math.round(
-      projectCost * (1 - marginFraction) * 100
-    ) / 100;
+  const theoreticalLoan =
+    projectCost *
+    (financingPercentage / 100);
 
   return {
-    ownCapital,
-    projectCost,
-    loanAmount,
-    ownCapitalPercentage:
-      financingRule.ownCapitalPercentage,
-    financingRuleStatus:
-      financingRule.ruleStatus || "unknown",
-    financingRuleSource:
-      financingRule.ruleSource || null,
+    ownCapital: roundMoney(capital),
+
+    ownCapitalPercentage,
+
+    financingPercentage,
+
+    projectCost: roundMoney(projectCost),
+
+    theoreticalLoanAmount:
+      roundMoney(theoreticalLoan),
+
+    /*
+     * Before scheme limits are applied,
+     * loanAmount equals the theoretical amount.
+     */
+    loanAmount:
+      roundMoney(theoreticalLoan),
+
+    fundingGap: 0,
+
+    schemeFeasible: true,
+
+    calculationMethod:
+      "Own capital / own capital percentage",
+
+    deterministic: true,
+
+    ruleStatus:
+      "derived_from_financial_formula",
+  };
+}
+
+/**
+ * Apply a selected scheme's maximum loan/project-cost limits.
+ *
+ * This function does NOT select the scheme.
+ *
+ * It takes:
+ *   financials = output of calculate()
+ *   scheme     = output of schemeRouter.route()
+ *
+ * Example:
+ *
+ * Theoretical loan = ₹50,00,000
+ * Scheme max loan = ₹45,00,000
+ *
+ * Actual scheme-supported loan = ₹45,00,000
+ * Funding gap = ₹5,00,000
+ */
+function applySchemeLimit(financials, scheme) {
+  if (!financials || !scheme) {
+    throw new Error(
+      "financials and scheme are required"
+    );
+  }
+
+  const projectCost =
+    Number(financials.projectCost);
+
+  const theoreticalLoan =
+    Number(
+      financials.theoreticalLoanAmount ??
+      financials.loanAmount
+    );
+
+  if (
+    !Number.isFinite(projectCost) ||
+    !Number.isFinite(theoreticalLoan)
+  ) {
+    throw new Error(
+      "Invalid financial values"
+    );
+  }
+
+  const maxLoan =
+    Number(scheme.maxLoan);
+
+  const maxProjectCost =
+    Number(scheme.maxProjectCost);
+
+  const loanAmount =
+    Number.isFinite(maxLoan)
+      ? Math.min(
+          theoreticalLoan,
+          maxLoan
+        )
+      : theoreticalLoan;
+
+  const projectCostWithinLimit =
+    !Number.isFinite(maxProjectCost) ||
+    projectCost <= maxProjectCost;
+
+  const fundingGap =
+    Math.max(
+      0,
+      theoreticalLoan - loanAmount
+    );
+
+  const schemeFeasible =
+    projectCostWithinLimit &&
+    fundingGap === 0;
+
+  return {
+    ...financials,
+
+    loanAmount:
+      roundMoney(loanAmount),
+
+    fundingGap:
+      roundMoney(fundingGap),
+
+    schemeFeasible,
+
+    schemeLimitApplied:
+      loanAmount < theoreticalLoan,
+
+    maxLoan:
+      Number.isFinite(maxLoan)
+        ? maxLoan
+        : null,
+
+    maxProjectCost:
+      Number.isFinite(maxProjectCost)
+        ? maxProjectCost
+        : null,
+
+    financialFeasibility: {
+      projectCostWithinSchemeLimit,
+
+      loanWithinSchemeLimit:
+        Number.isFinite(maxLoan)
+          ? loanAmount <= maxLoan
+          : true,
+
+      fundingGap:
+        roundMoney(fundingGap),
+
+      status:
+        schemeFeasible
+          ? "within_scheme_limits"
+          : "additional_funding_required",
+    },
   };
 }
 
 module.exports = {
   calculate,
-  validateFinancingRule,
+  applySchemeLimit,
+  roundMoney,
 };

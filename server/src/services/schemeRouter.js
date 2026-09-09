@@ -1,7 +1,12 @@
 /**
- * Module 6 — Deterministic Scheme Router.
+ * Module 6 — Deterministic Scheme Router
+ *
+ * Phase 6
  *
  * Scheme selection is NEVER performed by an LLM.
+ *
+ * This service selects the configured scheme based
+ * solely on project cost.
  */
 
 const {
@@ -11,13 +16,13 @@ const {
   "../../../shared/constants/schemeRules"
 );
 
-/**
- * Validate project cost.
- */
 function assertValidProjectCost(projectCost) {
   const value = Number(projectCost);
 
-  if (!Number.isFinite(value) || value <= 0) {
+  if (
+    !Number.isFinite(value) ||
+    value <= 0
+  ) {
     throw new Error(
       "projectCost must be a positive number"
     );
@@ -26,14 +31,12 @@ function assertValidProjectCost(projectCost) {
   return value;
 }
 
-/**
- * Clone scheme rule while exposing its verification status.
- */
 function cloneRule(rule) {
   return {
     ...rule,
 
-    ruleStatus: rule.ruleStatus,
+    ruleStatus:
+      rule.ruleStatus,
 
     verified:
       rule.ruleStatus === "verified",
@@ -45,13 +48,14 @@ function cloneRule(rule) {
   };
 }
 
-/**
- * Select applicable scheme based on project cost.
- */
 function route(projectCost) {
   const value =
     assertValidProjectCost(projectCost);
 
+  /*
+   * Micro Finance:
+   * ₹0 — ₹1,40,000
+   */
   if (
     value <=
     MICRO_FINANCE_SCHEME.maxProjectCost
@@ -61,6 +65,10 @@ function route(projectCost) {
     );
   }
 
+  /*
+   * Term Loan:
+   * ₹1,40,001 — ₹50,00,000
+   */
   if (
     value >=
       TERM_LOAN_SCHEME.minProjectCost &&
@@ -89,9 +97,6 @@ function route(projectCost) {
   throw error;
 }
 
-/**
- * Check whether a scheme covers a project cost.
- */
 function isApplicable(
   projectCost,
   scheme

@@ -1,244 +1,603 @@
 /**
- * Module 7 — Repayment Planner
+ * UdyamSaarthi-AI
+ * Module 7 — Deterministic Repayment Planner
  *
- * PHASE 0:
- * - Deterministic calculation.
- * - Never assumes that missing cash-flow evidence means zero cash flow.
- * - Repayment capacity becomes "Unknown" when reliable business cash-flow
- *   evidence is unavailable.
+ * Purpose:
+ * - Calculate quarterly loan repayment
+ * - Apply moratorium
+ * - Generate amortisation schedule
+ * - Compare quarterly repayment with quarterly expected cash flow
+ * - Classify repayment capacity
+ *
+ * IMPORTANT:
+ * - No ML
+ * - No LLM
+ * - No external API
+ * - All calculations are deterministic
+ *
+ * Repayment capacity:
+ *   >= 1.50  → High
+ *   >= 1.10  → Medium
+ *   <  1.10  → Low
+ *
+ * Missing cash flow:
+ *   → Unknown
+ *
+ * The system must NEVER convert missing cash flow to zero.
  */
 
-const {
-  InvalidInputError,
-} = require("../middlewares/errorHandler");
+
+/**
+ * Validate a non-negative numeric value.
+ */
+function assertNonNegative(value, fieldName) {
+  const numeric = Number(value);
+
+  if (
+    !Number.isFinite(numeric) ||
+    numeric < 0
+  ) {
+    throw new Error(
+      `${fieldName} must be a valid non-negative number`
+    );
+  }
+
+  return numeric;
+}
 
 
+/**
+ * Round currency values to two decimals.
+ */
+function roundMoney(value) {
+  return (
+    Math.round(
+      (Number(value) + Number.EPSILON) * 100
+    ) / 100
+  );
+}
+
+
+/**
+ * Add months to a Date.
+ */
+function addMonths(date, months) {
+  const result = new Date(date);
+
+  result.setMonth(
+    result.getMonth() + months
+  );
+
+  return result;
+}
+
+
+/**
+ * Convert Date to YYYY-MM-DD.
+ */
+function toISODate(date) {
+  return date
+    .toISOString()
+    .slice(0, 10);
+}
+
+
+/**
+ * Standard periodic amortisation payment.
+ *
+ * principal
+ * annualRate → percentage, e.g. 8 means 8%
+ * periodsPerYear → 4 for quarterly
+ * numberOfPayments
+ */
+function calculatePeriodicPayment(
+  principal,
+  annualRate,
+  periodsPerYear,
+  numberOfPayments
+) {
+  if (principal <= 0) {
+    return 0;
+  }
+
+  if (
+    !Number.isFinite(annualRate) ||
+    annualRate < 0
+  ) {
+    throw new Error(
+      "annualRate must be a valid non-negative number"
+    );
+  }
+
+  if (
+    !Number.isFinite(periodsPerYear) ||
+    periodsPerYear <= 0
+  ) {
+    throw new Error(
+      "periodsPerYear must be positive"
+    );
+  }
+
+  if (
+    !Number.isFinite(numberOfPayments) ||
+    numberOfPayments <= 0
+  ) {
+    throw new Error(
+      "numberOfPayments must be positive"
+    );
+  }
+
+  const periodicRate =
+    annualRate /
+    100 /
+    periodsPerYear;
+
+
+  // Zero-interest case.
+  if (periodicRate === 0) {
+    return (
+      principal /
+      numberOfPayments
+    );
+  }
+
+
+  const payment =
+    principal *
+    periodicRate *
+    Math.pow(
+      1 + periodicRate,
+      numberOfPayments
+    ) /
+    (
+      Math.pow(
+        1 + periodicRate,
+        numberOfPayments
+      ) - 1
+    );
+
+
+  return payment;
+}
+
+
+/**
+ * Build quarterly repayment plan.
+ *
+ * loanAmount
+ * scheme:
+ *   interestRate
+ *   tenureYears
+ *   moratoriumMonths
+ *
+ * expectedCashFlow:
+ *   monthly expected business cash flow
+ *
+ * options:
+ *   startDate
+ */
 function build(
   loanAmount,
   scheme,
-  expectedMonthlyCashFlow
+  expectedCashFlow,
+  options = {}
 ) {
+
+  const principal =
+    assertNonNegative(
+      loanAmount,
+      "loanAmount"
+    );
+
+
+  if (principal <= 0) {
+    return {
+      quarterlyInstallment: 0,
+      totalInterestPayable: 0,
+      totalRepayment: 0,
+
+      moratoriumMonths:
+        Number(
+          scheme?.moratoriumMonths || 0
+        ),
+
+      moratoriumEndDate:
+        null,
+
+      repaymentCapacity:
+        "Unknown",
+
+      monthlyExpectedCashFlow:
+        null,
+
+      quarterlyExpectedCashFlow:
+        null,
+
+      repaymentCoverageRatio:
+        null,
+
+      repaymentSchedule: [],
+
+      calculationMethod:
+        "Quarterly standard amortisation",
+
+      deterministic: true,
+    };
+  }
+
+
+  if (!scheme) {
+    throw new Error(
+      "scheme is required"
+    );
+  }
+
+
+  const annualRate =
+    Number(
+      scheme.interestRate
+    );
+
+
+  const tenureYears =
+    Number(
+      scheme.tenureYears
+    );
+
+
+  const moratoriumMonths =
+    Number(
+      scheme.moratoriumMonths || 0
+    );
+
+
   if (
-    typeof loanAmount !== "number" ||
-    Number.isNaN(loanAmount) ||
-    loanAmount <= 0
+    !Number.isFinite(annualRate) ||
+    annualRate < 0
   ) {
-    throw new InvalidInputError(
-      "loanAmount must be a positive number"
+    throw new Error(
+      "scheme.interestRate is invalid"
     );
   }
+
 
   if (
-    !scheme ||
-    typeof scheme.interestRate !== "number" ||
-    typeof scheme.tenureYears !== "number"
+    !Number.isFinite(tenureYears) ||
+    tenureYears <= 0
   ) {
-    throw new InvalidInputError(
-      "scheme must include interestRate and tenureYears"
+    throw new Error(
+      "scheme.tenureYears is invalid"
     );
   }
 
-  const quarterlyRate =
-    scheme.interestRate / 100 / 4;
 
-  const moratoriumQuarters =
-    Math.ceil(
-      (scheme.moratoriumMonths || 0) / 3
-    );
-
-  const totalQuarters =
-    scheme.tenureYears * 4;
-
-  const repaymentQuarters =
-    totalQuarters -
-    moratoriumQuarters;
-
-  if (repaymentQuarters <= 0) {
-    throw new InvalidInputError(
-      "scheme tenure must exceed the moratorium period"
+  if (
+    !Number.isFinite(moratoriumMonths) ||
+    moratoriumMonths < 0
+  ) {
+    throw new Error(
+      "scheme.moratoriumMonths is invalid"
     );
   }
 
-  let principalAfterMoratorium;
 
-  if (quarterlyRate === 0) {
-    principalAfterMoratorium =
-      loanAmount;
-  } else {
-    principalAfterMoratorium =
-      loanAmount *
-      Math.pow(
-        1 + quarterlyRate,
-        moratoriumQuarters
-      );
+  const periodsPerYear = 4;
+
+
+  const totalPayments =
+    Math.round(
+      tenureYears *
+      periodsPerYear
+    );
+
+
+  const quarterlyPayment =
+    calculatePeriodicPayment(
+      principal,
+      annualRate,
+      periodsPerYear,
+      totalPayments
+    );
+
+
+  const startDate =
+    options.startDate
+      ? new Date(
+          options.startDate
+        )
+      : new Date();
+
+
+  if (
+    Number.isNaN(
+      startDate.getTime()
+    )
+  ) {
+    throw new Error(
+      "startDate is invalid"
+    );
   }
 
-  let quarterlyInstallment;
-
-  if (quarterlyRate === 0) {
-    quarterlyInstallment =
-      principalAfterMoratorium /
-      repaymentQuarters;
-  } else {
-    const factor =
-      Math.pow(
-        1 + quarterlyRate,
-        repaymentQuarters
-      );
-
-    quarterlyInstallment =
-      (
-        principalAfterMoratorium *
-        quarterlyRate *
-        factor
-      ) /
-      (factor - 1);
-  }
-
-  const totalRepaid =
-    quarterlyInstallment *
-    repaymentQuarters;
-
-  const totalInterestPayable =
-    totalRepaid -
-    loanAmount;
 
   const moratoriumEndDate =
-    new Date();
+    addMonths(
+      startDate,
+      moratoriumMonths
+    );
 
-  moratoriumEndDate.setMonth(
-    moratoriumEndDate.getMonth() +
-    (scheme.moratoriumMonths || 0)
-  );
-
-  const repaymentSchedule = [];
 
   let balance =
-    principalAfterMoratorium;
+    principal;
 
-  const dueDate =
-    new Date(
-      moratoriumEndDate
-    );
+
+  let totalInterest =
+    0;
+
+
+  const repaymentSchedule =
+    [];
+
+
+  // ---------------------------------------------------------------
+  // Quarterly amortisation
+  // ---------------------------------------------------------------
 
   for (
     let period = 1;
-    period <= repaymentQuarters;
+    period <= totalPayments;
     period += 1
   ) {
-    const interest =
-      balance *
-      quarterlyRate;
 
-    const principal =
-      quarterlyInstallment -
-      interest;
+    const dueDate =
+      addMonths(
+        moratoriumEndDate,
+        period * 3
+      );
+
+
+    const openingBalance =
+      balance;
+
+
+    const quarterlyInterest =
+      openingBalance *
+      (
+        annualRate /
+        100 /
+        periodsPerYear
+      );
+
+
+    let principalComponent =
+      quarterlyPayment -
+      quarterlyInterest;
+
+
+    // Protect against floating-point
+    // overshoot in the final period.
+    if (
+      principalComponent >
+      balance
+    ) {
+      principalComponent =
+        balance;
+    }
+
+
+    // Prevent negative principal.
+    principalComponent =
+      Math.max(
+        0,
+        principalComponent
+      );
+
+
+    const actualPayment =
+      principalComponent +
+      quarterlyInterest;
+
 
     balance =
       Math.max(
         0,
         balance -
-        principal
+        principalComponent
       );
 
-    dueDate.setMonth(
-      dueDate.getMonth() + 3
-    );
+
+    totalInterest +=
+      quarterlyInterest;
+
 
     repaymentSchedule.push({
       period,
-      principal:
-        Math.round(
-          principal * 100
-        ) / 100,
-      interest:
-        Math.round(
-          interest * 100
-        ) / 100,
+
       dueDate:
-        dueDate
-          .toISOString()
-          .slice(0, 10),
+        toISODate(
+          dueDate
+        ),
+
+      openingBalance:
+        roundMoney(
+          openingBalance
+        ),
+
+      principal:
+        roundMoney(
+          principalComponent
+        ),
+
+      interest:
+        roundMoney(
+          quarterlyInterest
+        ),
+
+      payment:
+        roundMoney(
+          actualPayment
+        ),
+
+      closingBalance:
+        roundMoney(
+          balance
+        ),
     });
+
+
+    if (
+      balance <= 0.01
+    ) {
+      break;
+    }
   }
 
-  const monthlyInstallmentEquivalent =
-    quarterlyInstallment / 3;
 
-  const repaymentCapacity =
-    classifyCapacity(
-      expectedMonthlyCashFlow,
-      monthlyInstallmentEquivalent
+  // ---------------------------------------------------------------
+  // Expected cash flow
+  // ---------------------------------------------------------------
+  //
+  // Input is monthly.
+  //
+  // Repayment is quarterly.
+  //
+  // Therefore:
+  //
+  // monthly cash flow × 3
+  //          ↓
+  // quarterly cash flow
+  //
+  // must be compared against:
+  //
+  // quarterly repayment.
+  // ---------------------------------------------------------------
+
+  const parsedCashFlow =
+    Number(
+      expectedCashFlow
     );
 
+
+  const monthlyCashFlow =
+    Number.isFinite(
+      parsedCashFlow
+    ) &&
+    parsedCashFlow >= 0
+      ? parsedCashFlow
+      : null;
+
+
+  const quarterlyCashFlow =
+    monthlyCashFlow !== null
+      ? monthlyCashFlow * 3
+      : null;
+
+
+  // ---------------------------------------------------------------
+  // Repayment coverage
+  // ---------------------------------------------------------------
+
+  const repaymentRatio =
+    quarterlyCashFlow !== null &&
+    quarterlyPayment > 0
+      ? quarterlyCashFlow /
+        quarterlyPayment
+      : null;
+
+
+  let repaymentCapacity =
+    "Unknown";
+
+
+  if (
+    repaymentRatio !== null
+  ) {
+
+    if (
+      repaymentRatio >= 1.5
+    ) {
+
+      repaymentCapacity =
+        "High";
+
+    } else if (
+      repaymentRatio >= 1.1
+    ) {
+
+      repaymentCapacity =
+        "Medium";
+
+    } else {
+
+      repaymentCapacity =
+        "Low";
+    }
+  }
+
+
+  // ---------------------------------------------------------------
+  // Final result
+  // ---------------------------------------------------------------
+
   return {
+
     quarterlyInstallment:
-      Math.round(
-        quarterlyInstallment * 100
-      ) / 100,
+      roundMoney(
+        quarterlyPayment
+      ),
 
     totalInterestPayable:
-      Math.round(
-        totalInterestPayable * 100
-      ) / 100,
+      roundMoney(
+        totalInterest
+      ),
+
+    totalRepayment:
+      roundMoney(
+        principal +
+        totalInterest
+      ),
+
+    moratoriumMonths,
 
     moratoriumEndDate:
-      moratoriumEndDate
-        .toISOString()
-        .slice(0, 10),
+      toISODate(
+        moratoriumEndDate
+      ),
 
     repaymentCapacity,
 
-    cashFlowEvidenceAvailable:
-      typeof expectedMonthlyCashFlow ===
-      "number" &&
-      Number.isFinite(
-        expectedMonthlyCashFlow
-      ),
+    monthlyExpectedCashFlow:
+      monthlyCashFlow !== null
+        ? roundMoney(
+            monthlyCashFlow
+          )
+        : null,
+
+    quarterlyExpectedCashFlow:
+      quarterlyCashFlow !== null
+        ? roundMoney(
+            quarterlyCashFlow
+          )
+        : null,
+
+    repaymentCoverageRatio:
+      repaymentRatio !== null
+        ? Math.round(
+            repaymentRatio * 100
+          ) / 100
+        : null,
 
     repaymentSchedule,
+
+    calculationMethod:
+      "Quarterly standard amortisation",
+
+    deterministic: true,
   };
-}
-
-
-function classifyCapacity(
-  expectedMonthlyCashFlow,
-  monthlyInstallmentEquivalent
-) {
-  /*
-   * Missing cash-flow data is UNKNOWN.
-   *
-   * It is NOT equivalent to zero.
-   */
-
-  if (
-    typeof expectedMonthlyCashFlow !==
-      "number" ||
-    !Number.isFinite(
-      expectedMonthlyCashFlow
-    ) ||
-    monthlyInstallmentEquivalent <= 0
-  ) {
-    return "Unknown";
-  }
-
-  const ratio =
-    expectedMonthlyCashFlow /
-    monthlyInstallmentEquivalent;
-
-  if (ratio >= 2.0) {
-    return "High";
-  }
-
-  if (ratio >= 1.2) {
-    return "Medium";
-  }
-
-  return "Low";
 }
 
 
 module.exports = {
   build,
-  classifyCapacity,
+  calculatePeriodicPayment,
+  roundMoney,
 };

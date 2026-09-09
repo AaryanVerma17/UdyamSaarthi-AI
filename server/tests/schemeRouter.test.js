@@ -1,16 +1,18 @@
-const schemeRouter =
-  require("../src/services/schemeRouter");
+const {
+  route,
+  isApplicable,
+} = require(
+  "../src/services/schemeRouter"
+);
 
 describe(
-  "Module 6 — Scheme Router",
+  "schemeRouter",
   () => {
     test(
-      "routes to Micro Finance Scheme at/under ₹1.40 lakh",
+      "routes small projects to micro finance",
       () => {
         const scheme =
-          schemeRouter.route(
-            140000
-          );
+          route(140000);
 
         expect(
           scheme.name
@@ -23,10 +25,88 @@ describe(
         ).toBe(6.5);
 
         expect(
+          scheme.tenureYears
+        ).toBe(3);
+
+        expect(
+          scheme.moratoriumMonths
+        ).toBe(3);
+      }
+    );
+
+    test(
+      "routes larger projects to term loan",
+      () => {
+        const scheme =
+          route(1000000);
+
+        expect(
+          scheme.name
+        ).toBe(
+          "Term Loan Scheme"
+        );
+
+        expect(
+          scheme.interestRate
+        ).toBe(8);
+
+        expect(
+          scheme.tenureYears
+        ).toBe(7);
+
+        expect(
+          scheme.moratoriumMonths
+        ).toBe(6);
+      }
+    );
+
+    test(
+      "rejects projects above configured limit",
+      () => {
+        expect(
+          () =>
+            route(5000001)
+        ).toThrow();
+      }
+    );
+
+    test(
+      "boundary 140000 goes to micro finance",
+      () => {
+        expect(
+          route(140000).code
+        ).toBe(
+          "MICRO_FINANCE"
+        );
+      }
+    );
+
+    test(
+      "boundary 140001 goes to term loan",
+      () => {
+        expect(
+          route(140001).code
+        ).toBe(
+          "TERM_LOAN"
+        );
+      }
+    );
+
+    test(
+      "scheme is explicitly provisional",
+      () => {
+        const scheme =
+          route(100000);
+
+        expect(
           scheme.ruleStatus
         ).toBe(
-          "provisional_assumption"
+          "provisional"
         );
+
+        expect(
+          scheme.verified
+        ).toBe(false);
 
         expect(
           scheme.applicability
@@ -37,56 +117,24 @@ describe(
     );
 
     test(
-      "routes to Term Loan Scheme between ₹1.40L and ₹50L",
+      "isApplicable identifies valid project ranges",
       () => {
         const scheme =
-          schemeRouter.route(
-            1000000
-          );
+          route(100000);
 
         expect(
-          scheme.name
-        ).toBe(
-          "Term Loan Scheme"
-        );
+          isApplicable(
+            100000,
+            scheme
+          )
+        ).toBe(true);
 
         expect(
-          scheme.interestRate
-        ).toBe(8.0);
-
-        expect(
-          scheme.tenureYears
-        ).toBe(7);
-
-        expect(
-          scheme.ruleStatus
-        ).toBe(
-          "provisional_assumption"
-        );
-      }
-    );
-
-    test(
-      "throws above configured provisional limit",
-      () => {
-        expect(
-          () =>
-            schemeRouter.route(
-              6000000
-            )
-        ).toThrow();
-      }
-    );
-
-    test(
-      "throws on invalid input",
-      () => {
-        expect(
-          () =>
-            schemeRouter.route(
-              -1
-            )
-        ).toThrow();
+          isApplicable(
+            500000,
+            scheme
+          )
+        ).toBe(false);
       }
     );
   }

@@ -1,16 +1,22 @@
-const financialEngine =
-  require("../src/services/financialEngine");
+const {
+  calculate,
+  applySchemeLimit,
+} = require(
+  "../src/services/financialEngine"
+);
 
 describe(
-  "Module 5 — Financial Calculator",
+  "financialEngine",
   () => {
     test(
-      "computes project cost and loan amount using the default provisional rule",
+      "calculates project cost from own capital",
       () => {
         const result =
-          financialEngine.calculate(
-            100000
-          );
+          calculate(100000);
+
+        expect(
+          result.ownCapital
+        ).toBe(100000);
 
         expect(
           result.projectCost
@@ -21,107 +27,145 @@ describe(
         ).toBe(900000);
 
         expect(
-          result.ownCapitalPercentage
-        ).toBe(10);
-
-        expect(
-          result.financingRuleStatus
-        ).toBe(
-          "provisional_assumption"
-        );
+          result.theoreticalLoanAmount
+        ).toBe(900000);
       }
     );
 
     test(
-      "supports an explicit financing rule",
+      "calculates theoretical loan",
       () => {
         const result =
-          financialEngine.calculate(
-            100000,
-            {
-              ownCapitalPercentage: 20,
-              ruleStatus:
-                "verified",
-              ruleSource: {
-                type:
-                  "official_guideline",
-                authority:
-                  "government",
-              },
-            }
-          );
+          calculate(50000);
 
         expect(
           result.projectCost
         ).toBe(500000);
 
         expect(
+          result.theoreticalLoanAmount
+        ).toBe(450000);
+
+        expect(
           result.loanAmount
-        ).toBe(400000);
-
-        expect(
-          result.ownCapitalPercentage
-        ).toBe(20);
-
-        expect(
-          result.financingRuleStatus
-        ).toBe("verified");
+        ).toBe(450000);
       }
     );
 
     test(
-      "throws on zero or negative capital",
+      "rejects zero capital",
       () => {
         expect(
           () =>
-            financialEngine.calculate(
-              0
-            )
-        ).toThrow();
-
-        expect(
-          () =>
-            financialEngine.calculate(
-              -500
-            )
+            calculate(0)
         ).toThrow();
       }
     );
 
     test(
-      "throws on non-numeric capital",
+      "rejects negative capital",
       () => {
         expect(
           () =>
-            financialEngine.calculate(
-              "100000"
-            )
+            calculate(-1000)
         ).toThrow();
       }
     );
 
     test(
-      "throws when financing percentage is invalid",
+      "applies maximum loan limit",
       () => {
-        expect(
-          () =>
-            financialEngine.calculate(
-              100000,
-              {
-                ownCapitalPercentage: 100,
-              }
-            )
-        ).toThrow();
+        const result =
+          applySchemeLimit(
+            calculate(5000000),
+            {
+              maxLoan: 4500000,
+              maxProjectCost: 5000000,
+            }
+          );
 
         expect(
-          () =>
-            financialEngine.calculate(
-              100000,
-              {
-                ownCapitalPercentage: 0,
-              }
-            )
-        ).toThrow();
+          result.loanAmount
+        ).toBe(4500000);
+
+        expect(
+          result.theoreticalLoanAmount
+        ).toBe(45000000);
+
+        expect(
+          result.fundingGap
+        ).toBe(40500000);
+
+        expect(
+          result.schemeFeasible
+        ).toBe(false);
+      }
+    );
+
+    test(
+      "keeps loan unchanged when below scheme limit",
+      () => {
+        const base =
+          calculate(100000);
+
+        const result =
+          applySchemeLimit(
+            base,
+            {
+              maxLoan: 4500000,
+              maxProjectCost: 5000000,
+            }
+          );
+
+        expect(
+          result.loanAmount
+        ).toBe(
+          base.theoreticalLoanAmount
+        );
+
+        expect(
+          result.fundingGap
+        ).toBe(0);
+
+        expect(
+          result.schemeFeasible
+        ).toBe(true);
+
+        expect(
+          result.financialFeasibility.status
+        ).toBe(
+          "within_scheme_limits"
+        );
+      }
+    );
+
+    test(
+      "marks project cost above scheme limit as infeasible",
+      () => {
+        const base =
+          calculate(600000);
+
+        const result =
+          applySchemeLimit(
+            base,
+            {
+              maxLoan: 4500000,
+              maxProjectCost: 5000000,
+            }
+          );
+
+        expect(
+          result.projectCost
+        ).toBe(6000000);
+
+        expect(
+          result.schemeFeasible
+        ).toBe(false);
+
+        expect(
+          result.financialFeasibility
+            .projectCostWithinSchemeLimit
+        ).toBe(false);
       }
     );
   }

@@ -1,50 +1,74 @@
-const SCHEME_RULE_STATUS = "provisional_assumption";
-
-const SCHEME_RULE_SOURCE = {
-  type: "development_assumption",
-  authority: "not_verified",
-  sourceUrl: null,
-  version: "phase0-baseline-v1",
-  effectiveFrom: null,
-  verifiedAt: null,
-};
-
-const OWN_CAPITAL_PERCENTAGE = 10;
-
 /**
- * Provisional development assumptions.
+ * UdyamSaarthi-AI
  *
- * DO NOT describe these as current official MoSJE terms.
+ * Phase 6 — Government Scheme Rule Registry
+ *
+ * IMPORTANT:
+ * These values are the current UdyamSaarthi-AI project
+ * specification values.
+ *
+ * They MUST NOT be represented as live government policy
+ * until officially validated.
+ *
+ * This file is the single source of truth for configured
+ * scheme parameters.
  */
-const MICRO_FINANCE_SCHEME = {
-  name: "Micro Finance Scheme",
-  maxProjectCost: 140000,
-  interestRate: 6.5,
-  tenureYears: 3,
-  moratoriumMonths: 3,
-  maxLoan: 125000,
-  ownCapitalPercentage: OWN_CAPITAL_PERCENTAGE,
-  ruleStatus: SCHEME_RULE_STATUS,
-  ruleSource: { ...SCHEME_RULE_SOURCE },
+
+const RULE_STATUS = {
+  PROVISIONAL: "provisional",
+  VERIFIED: "verified",
 };
 
-const TERM_LOAN_SCHEME = {
-  name: "Term Loan Scheme",
-  minProjectCost: 140001,
-  maxProjectCost: 5000000,
-  interestRate: 8.0,
-  tenureYears: 7,
-  moratoriumMonths: 6,
-  maxLoan: 4500000,
-  ownCapitalPercentage: OWN_CAPITAL_PERCENTAGE,
-  ruleStatus: SCHEME_RULE_STATUS,
-  ruleSource: { ...SCHEME_RULE_SOURCE },
+const SCHEME_RULE_VERSION = "ps-v1";
+
+const COMMON = {
+  source: "Current UdyamSaarthi-AI project specification",
+  sourceAuthority: "MoSJE/SCA validation required",
+  ruleStatus: RULE_STATUS.PROVISIONAL,
+  ruleVersion: SCHEME_RULE_VERSION,
+  lastVerified: null,
 };
 
 module.exports = {
-  SCHEME_RULE_STATUS,
-  SCHEME_RULE_SOURCE,
-  OWN_CAPITAL_PERCENTAGE,
-  MICRO_FINANCE_SCHEME,
-  TERM_LOAN_SCHEME,
+  RULE_STATUS,
+
+  SCHEME_RULE_VERSION,
+
+  MICRO_FINANCE_SCHEME: {
+    ...COMMON,
+
+    code: "MICRO_FINANCE",
+    name: "Micro Finance Scheme",
+
+    minProjectCost: 0,
+    maxProjectCost: 140000,
+
+    interestRate: 6.5,
+    tenureYears: 3,
+    moratoriumMonths: 3,
+
+    maxLoan: 125000,
+
+    ownCapitalPercentage: 10,
+    financingPercentage: 90,
+  },
+
+  TERM_LOAN_SCHEME: {
+    ...COMMON,
+
+    code: "TERM_LOAN",
+    name: "Term Loan Scheme",
+
+    minProjectCost: 140001,
+    maxProjectCost: 5000000,
+
+    interestRate: 8.0,
+    tenureYears: 7,
+    moratoriumMonths: 6,
+
+    maxLoan: 4500000,
+
+    ownCapitalPercentage: 10,
+    financingPercentage: 90,
+  },
 };

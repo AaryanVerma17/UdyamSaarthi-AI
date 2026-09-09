@@ -118,10 +118,22 @@ def location_intelligence(
         state=location.state,
     )
 
+    if not isinstance(
+        resolved,
+        dict,
+    ):
+        resolved = {}
+
     metrics = resolved.get(
         "metrics",
         {},
     )
+
+    if not isinstance(
+        metrics,
+        dict,
+    ):
+        metrics = {}
 
     limitations = list(
         resolved.get(
@@ -131,22 +143,27 @@ def location_intelligence(
     )
 
     # ----------------------------------------------------------
-    # Build metric-level evidence.
-    #
-    # Phase 3's evidence layer remains the source of
-    # confidence/provenance normalization.
+    # Build metric-level evidence
     # ----------------------------------------------------------
 
     evidence: Dict[str, Dict[str, Any]] = {}
 
     for metric_name, metric in metrics.items():
 
+        if not isinstance(
+            metric,
+            dict,
+        ):
+            continue
+
         source = metric.get(
             "source",
             "estimated",
         )
 
-        evidence[metric_name] = build_evidence(
+        evidence[
+            metric_name
+        ] = build_evidence(
             metric=metric_name,
 
             value=metric.get(
@@ -178,15 +195,17 @@ def location_intelligence(
             ),
         )
 
-        # Preserve estimate/assumption state
-        # from the resolved record where available.
+        # Preserve estimate/assumption
+        # state from resolved data.
 
-        evidence[metric_name][
-            "isAssumption"
-        ] = bool(
+        evidence[
+            metric_name
+        ]["isAssumption"] = bool(
             metric.get(
                 "isAssumption",
-                evidence[metric_name].get(
+                evidence[
+                    metric_name
+                ].get(
                     "isAssumption",
                     False,
                 ),
@@ -266,9 +285,6 @@ def location_intelligence(
 
     # ----------------------------------------------------------
     # Government-data availability
-    #
-    # This means government-origin evidence exists.
-    # It does NOT mean every metric is government data.
     # ----------------------------------------------------------
 
     government_sources = {
@@ -295,13 +311,12 @@ def location_intelligence(
 
     # ----------------------------------------------------------
     # Registered business count
-    #
-    # This can come from a future Udyam provider.
-    # Do not infer it from existingBusinessDensity.
     # ----------------------------------------------------------
 
-    registered_business_count = resolved.get(
-        "registeredBusinessCount"
+    registered_business_count = (
+        resolved.get(
+            "registeredBusinessCount"
+        )
     )
 
     # ----------------------------------------------------------
@@ -340,7 +355,7 @@ def location_intelligence(
                 str(source)
                 for source in resolved.get(
                     "sources",
-                    []
+                    [],
                 )
                 if source
             )
@@ -353,7 +368,11 @@ def location_intelligence(
     updated_values = [
         item.get("lastUpdated")
         for item in metrics.values()
-        if item.get("lastUpdated")
+        if isinstance(
+            item,
+            dict,
+        )
+        and item.get("lastUpdated")
     ]
 
     last_updated = (
@@ -379,7 +398,8 @@ def location_intelligence(
 
     if (
         consumer_base is None
-        and "Consumer base is unavailable rather than assumed."
+        and
+        "Consumer base is unavailable rather than assumed."
         not in limitations
     ):
         limitations.append(
@@ -388,7 +408,8 @@ def location_intelligence(
 
     if (
         business_density is None
-        and "Business density is unavailable rather than interpreted as zero competitors."
+        and
+        "Business density is unavailable rather than interpreted as zero competitors."
         not in limitations
     ):
         limitations.append(
@@ -404,11 +425,15 @@ def location_intelligence(
         str(
             item.get(
                 "source",
-                ""
+                "",
             )
         ).lower()
         == "seed_demo_v1"
         for item in metrics.values()
+        if isinstance(
+            item,
+            dict,
+        )
     ):
         limitations.append(
             "This record is demonstration data and "
@@ -436,14 +461,21 @@ def location_intelligence(
 
     return GeoContext(
         village=location.village,
+
         block=location.block,
+
         district=location.district,
+
         state=location.state,
 
+        # IMPORTANT:
+        # None remains None when evidence is unavailable.
         consumerBase=consumer_base,
 
         purchasingPowerIndex=purchasing_power,
 
+        # IMPORTANT:
+        # None remains None when evidence is unavailable.
         existingBusinessDensity=business_density,
 
         marketsAndHaats=(

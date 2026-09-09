@@ -198,15 +198,14 @@ class GeoContext(BaseModel):
     # These remain numeric for backward compatibility.
     # Missing data is communicated through evidence,
     # dataLimitations and dataAvailabilityNote.
-    consumerBase: int = Field(
-        default=0,
+    consumerBase: Optional[int] = Field(
+        default=None,
         ge=0,
-    )
-
+        )
     purchasingPowerIndex: str = "unknown"
-
-    existingBusinessDensity: int = Field(
-        default=0,
+    
+    existingBusinessDensity: Optional[int] = Field(
+        default=None,
         ge=0,
     )
 

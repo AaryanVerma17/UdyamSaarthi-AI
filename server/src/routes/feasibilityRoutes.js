@@ -7,22 +7,30 @@ const router = express.Router();
 
 router.post("/generate", generate);
 
-router.get("/:reportId", authGuard, async (req, res, next) => {
-  try {
-    const report = await Report.findById(req.params.reportId);
-    if (!report) return res.status(404).json({ error: "NotFound", message: "Report not found" });
-    res.status(200).json(report);
-  } catch (err) {
-    next(err);
-  }
-});
-
+// Keep the static /user/:userId route before /:reportId.
+// Otherwise Express can interpret "user" as a reportId.
 router.get("/user/:userId", authGuard, async (req, res, next) => {
   try {
     const reports = await Report.find({ userId: req.params.userId }).sort({ createdAt: -1 });
     res.status(200).json(reports);
   } catch (err) {
     next(err);
+  }
+});
+
+
+router.get("/:reportId", authGuard, async (req, res, next) => {
+  try {
+    const report = await Report.findById(req.params.reportId);
+    if (!report) {
+      return res.status(404).json({
+        error: "NotFound",
+        message: "Report not found",
+      });
+    }
+    return res.status(200).json(report);
+  } catch (err) {
+    return next(err);
   }
 });
 

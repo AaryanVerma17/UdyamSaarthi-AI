@@ -55,52 +55,56 @@ const {
 
 
 /**
- * Master feasibility orchestration.
- *
- * Phase 7:
- *
- * Location
- *   ↓
- * Category-specific competition
- *   ↓
- * Field corrections
- *   ↓
- * Dynamic viability
- *   ↓
- * Opportunities
- *   ↓
- * Risks
- *   ↓
- * Pricing
- *   ↓
- * Financial feasibility
- *   ↓
- * Repayment
- *   ↓
- * Recommendation gate
- *   ↓
- * Explanation
- *   ↓
- * Persistence
- *
- * Core principles:
- *
- * 1. Missing data is never converted into factual zero.
- * 2. Competition must be category-specific.
- * 3. Viability and confidence remain separate.
- * 4. Financial calculations remain deterministic.
- * 5. Scheme parameters remain visibly provisional.
- * 6. AI explains computed facts; it does not calculate them.
+ * Preserve useful ML-service diagnostics.
  */
-async function generate(req, res, next) {
+function logMlFailure(
+  operation,
+  error
+) {
+  console.error(
+    `[feasibility] ${operation} failed:`,
+    {
+      message:
+        error?.message,
+
+      name:
+        error?.name,
+
+      code:
+        error?.code,
+
+      status:
+        error?.status ??
+        error?.response?.status ??
+        null,
+
+      path:
+        error?.path ??
+        error?.config?.url ??
+        null,
+
+      responseData:
+        error?.responseData ??
+        error?.response?.data ??
+        null,
+    }
+  );
+}
+
+
+async function generate(
+  req,
+  res,
+  next
+) {
   try {
+
     const {
       location,
       ownCapital,
       businessCategory,
       language = "en",
     } = req.body || {};
-
 
     // ===============================================================
     // 1. INPUT VALIDATION
@@ -127,7 +131,9 @@ async function generate(req, res, next) {
 
     if (
       typeof ownCapital !== "number" ||
-      !Number.isFinite(ownCapital) ||
+      !Number.isFinite(
+        ownCapital
+      ) ||
       ownCapital <= 0
     ) {
       throw new InvalidInputError(
@@ -151,18 +157,9 @@ async function generate(req, res, next) {
           location
         );
     } catch (mlErr) {
-      console.error(
-        "[feasibility] Location intelligence failed:",
-        {
-          message: mlErr.message,
-          code: mlErr.code,
-          status:
-            mlErr.response?.status,
-          data:
-            mlErr.response?.data,
-          url:
-            mlErr.config?.url,
-        }
+      logMlFailure(
+        "Location intelligence",
+        mlErr
       );
 
       throw new AppError(
@@ -195,18 +192,9 @@ async function generate(req, res, next) {
           normalizedBusinessCategory
         );
     } catch (mlErr) {
-      console.error(
-        "[feasibility] Competition mapping failed:",
-        {
-          message: mlErr.message,
-          code: mlErr.code,
-          status:
-            mlErr.response?.status,
-          data:
-            mlErr.response?.data,
-          url:
-            mlErr.config?.url,
-        }
+      logMlFailure(
+        "Competition mapping",
+        mlErr
       );
 
       throw new AppError(
@@ -410,21 +398,6 @@ async function generate(req, res, next) {
         })
       );
 
-
-    /*
-     * IMPORTANT:
-     *
-     * Missing competition count:
-     *
-     *   null
-     *
-     * NOT:
-     *
-     *   0
-     *
-     * Therefore missing data cannot accidentally become
-     * "under-served".
-     */
     const competitionAvailable =
       Boolean(
         competitorMapping.identifiable
@@ -436,6 +409,7 @@ async function generate(req, res, next) {
       );
 
     if (competitionAvailable) {
+
       competitorMapping.count =
         competitorCountMetric.value;
 
@@ -443,7 +417,9 @@ async function generate(req, res, next) {
         classifyCompetitionCount(
           competitorMapping.count
         );
+
     } else {
+
       competitorMapping.count =
         null;
 
@@ -519,18 +495,9 @@ async function generate(req, res, next) {
           normalizedBusinessCategory
         );
     } catch (mlErr) {
-      console.error(
-        "[feasibility] Viability calculation failed:",
-        {
-          message: mlErr.message,
-          code: mlErr.code,
-          status:
-            mlErr.response?.status,
-          data:
-            mlErr.response?.data,
-          url:
-            mlErr.config?.url,
-        }
+      logMlFailure(
+        "Viability calculation",
+        mlErr
       );
 
       throw new AppError(
@@ -564,18 +531,9 @@ async function generate(req, res, next) {
           normalizedBusinessCategory
         );
     } catch (mlErr) {
-      console.error(
-        "[feasibility] Opportunity ranking failed:",
-        {
-          message: mlErr.message,
-          code: mlErr.code,
-          status:
-            mlErr.response?.status,
-          data:
-            mlErr.response?.data,
-          url:
-            mlErr.config?.url,
-        }
+      logMlFailure(
+        "Opportunity ranking",
+        mlErr
       );
 
       throw new AppError(
@@ -584,10 +542,6 @@ async function generate(req, res, next) {
       );
     }
 
-    /*
-     * Keep opportunity competition aligned with the
-     * category-specific competition result.
-     */
     if (
       opportunities?.requestedBusiness
     ) {
@@ -609,18 +563,9 @@ async function generate(req, res, next) {
           normalizedBusinessCategory
         );
     } catch (mlErr) {
-      console.error(
-        "[feasibility] Risk analysis failed:",
-        {
-          message: mlErr.message,
-          code: mlErr.code,
-          status:
-            mlErr.response?.status,
-          data:
-            mlErr.response?.data,
-          url:
-            mlErr.config?.url,
-        }
+      logMlFailure(
+        "Risk analysis",
+        mlErr
       );
 
       throw new AppError(
@@ -643,18 +588,9 @@ async function generate(req, res, next) {
           normalizedBusinessCategory
         );
     } catch (mlErr) {
-      console.error(
-        "[feasibility] Pricing analysis failed:",
-        {
-          message: mlErr.message,
-          code: mlErr.code,
-          status:
-            mlErr.response?.status,
-          data:
-            mlErr.response?.data,
-          url:
-            mlErr.config?.url,
-        }
+      logMlFailure(
+        "Pricing analysis",
+        mlErr
       );
 
       throw new AppError(
@@ -767,29 +703,16 @@ async function generate(req, res, next) {
     // 12. FINANCIAL ENGINE
     // ===============================================================
 
-    /*
-     * Financial calculations are deterministic.
-     *
-     * First calculate the theoretical project/loan
-     * requirement.
-     */
     const financialBase =
       financialEngine.calculate(
         ownCapital
       );
 
-    /*
-     * Route the project to an applicable scheme.
-     */
     const scheme =
       schemeRouter.route(
         financialBase.projectCost
       );
 
-    /*
-     * Scheme values are provisional unless explicitly
-     * verified by the scheme router.
-     */
     if (!scheme.ruleStatus) {
       scheme.ruleStatus =
         SCHEME_RULE_STATUS;
@@ -800,10 +723,6 @@ async function generate(req, res, next) {
         "provisional";
     }
 
-    /*
-     * Apply scheme limits separately from
-     * theoretical financing.
-     */
     const financials =
       financialEngine.applySchemeLimit(
         financialBase,
@@ -815,9 +734,6 @@ async function generate(req, res, next) {
     // 13. REPAYMENT
     // ===============================================================
 
-    /*
-     * Missing expected cash flow stays null.
-     */
     const expectedCashFlow =
       viability?.expectedCashFlow ??
       null;
@@ -904,10 +820,7 @@ async function generate(req, res, next) {
           language,
         });
     } catch (explainErr) {
-      /*
-       * Explanation failure must not destroy
-       * an otherwise valid deterministic report.
-       */
+
       console.warn(
         "[feasibility] Explanation service unavailable:",
         explainErr.message
@@ -1118,14 +1031,8 @@ async function generate(req, res, next) {
     // 20. MONGODB PERSISTENCE
     // ===============================================================
 
-    /*
-     * Persistence is deliberately non-blocking for
-     * report generation.
-     *
-     * If MongoDB is unavailable, the report is still
-     * returned to the caller.
-     */
     try {
+
       const saved =
         await Report.create(
           report
@@ -1135,7 +1042,9 @@ async function generate(req, res, next) {
         report.reportId =
           saved._id;
       }
+
     } catch (persistErr) {
+
       console.warn(
         "[feasibility] Could not persist report to MongoDB:",
         persistErr.message
@@ -1147,13 +1056,8 @@ async function generate(req, res, next) {
     // 21. POSTGRES LOAN PERSISTENCE
     // ===============================================================
 
-    /*
-     * PostgreSQL is also optional.
-     *
-     * Failure here should not prevent the
-     * feasibility report from being returned.
-     */
     try {
+
       const loanApplicationId =
         await createLoanApplication({
           reportId:
@@ -1186,7 +1090,9 @@ async function generate(req, res, next) {
           repayment.repaymentSchedule
         );
       }
+
     } catch (pgErr) {
+
       console.warn(
         "[feasibility] Could not persist to PostgreSQL:",
         pgErr.message
@@ -1203,6 +1109,26 @@ async function generate(req, res, next) {
       .json(report);
 
   } catch (err) {
+
+    console.error(
+      "[feasibility] Report generation failed:",
+      {
+        message:
+          err?.message,
+
+        name:
+          err?.name,
+
+        status:
+          err?.status ??
+          null,
+
+        code:
+          err?.code ??
+          null,
+      }
+    );
+
     return next(err);
   }
 }
@@ -1212,7 +1138,6 @@ async function generate(req, res, next) {
  * Derive raw recommendation before
  * recommendation gating.
  *
- * Important:
  * Competition saturation alone does NOT
  * automatically reject a business.
  */
@@ -1232,15 +1157,10 @@ function deriveRecommendation(
     repayment?.repaymentCapacity ||
     "Unknown";
 
-
   // ---------------------------------------------------------------
   // Missing cash-flow evidence
   // ---------------------------------------------------------------
 
-  /*
-   * We cannot claim strong financial feasibility
-   * without an expected cash-flow estimate.
-   */
   if (
     viability?.expectedCashFlow == null
   ) {
@@ -1250,7 +1170,6 @@ function deriveRecommendation(
 
     return "not_recommended";
   }
-
 
   // ---------------------------------------------------------------
   // Strong viability + acceptable repayment
@@ -1266,7 +1185,6 @@ function deriveRecommendation(
     return "proceed";
   }
 
-
   // ---------------------------------------------------------------
   // Moderate viability
   // ---------------------------------------------------------------
@@ -1274,7 +1192,6 @@ function deriveRecommendation(
   if (score >= 50) {
     return "proceed_with_caution";
   }
-
 
   // ---------------------------------------------------------------
   // Low viability

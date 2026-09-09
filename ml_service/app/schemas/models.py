@@ -1,29 +1,49 @@
 """
-UdyamSaarthi-AI — Pydantic models shared across ML service endpoints.
+Pydantic request/response models shared across ml_service endpoints.
 
-Phase 4:
-- Preserves existing endpoint contracts.
-- Adds explicit evidence/provenance metadata.
-- Distinguishes observed/identifiable data from estimates.
-- Prevents missing data from being interpreted as factual zero.
-- Adds population vintage and government-data availability metadata.
+Phase 5 additions
+-----------------
+- CompetitionContext
+- category-specific competition
+- nullable competitor count
+- data_unavailable competition classification
+- viability evidence status and limitations
+
+Important:
+None for competitor count means "data unavailable",
+not "zero competitors".
 """
 
-from typing import Any, Dict, List, Optional, Literal
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Literal,
+)
 
-from pydantic import BaseModel, Field
+from pydantic import (
+    BaseModel,
+    Field,
+)
 
 
 # ---------------------------------------------------------------------------
 # Common types
 # ---------------------------------------------------------------------------
 
-ConfidenceLevel = Literal["low", "medium", "high"]
+ConfidenceLevel = Literal[
+    "low",
+    "medium",
+    "high",
+]
+
 
 CompetitionClassification = Literal[
     "under_served",
     "moderately_competitive",
     "highly_saturated",
+    "data_unavailable",
 ]
 
 
@@ -39,36 +59,24 @@ class Location(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Evidence / provenance
+# Provenance
 # ---------------------------------------------------------------------------
 
 class DataProvenance(BaseModel):
-    """
-    Provenance metadata for location-level evidence.
-
-    These fields describe where the evidence came from and how reliable
-    the geographic/data coverage is.
-    """
-
     source: str = "unknown"
 
-    # Examples:
-    # official
-    # verified_local
-    # secondary
-    # assumption
-    # unavailable
-    # local_dataset
     sourceType: str = "unknown"
 
-    # Can be a descriptor or numeric authority score.
-    authority: Any = "unknown"
+    authority: str = "unknown"
 
     dataYear: Optional[int] = None
+
     lastUpdated: Optional[str] = None
 
     geographicPrecision: str = "unknown"
+
     coverage: str = "unknown"
+
     completeness: str = "unknown"
 
     estimated: bool = False
@@ -76,27 +84,29 @@ class DataProvenance(BaseModel):
     note: Optional[str] = None
 
 
+# ---------------------------------------------------------------------------
+# Evidence
+# ---------------------------------------------------------------------------
+
 class EvidenceItem(BaseModel):
-    """
-    Metric-level evidence.
-
-    Each important location metric can carry its own provenance rather
-    than relying only on one overall confidence value.
-    """
-
     metric: str
-    value: Any
+
+    value: Any = None
 
     source: str = "unknown"
+
     sourceKey: str = "unknown"
+
     sourceTier: str = "assumption"
 
-    authorityScore: int = 10
+    authorityScore: int = 0
 
     dataYear: Optional[int] = None
+
     lastUpdated: Optional[str] = None
 
     geographicMatch: str = "unknown"
+
     coverage: str = "unknown"
 
     confidence: ConfidenceLevel = "low"
@@ -111,69 +121,92 @@ class EvidenceItem(BaseModel):
 # ---------------------------------------------------------------------------
 
 class LocationEvidence(BaseModel):
-    """
-    Standardized Phase 4 evidence object for a location metric.
-
-    This is intentionally separate from the older EvidenceItem contract
-    so Phase 4 can expose a richer normalized evidence structure while
-    existing endpoint consumers remain compatible.
-    """
-
     metric: str
-    value: Any
 
-    source: str
+    value: Any = None
+
+    source: str = "unknown"
+
     sourceKey: str = "unknown"
+
     sourceTier: str = "assumption"
 
     dataYear: Optional[int] = None
+
     lastUpdated: Optional[str] = None
 
     geographicMatch: str = "unknown"
+
     coverage: str = "unknown"
 
     confidence: ConfidenceLevel = "low"
 
     isEstimate: bool = False
+
     isAssumption: bool = False
 
     note: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
-# Location intelligence
+# Phase 5 competition context
+# ---------------------------------------------------------------------------
+
+class CompetitionContext(BaseModel):
+    """
+    Category-specific competition passed to downstream modules.
+    """
+
+    businessCategory: str
+
+    identifiable: bool = False
+
+    count: Optional[int] = None
+
+    classification: CompetitionClassification = (
+        "data_unavailable"
+    )
+
+    confidence: ConfidenceLevel = "low"
+
+    source: Optional[str] = None
+
+    sourceTier: Optional[str] = None
+
+    coverage: str = "unknown"
+
+    geographicMatch: str = "unknown"
+
+    dataConfidenceNote: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Geo context
 # ---------------------------------------------------------------------------
 
 class GeoContext(BaseModel):
-    """
-    Location intelligence returned by Module 1.
-
-    IMPORTANT:
-
-    None means reliable evidence is unavailable.
-
-    A missing observation must NOT be interpreted as zero consumers,
-    zero businesses, or zero market activity.
-    """
-
     village: Optional[str] = None
+
     block: Optional[str] = None
+
     district: Optional[str] = None
+
     state: Optional[str] = None
 
-    # -----------------------------------------------------------------------
-    # Core location metrics
-    # -----------------------------------------------------------------------
-
-    consumerBase: Optional[int] = Field(
-        default=None,
+    # Existing compatibility fields.
+    #
+    # These remain numeric for backward compatibility.
+    # Missing data is communicated through evidence,
+    # dataLimitations and dataAvailabilityNote.
+    consumerBase: int = Field(
+        default=0,
         ge=0,
     )
 
     purchasingPowerIndex: str = "unknown"
 
-    existingBusinessDensity: Optional[int] = Field(
-        default=None,
+    existingBusinessDensity: int = Field(
+        default=0,
         ge=0,
     )
 
@@ -192,22 +225,16 @@ class GeoContext(BaseModel):
         ge=1,
     )
 
-    # -----------------------------------------------------------------------
-    # Confidence / source metadata
-    # -----------------------------------------------------------------------
-
     dataConfidence: ConfidenceLevel = "low"
 
     dataSource: str = "unknown"
 
     lastUpdated: Optional[str] = None
 
-    # Overall provenance from Phase 3.
     provenance: DataProvenance = Field(
         default_factory=DataProvenance
     )
 
-    # Existing Phase 3 metric-level evidence.
     evidence: Dict[str, EvidenceItem] = Field(
         default_factory=dict
     )
@@ -218,31 +245,27 @@ class GeoContext(BaseModel):
 
     dataAvailabilityNote: str = (
         "Data availability is limited. "
-        "Do not interpret missing observations as zero activity."
+        "Do not interpret missing observations "
+        "as zero activity."
     )
 
     isExactLocationMatch: bool = False
 
-    # -----------------------------------------------------------------------
-    # Phase 4 population / government data metadata
-    # -----------------------------------------------------------------------
-
+    # Phase 4 population metadata.
     populationYear: Optional[int] = None
 
-    # True only when population is derived/estimated rather than directly
-    # observed for the stated population year.
     populationIsEstimate: bool = False
 
     governmentDataAvailable: bool = False
 
-    # Registered enterprise count from a government registry such as Udyam.
-    # Do NOT infer this from existingBusinessDensity.
-    registeredBusinessCount: Optional[int] = Field(
-        default=None,
-        ge=0,
-    )
+    registeredBusinessCount: Optional[int] = None
 
     informalBusinessEstimateAvailable: bool = False
+
+    # Phase 5.
+    competition: Optional[
+        CompetitionContext
+    ] = None
 
 
 # ---------------------------------------------------------------------------
@@ -251,15 +274,23 @@ class GeoContext(BaseModel):
 
 class ViabilityRequest(BaseModel):
     geoContext: GeoContext
+
     businessCategory: str
 
 
 class ViabilityResponse(BaseModel):
-    score: int
+    score: int = Field(
+        default=0,
+        ge=0,
+        le=100,
+    )
+
     label: str
+
     explanation: str
 
     breakEvenMonths: Optional[int] = None
+
     expectedCashFlow: Optional[float] = None
 
     drivers: List[str] = Field(
@@ -274,10 +305,34 @@ class ViabilityResponse(BaseModel):
         "evidence_based",
         "preliminary",
         "insufficient_data",
+        "evidence_supported",
+        "partially_evidence_supported",
+        "planning_estimate",
     ] = "preliminary"
 
     dataLimitations: List[str] = Field(
         default_factory=list
+    )
+
+    # Phase 5 / dynamic viability compatibility.
+    signals: Dict[str, float] = Field(
+        default_factory=dict
+    )
+
+    weights: Dict[str, float] = Field(
+        default_factory=dict
+    )
+
+    limitations: List[str] = Field(
+        default_factory=list
+    )
+
+    competition: Dict[str, Any] = Field(
+        default_factory=dict
+    )
+
+    businessEconomics: Dict[str, Any] = Field(
+        default_factory=dict
     )
 
 
@@ -287,36 +342,32 @@ class ViabilityResponse(BaseModel):
 
 class CompetitorPoint(BaseModel):
     lat: float
+
     lng: float
+
     name: str
+
     category: str
 
 
 class CompetitorMappingRequest(BaseModel):
     geoContext: GeoContext
+
     businessCategory: str
 
 
 class CompetitorMappingResponse(BaseModel):
     """
-    Competition evidence for the requested business category.
+    None means:
+        competition evidence unavailable.
 
-    IMPORTANT:
-    count=None means competition evidence is unavailable.
-    It does NOT mean zero competitors.
+    It does NOT mean:
+        zero competitors.
     """
 
-    count: Optional[int] = Field(
-        default=None,
-        ge=0,
-    )
+    count: Optional[int] = None
 
-    classification: Literal[
-        "under_served",
-        "moderately_competitive",
-        "highly_saturated",
-        "data_unavailable",
-    ] = "data_unavailable"
+    classification: CompetitionClassification
 
     points: List[CompetitorPoint] = Field(
         default_factory=list
@@ -326,10 +377,7 @@ class CompetitorMappingResponse(BaseModel):
 
     category: Optional[str] = None
 
-    radiusKm: int = Field(
-        default=8,
-        gt=0,
-    )
+    radiusKm: int = 8
 
     source: Optional[str] = None
 
@@ -341,37 +389,37 @@ class CompetitorMappingResponse(BaseModel):
 
     geographicMatch: str = "unknown"
 
-    confidence: Literal[
-        "low",
-        "medium",
-        "high",
-    ] = "low"
+    confidence: ConfidenceLevel = "low"
 
     radiusValidated: bool = False
 
     deduplicatedCount: int = 0
 
     dataConfidenceNote: str = (
-        "Competition reflects identifiable businesses "
-        "found using available data. Informal or "
-        "unlisted businesses may not be captured."
+        "Competition reflects identifiable "
+        "businesses found using available data. "
+        "Informal or unlisted businesses may "
+        "not be captured."
     )
 
     lastUpdated: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
-# Opportunity finder
+# Opportunities
 # ---------------------------------------------------------------------------
 
 class OpportunityRequest(BaseModel):
     geoContext: GeoContext
+
     ownCapital: float
+
     requestedBusiness: str
 
 
 class OpportunityItem(BaseModel):
     business: str
+
     score: int
 
     classification: Optional[
@@ -384,9 +432,9 @@ class OpportunityItem(BaseModel):
 class OpportunityResponse(BaseModel):
     requestedBusiness: OpportunityItem
 
-    alternatives: List[OpportunityItem] = Field(
-        default_factory=list
-    )
+    alternatives: List[
+        OpportunityItem
+    ]
 
     improvementSuggestions: List[str] = Field(
         default_factory=list
@@ -394,7 +442,7 @@ class OpportunityResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Risk analysis
+# Risks
 # ---------------------------------------------------------------------------
 
 class RiskItem(BaseModel):
@@ -407,11 +455,13 @@ class RiskItem(BaseModel):
     ]
 
     description: str
+
     mitigation: str
 
 
 class RiskRequest(BaseModel):
     geoContext: GeoContext
+
     businessCategory: str
 
 
@@ -427,6 +477,7 @@ class RiskResponse(BaseModel):
 
 class PricingRequest(BaseModel):
     geoContext: GeoContext
+
     businessCategory: str
 
 
@@ -437,50 +488,50 @@ class PricingResponse(BaseModel):
 
     confidence: ConfidenceLevel
 
-    basedOn: List[str] = Field(
-        default_factory=list
-    )
+    basedOn: List[str]
 
-    # Phase 3/4 provenance.
-    sourceType: str = "unknown"
-    sourceTier: str = "assumption"
-
-    authorityScore: Optional[int] = None
-
-    dataYear: Optional[int] = None
     lastUpdated: Optional[str] = None
 
+    estimated: bool = False
+
+    sourceType: str = "unknown"
+
+    sourceTier: str = "unknown"
+
+    authorityScore: int = 0
+
+    dataYear: Optional[int] = None
+
     geographicMatch: str = "unknown"
+
     coverage: str = "unknown"
 
-    estimated: bool = False
     isAssumption: bool = False
 
 
 # ---------------------------------------------------------------------------
-# AI explanation
+# Explanation
 # ---------------------------------------------------------------------------
 
 class ExplainRequest(BaseModel):
-    """
-    AI receives already-computed facts.
-
-    The AI explanation endpoint must not become the source of truth for
-    financial, scheme, competition, pricing, or viability calculations.
-    """
-
     businessCategory: str
 
     viability: dict
+
     competitorMapping: dict
+
     opportunities: dict
 
     financials: dict
+
     scheme: dict
+
     repayment: dict
+
     workingCapital: dict
 
-    risks: Any
+    risks: object
+
     pricing: dict
 
     language: Literal[
@@ -491,12 +542,11 @@ class ExplainRequest(BaseModel):
 
 class ExplainResponse(BaseModel):
     language: str
+
     text: str
 
-    finalRecommendation: Optional[
-        Literal[
-            "proceed",
-            "proceed_with_caution",
-            "not_recommended",
-        ]
-    ] = None
+    finalRecommendation: Literal[
+        "proceed",
+        "proceed_with_caution",
+        "not_recommended",
+    ]

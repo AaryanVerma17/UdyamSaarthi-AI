@@ -1,18 +1,30 @@
 """
-UdyamSaarthi-AI — Competitor Evidence Engine.
+UdyamSaarthi-AI
+Phase 5 — Competitor Evidence Engine
 
-Phase 5 responsibilities:
-- Normalize business categories.
-- Filter businesses by requested category.
-- Validate geographic radius.
-- Deduplicate businesses from multiple sources.
-- Distinguish identifiable businesses from estimates.
-- Preserve source/provenance information.
+Responsibilities
+----------------
+1. Normalize business categories.
+2. Extract identifiable business records.
+3. Deduplicate businesses across sources.
+4. Filter by requested business category.
+5. Validate geographic radius when coordinates exist.
+6. Preserve source/provenance information.
+7. Distinguish identifiable businesses from unavailable evidence.
 
-Important:
+Important
+---------
 An identifiable competitor count is NOT a census of all businesses.
-Informal, unregistered, newly opened, or otherwise unobserved businesses
-may not be present in the available data.
+
+If category-specific business evidence is unavailable:
+
+    count = None
+    identifiable = False
+
+This must never become:
+
+    count = 0
+    classification = "under_served"
 """
 
 from math import asin, cos, radians, sin, sqrt
@@ -28,46 +40,54 @@ CATEGORY_ALIASES = {
     "milk": "Dairy",
     "milk shop": "Dairy",
     "dairy farm": "Dairy",
+    "dairy store": "Dairy",
 
     "kirana": "Kirana",
     "grocery": "Kirana",
     "grocery store": "Kirana",
     "general store": "Kirana",
+    "provision store": "Kirana",
 
-    "tailoring": "Tailoring",
     "tailor": "Tailoring",
+    "tailoring": "Tailoring",
     "tailoring shop": "Tailoring",
 
     "food processing": "Food Processing",
     "food processor": "Food Processing",
     "food manufacturing": "Food Processing",
 
-    "repair shop": "Repair Shop",
     "repair": "Repair Shop",
+    "repair shop": "Repair Shop",
     "mobile repair": "Repair Shop",
     "electronics repair": "Repair Shop",
 }
 
 
-def normalize_category(value: Optional[str]) -> str:
+def normalize_category(
+    value: Optional[str],
+) -> str:
     """
-    Normalize a category while preserving unknown categories.
+    Convert category aliases into the platform's canonical category.
 
-    Examples:
-        dairy       -> Dairy
-        milk shop   -> Dairy
-        grocery     -> Kirana
-        tailor      -> Tailoring
+    Examples
+    --------
+    grocery store -> Kirana
+    milk shop     -> Dairy
+    tailor        -> Tailoring
     """
 
-    if not value:
+    if value is None:
         return ""
 
-    normalized = (
+    normalized = " ".join(
         str(value)
         .strip()
         .lower()
+        .split()
     )
+
+    if not normalized:
+        return ""
 
     return CATEGORY_ALIASES.get(
         normalized,
@@ -79,12 +99,14 @@ def normalize_category(value: Optional[str]) -> str:
 # Business-name normalization
 # ---------------------------------------------------------------------------
 
-def normalize_name(value: Optional[str]) -> str:
+def normalize_name(
+    value: Optional[str],
+) -> str:
     """
-    Normalize business names for deduplication.
+    Normalize a business name for deduplication.
     """
 
-    if not value:
+    if value is None:
         return ""
 
     return " ".join(
@@ -96,7 +118,7 @@ def normalize_name(value: Optional[str]) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Geographic distance
+# Geographic helpers
 # ---------------------------------------------------------------------------
 
 def haversine_km(
@@ -106,7 +128,12 @@ def haversine_km(
     lng2: float,
 ) -> float:
     """
-    Calculate great-circle distance between two coordinates.
+    Calculate distance between two geographic coordinates.
+
+    Returns
+    -------
+    float
+        Distance in kilometres.
     """
 
     earth_radius_km = 6371.0088
@@ -114,19 +141,20 @@ def haversine_km(
     lat1_rad = radians(lat1)
     lat2_rad = radians(lat2)
 
-    delta_lat = radians(
-        lat2 - lat1
-    )
-
-    delta_lng = radians(
-        lng2 - lng1
-    )
+    delta_lat = radians(lat2 - lat1)
+    delta_lng = radians(lng2 - lng1)
 
     a = (
         sin(delta_lat / 2) ** 2
         + cos(lat1_rad)
         * cos(lat2_rad)
         * sin(delta_lng / 2) ** 2
+    )
+
+    # Guard against tiny floating-point drift.
+    a = max(
+        0.0,
+        min(1.0, a),
     )
 
     return (
@@ -136,206 +164,195 @@ def haversine_km(
     )
 
 
-# ---------------------------------------------------------------------------
-# Coordinate handling
-# ---------------------------------------------------------------------------
-
 def safe_coordinates(
     record: Dict[str, Any],
-):
+) -> Optional[tuple]:
     """
-    Read common coordinate field names.
+    Extract coordinates from common field names.
 
-    Returns:
-        (latitude, longitude)
-
-    or:
-        (None, None)
+    Supported:
+        lat / lng
+        latitude / longitude
     """
 
-    latitude = record.get("lat")
+    if not isinstance(record, dict):
+        return None
 
-    if latitude is None:
-        latitude = record.get("latitude")
+    lat = (
+        record.get("lat")
+        if record.get("lat") is not None
+        else record.get("latitude")
+    )
 
-    longitude = record.get("lng")
-
-    if longitude is None:
-        longitude = record.get("lon")
-
-    if longitude is None:
-        longitude = record.get("longitude")
+    lng = (
+        record.get("lng")
+        if record.get("lng") is not None
+        else record.get("longitude")
+    )
 
     try:
-        latitude = float(latitude)
-        longitude = float(longitude)
+        if lat is None or lng is None:
+            return None
+
+        lat_value = float(lat)
+        lng_value = float(lng)
+
+        if not (
+            -90 <= lat_value <= 90
+            and -180 <= lng_value <= 180
+        ):
+            return None
+
+        return (
+            lat_value,
+            lng_value,
+        )
+
     except (
         TypeError,
         ValueError,
     ):
-        return None, None
-
-    if not (
-        -90 <= latitude <= 90
-        and -180 <= longitude <= 180
-    ):
-        return None, None
-
-    return latitude, longitude
+        return None
 
 
 # ---------------------------------------------------------------------------
-# Candidate extraction
+# Business extraction
 # ---------------------------------------------------------------------------
 
 def extract_businesses(
-    location_record: Optional[
-        Dict[str, Any]
-    ],
+    location_record: Optional[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     """
-    Extract business records from a resolved location.
+    Extract business listings from the location record.
 
-    Supports:
+    Supports the current project's:
         existingBusinesses
-        businesses
-        competitors
 
-    Missing lists produce an empty list rather than an estimate.
+    and future normalized names:
+        businesses
+        businessListings
+        businessesWithinRadius
     """
 
     if not location_record:
         return []
 
-    candidates: List[Dict[str, Any]] = []
+    candidates = (
+        location_record.get(
+            "existingBusinesses"
+        )
+        or location_record.get(
+            "businesses"
+        )
+        or location_record.get(
+            "businessListings"
+        )
+        or location_record.get(
+            "businessesWithinRadius"
+        )
+        or []
+    )
 
-    for field in (
-        "existingBusinesses",
-        "businesses",
-        "competitors",
+    if not isinstance(
+        candidates,
+        list,
     ):
-        records = location_record.get(
-            field,
-            []
-        )
+        return []
 
-        if not isinstance(
-            records,
-            list,
-        ):
-            continue
-
-        candidates.extend(
-            item
-            for item in records
-            if isinstance(item, dict)
-        )
-
-    return candidates
+    return [
+        item
+        for item in candidates
+        if isinstance(item, dict)
+    ]
 
 
 # ---------------------------------------------------------------------------
 # Deduplication
 # ---------------------------------------------------------------------------
 
-def _deduplication_key(
-    business: Dict[str, Any],
-    fallback_index: int,
-):
-    """
-    Build a stable identity key.
-
-    Priority:
-        1. Explicit business ID
-        2. Name + coordinates
-        3. Name + category
-        4. Unique fallback
-
-    This prevents the same business appearing in multiple evidence
-    sources from being counted multiple times.
-    """
-
-    business_id = (
-        business.get("id")
-        or business.get("businessId")
-        or business.get("business_id")
-    )
-
-    if business_id:
-        return (
-            "id",
-            str(business_id)
-            .strip()
-            .lower(),
-        )
-
-    name = normalize_name(
-        business.get("name")
-    )
-
-    category = normalize_category(
-        business.get("category")
-    )
-
-    lat, lng = safe_coordinates(
-        business
-    )
-
-    if name and lat is not None and lng is not None:
-        return (
-            "name-coordinates",
-            name,
-            round(lat, 5),
-            round(lng, 5),
-        )
-
-    if name and category:
-        return (
-            "name-category",
-            name,
-            category.lower(),
-        )
-
-    return (
-        "fallback",
-        fallback_index,
-    )
-
-
 def deduplicate_businesses(
-    businesses: Iterable[
-        Dict[str, Any]
-    ],
+    businesses: Iterable[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     """
-    Deduplicate business evidence.
+    Deduplicate business records.
 
-    The first occurrence is retained.
+    Identifier priority
+    -------------------
+    1. id
+    2. businessId
+    3. udyamId
+    4. registrationId
+    5. name + coordinates
+    6. name + category
+    7. unique fallback
+
+    This is necessary because the same business may appear in:
+        - government registration data
+        - online listings
+        - field verification
     """
 
-    unique: Dict[Any, Dict[str, Any]] = {}
+    unique: Dict[str, Dict[str, Any]] = {}
 
     fallback_index = 0
 
     for business in businesses:
 
-        if not isinstance(
-            business,
-            dict,
-        ):
-            continue
-
-        key = _deduplication_key(
-            business,
-            fallback_index,
+        business_id = (
+            business.get("id")
+            or business.get("businessId")
+            or business.get("udyamId")
+            or business.get("registrationId")
         )
 
-        fallback_index += 1
+        name = normalize_name(
+            business.get("name")
+        )
+
+        category = normalize_category(
+            business.get("category")
+            or business.get("businessCategory")
+            or business.get("type")
+        )
+
+        coordinates = safe_coordinates(
+            business
+        )
+
+        if business_id:
+
+            key = (
+                "id:"
+                + str(
+                    business_id
+                ).strip().lower()
+            )
+
+        elif name and coordinates:
+
+            key = (
+                f"name:{name}:"
+                f"{round(coordinates[0], 5)}:"
+                f"{round(coordinates[1], 5)}"
+            )
+
+        elif name and category:
+
+            key = (
+                f"name:{name}:"
+                f"category:{category.lower()}"
+            )
+
+        else:
+
+            fallback_index += 1
+
+            key = (
+                f"unresolved:{fallback_index}"
+            )
 
         if key not in unique:
-            unique[key] = dict(
-                business
-            )
+            unique[key] = business
 
     return list(
         unique.values()
@@ -346,96 +363,133 @@ def deduplicate_businesses(
 # Category filtering
 # ---------------------------------------------------------------------------
 
-def filter_category(
-    businesses: Iterable[
-        Dict[str, Any]
-    ],
+def find_category_competitors(
+    businesses: Iterable[Dict[str, Any]],
     business_category: str,
 ) -> List[Dict[str, Any]]:
     """
     Keep only businesses belonging to the requested category.
     """
 
-    requested = normalize_category(
+    target = normalize_category(
         business_category
     )
 
-    if not requested:
+    if not target:
         return []
 
-    results = []
+    matches = []
 
     for business in businesses:
 
         category = normalize_category(
             business.get("category")
+            or business.get("businessCategory")
+            or business.get("type")
         )
 
-        if category == requested:
-            results.append(
-                dict(business)
+        if category == target:
+            matches.append(
+                business
             )
 
-    return results
+    return matches
 
 
 # ---------------------------------------------------------------------------
-# Radius filtering
+# Radius validation
 # ---------------------------------------------------------------------------
 
 def filter_by_radius(
-    businesses: Iterable[
-        Dict[str, Any]
-    ],
-    *,
+    businesses: Iterable[Dict[str, Any]],
     center_lat: Optional[float],
     center_lng: Optional[float],
     radius_km: float,
 ) -> List[Dict[str, Any]]:
     """
-    Keep businesses within the requested radius.
+    Filter businesses using the requested geographic radius.
 
-    If the center or business coordinates are unavailable, the business
-    is not treated as geographically validated.
+    If the center coordinates are unavailable:
+        - retain the records
+        - do not claim radius validation
+
+    If an individual business lacks coordinates:
+        - retain it
+        - mark its distance as unverified
+
+    This avoids silently deleting identifiable evidence.
     """
 
-    if radius_km <= 0:
-        raise ValueError(
-            "radius_km must be greater than zero"
+    businesses = list(
+        businesses
+    )
+
+    try:
+        radius = float(
+            radius_km
         )
+
+    except (
+        TypeError,
+        ValueError,
+    ):
+        radius = 8.0
+
+    if radius <= 0:
+        radius = 8.0
 
     if (
         center_lat is None
         or center_lng is None
     ):
-        return []
+        return businesses
 
     results = []
 
     for business in businesses:
 
-        lat, lng = safe_coordinates(
+        coordinates = safe_coordinates(
             business
         )
 
-        if lat is None or lng is None:
-            continue
+        if coordinates is None:
 
-        distance = haversine_km(
-            center_lat,
-            center_lng,
-            lat,
-            lng,
-        )
-
-        if distance <= radius_km:
             copied = dict(
                 business
             )
 
-            copied["_distanceKm"] = round(
+            copied[
+                "_distanceVerified"
+            ] = False
+
+            copied[
+                "_distanceKm"
+            ] = None
+
+            results.append(
+                copied
+            )
+
+            continue
+
+        distance = haversine_km(
+            float(center_lat),
+            float(center_lng),
+            coordinates[0],
+            coordinates[1],
+        )
+
+        if distance <= radius:
+
+            copied = dict(
+                business
+            )
+
+            copied[
+                "_distanceKm"
+            ] = round(
                 distance,
-                3,
+                2,
             )
 
             copied[
@@ -450,161 +504,204 @@ def filter_by_radius(
 
 
 # ---------------------------------------------------------------------------
-# Main evidence builder
+# Source hierarchy
+# ---------------------------------------------------------------------------
+
+def source_tier_for(
+    source: Optional[str],
+) -> str:
+    """
+    Convert source names into the platform's source hierarchy.
+    """
+
+    if not source:
+        return "assumption"
+
+    normalized = (
+        str(source)
+        .strip()
+        .lower()
+    )
+
+    if (
+        normalized in {
+            "census",
+            "census of india",
+            "udyam",
+            "asuse",
+            "government",
+            "official_government",
+        }
+        or "government" in normalized
+        or "census" in normalized
+        or "udyam" in normalized
+        or "asuse" in normalized
+    ):
+        return "official_government"
+
+    if (
+        normalized in {
+            "verified_local",
+            "field",
+            "field_verified",
+            "local_verified",
+        }
+        or "verified" in normalized
+        or "field" in normalized
+    ):
+        return "verified_local"
+
+    if (
+        normalized in {
+            "research",
+            "secondary",
+            "secondary_research",
+        }
+        or "research" in normalized
+    ):
+        return "secondary_research"
+
+    return "assumption"
+
+
+# ---------------------------------------------------------------------------
+# Map points
+# ---------------------------------------------------------------------------
+
+def build_points(
+    businesses: Iterable[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """
+    Convert businesses with coordinates into map points.
+    """
+
+    points = []
+
+    for business in businesses:
+
+        coordinates = safe_coordinates(
+            business
+        )
+
+        if coordinates is None:
+            continue
+
+        points.append(
+            {
+                "lat": coordinates[0],
+                "lng": coordinates[1],
+                "name": (
+                    business.get("name")
+                    or "Unnamed business"
+                ),
+                "category": normalize_category(
+                    business.get("category")
+                    or business.get("businessCategory")
+                    or business.get("type")
+                ),
+            }
+        )
+
+    return points
+
+
+# ---------------------------------------------------------------------------
+# Main evidence engine
 # ---------------------------------------------------------------------------
 
 def build_competitor_evidence(
     *,
-    location_record: Optional[
-        Dict[str, Any]
-    ],
+    location_record: Optional[Dict[str, Any]],
     business_category: str,
     radius_km: float = 8,
     center_lat: Optional[float] = None,
     center_lng: Optional[float] = None,
 ) -> Dict[str, Any]:
     """
-    Build category-specific competition evidence.
-
-    The function deliberately does NOT use:
-        existingBusinessDensity
-
-    as a competitor count.
-
-    That field represents broader business density and cannot be assumed
-    to mean category-specific competitors.
+    Build the complete Phase 5 competition evidence object.
     """
 
-    category = normalize_category(
-        business_category
-    )
-
-    candidates = extract_businesses(
+    raw_businesses = extract_businesses(
         location_record
     )
 
-    # No business evidence available.
-    if not candidates:
+    # -------------------------------------------------------
+    # No evidence at all
+    # -------------------------------------------------------
+
+    if not raw_businesses:
+
         return {
-            "count": None,
             "identifiable": False,
-            "category": category or business_category,
-            "radiusKm": radius_km,
-            "radiusValidated": False,
-            "deduplicatedCount": 0,
+            "count": None,
             "points": [],
-            "confidence": "low",
-            "coverage": "unknown",
             "source": None,
             "sourceTier": "assumption",
-            "dataConfidenceNote": (
-                "No category-specific competitor data "
-                "was available for this location. "
-                "This does not mean that no competitors exist."
-            ),
-        }
-
-    # Normalize and deduplicate first.
-    deduplicated = deduplicate_businesses(
-        candidates
-    )
-
-    category_businesses = filter_category(
-        deduplicated,
-        category,
-    )
-
-    # Determine location center.
-    if (
-        center_lat is None
-        or center_lng is None
-    ):
-        if location_record:
-            center_lat, center_lng = (
-                safe_coordinates(
-                    location_record
-                )
-            )
-
-    # Geographic validation.
-    radius_businesses = filter_by_radius(
-        category_businesses,
-        center_lat=center_lat,
-        center_lng=center_lng,
-        radius_km=radius_km,
-    )
-
-    radius_validated = (
-        center_lat is not None
-        and center_lng is not None
-    )
-
-    # If we cannot validate geography, don't claim
-    # that these are competitors within the radius.
-    if not radius_validated:
-        return {
-            "count": None,
-            "identifiable": False,
-            "category": category,
-            "radiusKm": radius_km,
-            "radiusValidated": False,
-            "deduplicatedCount": len(
-                category_businesses
-            ),
-            "points": [],
+            "dataYear": None,
+            "lastUpdated": None,
+            "coverage": "unknown",
+            "geographicMatch": "unknown",
             "confidence": "low",
-            "coverage": "partial",
-            "source": (
-                location_record.get(
-                    "source"
-                )
-                if location_record
-                else None
-            ),
-            "sourceTier": (
-                location_record.get(
-                    "sourceTier",
-                    "assumption",
-                )
-                if location_record
-                else "assumption"
-            ),
+            "deduplicated": 0,
+            "categoryMatches": 0,
+            "radiusValidated": False,
             "dataConfidenceNote": (
-                "Category-specific businesses were "
-                "identified, but their geographic distance "
-                "could not be validated. The result is not "
-                "treated as a radius-validated competitor count."
+                "No category-specific business "
+                "listings were available for this "
+                "location. The absence of identified "
+                "businesses does not mean that no "
+                "competitors exist."
             ),
         }
 
-    points = []
+    # -------------------------------------------------------
+    # Deduplicate
+    # -------------------------------------------------------
 
-    for business in radius_businesses:
-
-        lat, lng = safe_coordinates(
-            business
+    unique_businesses = (
+        deduplicate_businesses(
+            raw_businesses
         )
+    )
 
-        points.append(
-            {
-                "name": str(
-                    business.get(
-                        "name",
-                        "Unnamed business",
-                    )
-                ),
-                "category": normalize_category(
-                    business.get(
-                        "category"
-                    )
-                ),
-                "lat": lat,
-                "lng": lng,
-                "distanceKm": business.get(
-                    "_distanceKm"
-                ),
-            }
+    # -------------------------------------------------------
+    # Category filter
+    # -------------------------------------------------------
+
+    category_matches = (
+        find_category_competitors(
+            unique_businesses,
+            business_category,
         )
+    )
+
+    # -------------------------------------------------------
+    # Radius filter
+    # -------------------------------------------------------
+
+    radius_matches = filter_by_radius(
+        category_matches,
+        center_lat,
+        center_lng,
+        radius_km,
+    )
+
+    identifiable_count = len(
+        radius_matches
+    )
+
+    verified_location_count = sum(
+        1
+        for business in radius_matches
+        if business.get(
+            "_distanceVerified"
+        )
+        is True
+    )
+
+    # -------------------------------------------------------
+    # Metadata
+    # -------------------------------------------------------
 
     source = (
         location_record.get(
@@ -614,75 +711,162 @@ def build_competitor_evidence(
         else None
     )
 
-    source_tier = (
+    if not source and location_record:
+
+        source = location_record.get(
+            "dataSource"
+        )
+
+    data_year = (
         location_record.get(
-            "sourceTier",
-            "assumption",
+            "dataYear"
         )
         if location_record
-        else "assumption"
+        else None
     )
 
-    # Demo/seed evidence is intentionally low confidence.
-    if source == "seed_demo_v1":
-        confidence = "low"
+    last_updated = (
+        location_record.get(
+            "lastUpdated"
+        )
+        if location_record
+        else None
+    )
+
+    coverage = (
+        location_record.get(
+            "businessCoverage"
+        )
+        if location_record
+        else None
+    )
+
+    if not coverage and location_record:
+        coverage = location_record.get(
+            "coverage"
+        )
+
+    coverage = (
+        coverage
+        or "partial"
+    )
+
+    radius_validated = (
+        center_lat is not None
+        and center_lng is not None
+    )
+
+    if radius_validated:
+
+        geographic_match = (
+            "exact"
+            if verified_location_count > 0
+            else "unknown"
+        )
+
     else:
+
+        geographic_match = "unknown"
+
+    source_tier = source_tier_for(
+        source
+    )
+
+    # -------------------------------------------------------
+    # Confidence
+    # -------------------------------------------------------
+
+    if identifiable_count == 0:
+
+        confidence = "low"
+
+    elif source_tier == "official_government":
+
         confidence = (
-            location_record.get(
-                "dataConfidence",
-                "medium",
+            "high"
+            if (
+                radius_validated
+                and geographic_match == "exact"
             )
-            if location_record
+            else "medium"
+        )
+
+    elif source_tier == "verified_local":
+
+        confidence = (
+            "high"
+            if (
+                radius_validated
+                and geographic_match == "exact"
+            )
+            else "medium"
+        )
+
+    elif source_tier == "secondary_research":
+
+        confidence = "medium"
+
+    else:
+
+        confidence = (
+            "medium"
+            if (
+                radius_validated
+                and geographic_match == "exact"
+            )
             else "low"
         )
 
-    count = len(
-        radius_businesses
+    canonical_category = (
+        normalize_category(
+            business_category
+        )
     )
 
+    # -------------------------------------------------------
+    # Final evidence object
+    # -------------------------------------------------------
+
     return {
-        "count": count,
         "identifiable": True,
-        "category": category,
-        "radiusKm": radius_km,
-        "radiusValidated": True,
-        "deduplicatedCount": len(
-            deduplicated
+
+        "count": identifiable_count,
+
+        "points": build_points(
+            radius_matches
         ),
-        "points": points,
-        "confidence": confidence,
-        "coverage": (
-            location_record.get(
-                "coverage",
-                "partial",
-            )
-            if location_record
-            else "partial"
-        ),
+
         "source": source,
+
         "sourceTier": source_tier,
-        "dataYear": (
-            location_record.get(
-                "dataYear"
-            )
-            if location_record
-            else None
+
+        "dataYear": data_year,
+
+        "lastUpdated": last_updated,
+
+        "coverage": coverage,
+
+        "geographicMatch": geographic_match,
+
+        "confidence": confidence,
+
+        "deduplicated": len(
+            unique_businesses
         ),
-        "lastUpdated": (
-            location_record.get(
-                "lastUpdated"
-            )
-            if location_record
-            else None
+
+        "categoryMatches": len(
+            category_matches
         ),
+
+        "radiusValidated": radius_validated,
+
         "dataConfidenceNote": (
-            f"{count} identifiable "
-            f"{category} businesses were found "
-            "using available data within the "
-            f"{radius_km:g} km analysis radius. "
+            f"{identifiable_count} identifiable "
+            f"{canonical_category} businesses were "
+            "found using available data. "
             "This is not a complete count of all "
-            "businesses; informal, unlisted, newly "
-            "opened, or otherwise unobserved businesses "
-            "may not be captured."
+            "businesses. Informal, unlisted, newly "
+            "opened, or otherwise unobserved "
+            "businesses may be missing."
         ),
     }

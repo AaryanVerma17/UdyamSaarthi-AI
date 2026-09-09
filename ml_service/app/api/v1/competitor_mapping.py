@@ -1,23 +1,39 @@
 """
-Module 3 — Competitor Mapping.
+Module 3 — Competitor Mapping
 
-Phase 5:
-Competition is calculated from category-specific identifiable
-business evidence.
+Phase 5
+-------
 
-Total business density is NEVER used as a substitute for
-category-specific competitor count.
+Competition is calculated from category-specific,
+identifiable business evidence.
+
+General business density is NEVER used as a substitute
+for category-specific competitor count.
+
+Missing competition evidence is represented as:
+
+    count = None
+    classification = data_unavailable
+
+It is NOT interpreted as:
+
+    count = 0
+    classification = under_served
 """
 
 from typing import Optional
 
 from fastapi import APIRouter
 
-from app.data_access.villages import find_village
 from app.data.competitor_evidence import (
     build_competitor_evidence,
     normalize_category,
 )
+
+from app.data_access.villages import (
+    find_village,
+)
+
 from app.schemas.models import (
     CompetitorMappingRequest,
     CompetitorMappingResponse,
@@ -31,10 +47,12 @@ def classify(
     count: Optional[int],
 ) -> str:
     """
-    Classify only an identifiable category-specific count.
+    Classify identifiable category-specific competition.
 
-    None means the competition evidence is unavailable.
-    It must never be converted into zero.
+    0–3 -> under_served
+    4–7 -> moderately_competitive
+    8+  -> highly_saturated
+    None -> data_unavailable
     """
 
     if count is None:
@@ -60,17 +78,10 @@ def competitor_mapping(
     request: CompetitorMappingRequest,
 ):
     """
-    Return category-specific competitor evidence
-    for the requested location.
+    Calculate category-specific competition.
     """
 
     geo = request.geoContext
-
-    # ------------------------------------------------------------------
-    # Resolve the exact location.
-    #
-    # Never match using village name alone.
-    # ------------------------------------------------------------------
 
     record = find_village(
         village=geo.village or "",
@@ -79,26 +90,19 @@ def competitor_mapping(
         state=geo.state,
     )
 
-    # ------------------------------------------------------------------
-    # Build competition evidence.
-    #
-    # This function performs:
-    #   - category normalization
-    #   - category filtering
-    #   - deduplication
-    #   - radius validation
-    #   - confidence assignment
-    # ------------------------------------------------------------------
-
     evidence = build_competitor_evidence(
         location_record=record,
         business_category=request.businessCategory,
         radius_km=geo.radiusKm,
     )
 
-    count = evidence.get("count")
+    count = evidence.get(
+        "count"
+    )
 
-    classification = classify(count)
+    classification = classify(
+        count
+    )
 
     return CompetitorMappingResponse(
         count=count,
@@ -162,9 +166,9 @@ def competitor_mapping(
             "dataConfidenceNote",
             (
                 "Competition reflects identifiable "
-                "businesses found using available data. "
-                "Informal or unlisted businesses may not "
-                "be captured."
+                "businesses found using available "
+                "data. Informal or unlisted businesses "
+                "may not be captured."
             ),
         ),
 

@@ -1,25 +1,27 @@
+````markdown
 # UdyamSaarthi-AI
 
 ### Hyper-Local Business Advisory & Financial Decision-Support Platform for Rural & Semi-Urban Entrepreneurs
 
 > **Idea -> Evidence -> Feasibility -> Finance -> Decision**
 
-UdyamSaarthi-AI is an AI-assisted business feasibility and decision-support platform designed to help rural and semi-urban entrepreneurs in India evaluate a business idea **before investing their hard-earned capital**.
+UdyamSaarthi-AI is an AI-assisted business feasibility and decision-support platform designed to help rural and semi-urban entrepreneurs in India evaluate a business idea before investing their hard-earned capital.
 
 Instead of providing generic business advice, UdyamSaarthi-AI combines:
 
-* Location intelligence
-* Local competition context
-* Financial modelling
-* Government-scheme routing
-* Business viability scoring
-* Loan and repayment planning
-* Working-capital planning
-* Localized pricing
-* Risk analysis
-* AI-generated explanations
-* Secure user authentication and report ownership
-* English + Hindi accessibility
+- Location intelligence
+- Local competition context
+- Financial modelling
+- Government scheme routing
+- Business viability scoring
+- Loan and repayment planning
+- Working-capital planning
+- Localized pricing
+- Risk analysis
+- AI-generated explanations
+- Secure user authentication
+- User-specific report management
+- English and Hindi accessibility
 
 The central question is:
 
@@ -27,53 +29,136 @@ The central question is:
 
 ---
 
+# SIH 2026 Project
+
+## Problem Statement
+
+**AI-Driven Hyper-Local Business Advisory and Financial Structuring Assistant for Rural Micro-Entrepreneurs**
+
+UdyamSaarthi-AI addresses the challenge of fragmented and difficult-to-access business intelligence faced by rural and semi-urban entrepreneurs.
+
+The platform brings together location context, competition, financial planning, government schemes, pricing, risks and business viability into a single decision-support workflow.
+
+The objective is not to tell an entrepreneur that a business is guaranteed to succeed.
+
+The objective is to help the entrepreneur understand:
+
+- Whether the business appears feasible
+- What the local market looks like
+- What competition exists
+- How much capital may be required
+- How financing could be structured
+- What repayment could look like
+- Which government schemes may be relevant
+- What risks should be considered
+- How strong the available evidence is
+- What should be considered before investing
+
+---
+
 # Demo & Presentation
 
 ## Demo Video
 
-**Demo Video:**
+Project demo video:
 
-[https://drive.google.com/file/d/1SRYgfcMLP77qFkJXjmh_vgTFSUlpLlQC/view?usp=sharing](https://drive.google.com/file/d/1SRYgfcMLP77qFkJXjmh_vgTFSUlpLlQC/view?usp=sharing)
+https://drive.google.com/file/d/1SRYgfcMLP77qFkJXjmh_vgTFSUlpLlQC/view?usp=sharing
 
 ## Project Presentation
 
-**PPT:**
+Project PPT:
 
-[https://drive.google.com/file/d/17j9Fa3xadDd8B4djPvrSrwwE_rFIG7qE/view?usp=sharing](https://drive.google.com/file/d/17j9Fa3xadDd8B4djPvrSrwwE_rFIG7qE/view?usp=sharing)
+https://drive.google.com/file/d/17j9Fa3xadDd8B4djPvrSrwwE_rFIG7qE/view?usp=sharing
 
 ## Live Application
 
-**Live Demo:**
+Live application:
 
-[https://udyamsaarthi.onrender.com](https://udyamsaarthi.onrender.com)
+https://udyamsaarthi.onrender.com
 
 ## Documentation
 
-[https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing](https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing)
+Project documentation:
+
+https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing
 
 ---
 
 # SIH 2026 Demonstration Scope
 
-UdyamSaarthi-AI is structured as a phased entrepreneurship decision-support platform.
+The current SIH 2026 implementation focuses on the complete core feasibility and decision-support workflow.
 
-For the **SIH 2026 demonstration**, the primary implemented workflow covers:
+## Current Implementation
 
 ### Phase 1 - Real User + Problem + Workflow
 
+The platform is designed around the actual decision faced by a rural or semi-urban entrepreneur.
+
 ### Phase 2 - Guided User-Centred Intake
+
+The entrepreneur provides:
+
+- Location
+- Business category
+- Available own capital
+
+through a guided interface.
 
 ### Phase 3 - Government Data + Evidence
 
+The platform provides government-scheme routing and communicates scheme status and evidence limitations.
+
 ### Phase 4 - Location & Local Market Intelligence
+
+The platform evaluates the business in the context of the selected location.
 
 ### Phase 5 - Competition + Ground Reality
 
+The platform provides competition classification and identifiable competitor mapping where information is available.
+
 ### Phase 6 - Financial + Government Scheme Engine
+
+The financial engine structures:
+
+- Project cost
+- Own capital
+- Financing requirement
+- Loan
+- Repayment
+- Working capital
+- Scheme context
 
 ### Phase 7 - Business Viability & Decision Engine
 
-The architecture is intentionally designed so that additional intelligence can be added without replacing the core workflow.
+The platform combines the available analytical information into:
+
+- Viability score
+- Viability label
+- Recommendation
+- Confidence
+- Key risks
+- Financial context
+- Evidence limitations
+
+---
+
+# Future Development
+
+The architecture is designed to support additional functionality after the current SIH demonstration.
+
+### Phase 8 - Market Gaps + Differentiation
+
+### Phase 9 - Alternative Business Engine
+
+### Phase 10 - Trust + Explainability + Human Override
+
+### Phase 11 - Decision-Centric Flagship Report
+
+### Phase 12 - Test Before You Invest
+
+### Phase 13 - Production + Deployment + Pilot Readiness
+
+These phases are described in detail later in this README.
 
 ---
 
@@ -83,15 +168,15 @@ Starting a small business can be a high-stakes decision for rural and semi-urban
 
 Business decisions may be influenced by:
 
-* Word-of-mouth recommendations
-* Businesses that appear successful nearby
-* Generic online advice
-* Limited understanding of local competition
-* Unclear demand conditions
-* Poor financial planning
-* Lack of knowledge about government financing schemes
-* Difficulty estimating repayment capacity
-* Limited access to structured business intelligence
+- Word-of-mouth recommendations
+- Businesses that appear successful nearby
+- Generic online advice
+- Limited understanding of local competition
+- Unclear demand conditions
+- Poor financial planning
+- Lack of knowledge about government financing schemes
+- Difficulty estimating repayment capacity
+- Limited access to structured business intelligence
 
 A business that succeeds in one village, block or district may not perform equally well somewhere else.
 
@@ -139,15 +224,15 @@ Available Capital
         Financial Outlook
                 +
         Decision Guidance
-```
+````
 
-The system distinguishes between:
+The platform is designed to distinguish between:
 
-### Viability
+## Viability
 
 How promising the business appears based on the available analytical inputs.
 
-### Confidence
+## Confidence
 
 How strong and reliable the underlying evidence is.
 
@@ -161,7 +246,7 @@ Limited local evidence
 Promising opportunity with lower confidence
 ```
 
-Instead of hiding uncertainty, the platform communicates it.
+Instead of hiding uncertainty, the system communicates it.
 
 ---
 
@@ -224,11 +309,9 @@ The competition layer provides:
 * Competition classification
 * Identifiable competitor locations
 * Map-based visualization
-* Evidence/confidence context
+* Evidence and confidence context
 
-Competition information is treated as:
-
-> **Available market evidence, not absolute ground truth.**
+Competition information is treated as available market evidence rather than absolute ground truth.
 
 The system does not claim that an available competitor dataset is necessarily a complete census of every business in an area.
 
@@ -324,9 +407,7 @@ The report can communicate:
 * Evidence limitations
 * Confidence
 
-The score is:
-
-> **Not a guarantee of business success.**
+The score is not a guarantee of business success.
 
 It is intended as decision support.
 
@@ -374,7 +455,7 @@ The core design principle is:
 
 ---
 
-# 11. English + Hindi Experience
+# 11. English and Hindi Experience
 
 The interface supports:
 
@@ -387,56 +468,519 @@ This is important because accessibility involves both technology and comprehensi
 
 ---
 
-# 12. Advanced User Authentication & Secure Reports
+# 12. User Authentication and Secure Reports
 
-UdyamSaarthi-AI includes authenticated user access so that feasibility reports are associated with individual users.
+UdyamSaarthi-AI includes a user authentication system so that entrepreneurs can securely create accounts, sign in and maintain their own feasibility reports.
 
-### Authentication Workflow
+The authentication system provides:
+
+* User registration
+* User sign in
+* Password-based authentication
+* JWT authentication
+* Protected API routes
+* User-specific report ownership
+* Report history
+* Individual report retrieval
+* Report deletion
+* Logout
+* User-to-user report isolation
+
+---
+
+# Sign In and Registration
+
+When the application is opened, users can either sign in to an existing account or create a new account.
+
+```text
++-----------------------+
+|     UdyamSaarthi-AI   |
+|                       |
+|        Sign In        |
+|                       |
+| Phone Number          |
+| [___________________] |
+|                       |
+| Password              |
+| [___________________] |
+|                       |
+|      [ Sign In ]      |
+|                       |
+| Don't have an account?|
+|      Create one       |
++-----------------------+
+```
+
+For new users:
+
+```text
++-----------------------+
+|     Create Account    |
+|                       |
+| Name                  |
+| [___________________] |
+|                       |
+| Phone Number          |
+| [___________________] |
+|                       |
+| Password              |
+| [___________________] |
+|                       |
+|  [ Create Account ]   |
+|                       |
+| Already have account? |
+|        Sign In        |
++-----------------------+
+```
+
+---
+
+# User Registration
+
+A new user provides:
+
+* Name
+* Phone number
+* Password
+
+The backend validates the required fields before creating the account.
+
+Passwords are not stored as plain text.
+
+The registration flow is:
 
 ```text
 User
   |
   v
-Register / Login
+Enter Name
   |
   v
-JWT Authentication
+Enter Phone Number
+  |
+  v
+Create Password
+  |
+  v
+Validation
+  |
+  v
+Password Hashing
+  |
+  v
+User Account Created
+  |
+  v
+JWT Generated
+  |
+  v
+Authenticated Application
+```
+
+Duplicate phone-number registration is rejected.
+
+---
+
+# User Sign In
+
+Existing users can sign in using:
+
+* Phone number
+* Password
+
+The sign-in flow is:
+
+```text
+User
+  |
+  v
+Enter Phone Number
+  |
+  v
+Enter Password
+  |
+  v
+Backend Authentication
+  |
+  v
+Password Verification
+  |
+  v
+JWT Token Generated
   |
   v
 Authenticated Session
-  |
-  v
-Generate Feasibility Report
-  |
-  v
-Report Linked to User
 ```
 
-The authentication layer uses:
+Invalid credentials are rejected.
 
-* JWT-based authentication
-* Password hashing using bcrypt
-* Protected feasibility APIs
-* User-specific report ownership
-* Report history
-* Ownership validation
-* Unauthorized-access protection
+---
 
-### User-Specific Report Access
+# JWT Authentication
 
-A user can:
+After successful registration or sign in, the backend generates a JSON Web Token.
 
-* Register
-* Login
-* Generate reports
-* View their own reports
-* Retrieve individual reports
-* Delete their own reports
-* Logout
+The token is used to authenticate protected API requests.
 
-Users cannot retrieve another user's reports through the protected report APIs.
+```text
+Sign In
+   |
+   v
+Credentials Verified
+   |
+   v
+JWT Token
+   |
+   v
+Authenticated Session
+   |
+   v
+Protected API Requests
+```
 
-This provides the foundation for a secure multi-user entrepreneurship platform.
+The frontend attaches the token to protected requests using:
+
+```text
+Authorization: Bearer <JWT_TOKEN>
+```
+
+---
+
+# Protected API Routes
+
+Important user-specific operations require authentication.
+
+Protected functionality includes:
+
+```text
+POST   /api/v1/feasibility/generate
+
+GET    /api/v1/feasibility/user/:userId
+
+GET    /api/v1/feasibility/:reportId
+
+DELETE /api/v1/feasibility/:reportId
+```
+
+Unauthenticated requests to protected routes are rejected.
+
+---
+
+# User-Specific Reports
+
+Every generated feasibility report is associated with the authenticated user.
+
+The relationship is:
+
+```text
+User Account
+     |
+     +---- Report 1
+     |
+     +---- Report 2
+     |
+     +---- Report 3
+     |
+     +---- Report 4
+```
+
+This allows users to maintain a personal history of feasibility assessments.
+
+---
+
+# Report History
+
+After signing in, users can access their previously generated reports.
+
+```text
+Sign In
+   |
+   v
+User Account
+   |
+   v
+Report History
+   |
+   +---- Report 1
+   |
+   +---- Report 2
+   |
+   +---- Report 3
+```
+
+The backend verifies that the requested reports belong to the authenticated user.
+
+---
+
+# Individual Report Access
+
+A user can open an individual report using its report ID.
+
+Before returning the report, the backend verifies:
+
+```text
+Authenticated User ID
+        =
+Report Owner ID
+```
+
+If the report belongs to another user, access is denied.
+
+---
+
+# User-to-User Data Isolation
+
+UdyamSaarthi-AI implements ownership checks for user reports.
+
+Example:
+
+```text
+User A
+  |
+  +---- Report A1
+  +---- Report A2
+
+User B
+  |
+  +---- Report B1
+  +---- Report B2
+```
+
+User A cannot access User B's reports.
+
+User B cannot access User A's reports.
+
+An unauthorized attempt to access another user's report results in a `403 Forbidden` response.
+
+---
+
+# Report Deletion
+
+Authenticated users can delete reports belonging to their own account.
+
+The deletion flow is:
+
+```text
+User
+  |
+  v
+Select Own Report
+  |
+  v
+Ownership Verification
+  |
+  v
+Delete Report
+```
+
+A user cannot delete another user's report.
+
+---
+
+# Logout
+
+The application supports logout.
+
+```text
+Authenticated Session
+        |
+        v
+      Logout
+        |
+        v
+Authentication Data Cleared
+        |
+        v
+Sign-In Screen
+```
+
+The user must sign in again to access protected functionality.
+
+---
+
+# Authentication Error Handling
+
+The application provides user-friendly responses for common authentication failures.
+
+## Missing Authentication
+
+The protected endpoint rejects requests without an authentication token.
+
+## Invalid Credentials
+
+Incorrect phone numbers or passwords are rejected.
+
+## Invalid or Expired Token
+
+The user is asked to sign in again.
+
+## Unauthorized Report Access
+
+The backend rejects attempts to access reports belonging to another user.
+
+## Duplicate Registration
+
+A user cannot create multiple accounts using the same registered phone number.
+
+---
+
+# Authentication API
+
+## Register
+
+```text
+POST /api/v1/auth/register
+```
+
+Example request:
+
+```json
+{
+  "name": "Test User",
+  "phone": "9999999999",
+  "password": "********"
+}
+```
+
+A successful registration returns:
+
+* Authentication token
+* User ID
+* User name
+* User phone number
+
+---
+
+# Sign In
+
+```text
+POST /api/v1/auth/login
+```
+
+Example request:
+
+```json
+{
+  "phone": "9999999999",
+  "password": "********"
+}
+```
+
+A successful sign in returns:
+
+* Authentication token
+* User ID
+* User name
+* User phone number
+
+---
+
+# Generate Authenticated Report
+
+```text
+POST /api/v1/feasibility/generate
+```
+
+Requires:
+
+```text
+Authorization: Bearer <JWT_TOKEN>
+```
+
+The generated report is automatically associated with the authenticated user.
+
+---
+
+# Get User Reports
+
+```text
+GET /api/v1/feasibility/user/:userId
+```
+
+Requires authentication.
+
+The backend verifies that the requested user ID matches the authenticated user.
+
+---
+
+# Get Individual Report
+
+```text
+GET /api/v1/feasibility/:reportId
+```
+
+Requires:
+
+* Authentication
+* Report ownership verification
+
+---
+
+# Delete Individual Report
+
+```text
+DELETE /api/v1/feasibility/:reportId
+```
+
+Requires:
+
+* Authentication
+* Report ownership verification
+
+---
+
+# Complete Authentication and Report Flow
+
+```text
+                         START
+                           |
+                           v
+                  +----------------+
+                  | Sign In /      |
+                  | Create Account |
+                  +-------+--------+
+                          |
+              +-----------+-----------+
+              |                       |
+              v                       v
+          New User               Existing User
+              |                       |
+              v                       v
+         Registration              Sign In
+              |                       |
+              +-----------+-----------+
+                          |
+                          v
+                  JWT Authentication
+                          |
+                          v
+                  Authenticated Session
+                          |
+                          v
+                  Business Assessment
+                          |
+                          v
+                  Generate Report
+                          |
+                          v
+                 Report Linked to User
+                          |
+              +-----------+-----------+
+              |                       |
+              v                       v
+        View Report              Report History
+              |                       |
+              v                       v
+       Delete Own Report       View Own Reports
+              |                       |
+              +-----------+-----------+
+                          |
+                          v
+                        Logout
+                          |
+                          v
+                    Sign-In Screen
+```
 
 ---
 
@@ -518,16 +1062,16 @@ The final report is organized around the decision rather than simply presenting 
 * Competitor map
 * Local pricing
 
-## Opportunity & Risk
+## Opportunity and Risk
 
 * Business opportunities
 * Improvement suggestions
 * Key risks
 * Mitigation measures
 
-## Evidence & Limitations
+## Evidence and Limitations
 
-* Data sources/status
+* Data sources and status
 * Confidence indicators
 * Missing information
 * Evidence limitations
@@ -542,9 +1086,9 @@ The interface is designed as a real product experience rather than a technical d
 
 * Premium visual identity
 * Strong hero section
-* Clear primary CTA
+* Clear primary call-to-action
 * Decision-preview card
-* Trust/evidence indicators
+* Trust and evidence indicators
 * How-it-works section
 * Responsive layout
 
@@ -556,13 +1100,13 @@ The interface is designed as a real product experience rather than a technical d
 * Contextual helper text
 * Inline validation
 * Loading states
-* Clear back/continue actions
+* Clear back and continue actions
 * Mobile-friendly interaction
 
 ## Authentication Experience
 
-* Login
-* Registration
+* Sign In
+* Create Account
 * Password validation
 * Authentication feedback
 * Session persistence
@@ -646,7 +1190,8 @@ UdyamSaarthi-AI follows a three-service architecture.
 * React
 * Vite
 * Zustand
-* i18next / react-i18next
+* i18next
+* react-i18next
 * CSS
 * React Leaflet
 
@@ -655,12 +1200,13 @@ UdyamSaarthi-AI follows a three-service architecture.
 * Node.js
 * Express.js
 * Axios
-* MongoDB / Mongoose
+* MongoDB
+* Mongoose
 * PostgreSQL
-* JWT-based authentication
+* JWT
 * bcrypt
 
-## ML / Intelligence Service
+## ML and Intelligence Service
 
 * Python
 * FastAPI
@@ -675,14 +1221,16 @@ UdyamSaarthi-AI follows a three-service architecture.
 * Sentence Transformers
 * Google Gemini
 
-## Data & Infrastructure
+## Data and Infrastructure
 
 * MongoDB
 * PostgreSQL
 * Redis-ready architecture
-* OpenStreetMap / Leaflet map layer
-* Render-compatible deployment architecture
-* GitHub Actions / CI
+* OpenStreetMap
+* Leaflet
+* Render
+* GitHub Actions
+* GitHub
 
 ---
 
@@ -698,6 +1246,7 @@ UdyamSaarthi-AI/
 │   │       └── hi/
 │   └── src/
 │       ├── components/
+│       │   └── auth/
 │       ├── pages/
 │       ├── services/
 │       ├── store/
@@ -719,7 +1268,7 @@ UdyamSaarthi-AI/
 │   │   └── server.js
 │   └── tests/
 |
-├── ml_service/                    # Python + FastAPI service
+├── ml_service/                    # Python + FastAPI ML service
 │   ├── app/
 │   │   ├── api/
 │   │   │   └── v1/
@@ -757,7 +1306,7 @@ Install:
 * npm
 * Python 3.12
 * MongoDB
-* PostgreSQL if using finance/loan persistence locally
+* PostgreSQL if using finance and loan persistence locally
 * Git
 
 Verify:
@@ -771,7 +1320,7 @@ git --version
 
 ---
 
-# Clone the Repository
+# 1. Clone the Repository
 
 ```bash
 git clone https://github.com/AaryanVerma17/UdyamSaarthi-AI.git
@@ -780,48 +1329,23 @@ cd UdyamSaarthi-AI
 
 ---
 
-# Environment Configuration
+# 2. Configure Environment Variables
 
-UdyamSaarthi-AI can be run effectively in two deployment modes:
+Create the required environment files from the provided examples.
 
-1. Localhost / local development environment
-2. Render-hosted environment
-
-The application can also be demonstrated on the designated **SIH admin laptop** using either of these approaches, provided that the required dependencies, service configuration and correct `.env` details are available.
-
-## Important
-
-The `.env` configuration is environment-specific.
-
-The application will work correctly when the required environment variables point to valid and accessible services.
-
-Depending on the setup, these can include:
-
-* MongoDB
-* PostgreSQL
-* Gemini API
-* Map/API services
-* FastAPI ML service
-* JWT secret
-* Redis if enabled
-
-### Never commit:
+Do not commit:
 
 ```text
 .env
 ```
 
-or any file containing:
+Do not commit files containing:
 
 * API keys
 * Database passwords
 * JWT secrets
 * Private tokens
 * Service credentials
-
----
-
-# Local Environment Configuration
 
 A typical backend configuration is:
 
@@ -849,7 +1373,7 @@ The frontend should point to the backend API:
 VITE_API_BASE_URL=http://localhost:5000/api/v1
 ```
 
-For a Render deployment, the frontend URL should point to the deployed backend:
+For Render:
 
 ```env
 VITE_API_BASE_URL=https://YOUR-BACKEND-SERVICE.onrender.com/api/v1
@@ -857,90 +1381,7 @@ VITE_API_BASE_URL=https://YOUR-BACKEND-SERVICE.onrender.com/api/v1
 
 ---
 
-# SIH Admin Laptop Setup
-
-UdyamSaarthi-AI is designed so that the project can be demonstrated on the designated SIH/admin laptop.
-
-The admin laptop does not need to be the developer's original machine.
-
-The repository can be cloned on the admin laptop and configured using the appropriate environment variables.
-
-The general setup is:
-
-```text
-Repository
-    |
-    v
-Install Dependencies
-    |
-    v
-Configure Correct .env Values
-    |
-    +----------------------+
-    |                      |
-    v                      v
-Localhost Setup       Render Setup
-    |                      |
-    v                      v
-ML + Backend +        Deployed Backend
-Frontend Services     + ML Service
-    |                      |
-    +----------+-----------+
-               |
-               v
-        UdyamSaarthi-AI
-```
-
-### Localhost Demonstration
-
-For a fully local demonstration:
-
-```text
-React Frontend
-      |
-      v
-localhost:5173
-      |
-      v
-Node/Express Backend
-localhost:5000
-      |
-      v
-FastAPI ML Service
-127.0.0.1:8000
-      |
-      v
-Configured Databases / APIs
-```
-
-### Render Demonstration
-
-For a Render-based demonstration:
-
-```text
-Browser
-   |
-   v
-Render Frontend
-   |
-   v
-Render Backend
-   |
-   v
-Render ML Service
-   |
-   +---------> MongoDB
-   |
-   +---------> PostgreSQL
-   |
-   +---------> Gemini / External APIs
-```
-
-Therefore, **with the correct `.env` details and service configuration, UdyamSaarthi-AI can be run either locally or through the Render deployment on the SIH admin laptop.**
-
----
-
-# Start the ML Service
+# 3. Start the ML Service
 
 Open a terminal:
 
@@ -977,7 +1418,7 @@ Start FastAPI:
 uvicorn app.main:app --reload --port 8000
 ```
 
-The ML service should now be available at:
+The ML service should be available at:
 
 ```text
 http://127.0.0.1:8000
@@ -985,7 +1426,7 @@ http://127.0.0.1:8000
 
 ---
 
-# Start the Backend
+# 4. Start the Backend
 
 Open another terminal:
 
@@ -1029,7 +1470,7 @@ Expected response:
 
 ---
 
-# Start the Frontend
+# 5. Start the Frontend
 
 Open another terminal:
 
@@ -1045,7 +1486,7 @@ Vite will provide the local development URL, typically:
 http://localhost:5173
 ```
 
-Open that URL in your browser.
+Open the URL in the browser.
 
 ---
 
@@ -1075,67 +1516,121 @@ FastAPI ML Service
 MongoDB / PostgreSQL
 ```
 
-Make sure all required services are running before testing report generation.
+All required services should be running before testing report generation.
 
 ---
 
-# Troubleshooting Local Services
+# Localhost and SIH Admin Laptop Compatibility
 
-Because the application consists of multiple services, temporary service-connection errors can occur if one of the services has stopped, restarted, or is not accessible from the configured endpoint.
+UdyamSaarthi-AI is designed to run on a local environment and is not tied to a single development laptop.
 
-For example, the frontend may display an analysis-service error if the backend cannot currently reach the ML service.
+For the SIH demonstration, the repository can be cloned and configured on the designated admin laptop.
 
-Recommended checks:
+The application can be run in either of the following ways:
+
+## Option 1 - Localhost on the Admin Laptop
+
+The admin laptop can run:
 
 ```text
-1. Check ML service
-2. Check backend
-3. Check frontend
-4. Check .env values
-5. Check configured ports
-6. Restart the affected services
+React Frontend
+       |
+       v
+Node.js / Express Backend
+       |
+       v
+Python / FastAPI ML Service
+       |
+       v
+Configured Databases and APIs
 ```
 
-The ML service should be started before testing the complete feasibility-generation workflow.
+The relevant services can run locally using the configured ports.
 
-If the configuration is correct but a service has become stale or disconnected, restarting the ML service, backend and frontend can restore communication.
+The frontend can communicate with the backend through:
+
+```text
+http://localhost:5000/api/v1
+```
+
+The backend can communicate with the ML service through:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Option 2 - Render Deployment
+
+The admin laptop can access the deployed Render application through a browser.
+
+The deployed architecture is:
+
+```text
+Admin Laptop Browser
+        |
+        v
+Render Frontend
+        |
+        v
+Render Backend
+        |
+        v
+Render ML Service
+        |
+        +------> MongoDB
+        |
+        +------> PostgreSQL
+        |
+        +------> Gemini / External APIs
+```
+
+## Environment Configuration Requirement
+
+The application requires the correct environment variables and valid service endpoints.
+
+Therefore:
+
+> **With the correct `.env` details, required dependencies and service configuration, UdyamSaarthi-AI can run locally on the SIH admin laptop or be accessed through the Render deployment from the admin laptop.**
+
+The project does not depend on the original developer laptop.
 
 ---
 
-# Authentication Testing
+# Local Service Troubleshooting
 
-The authentication workflow should be tested in the following order:
+Because UdyamSaarthi-AI consists of multiple services, temporary service-connection errors may occur if one of the services has stopped, restarted or is not reachable through the configured endpoint.
+
+If the frontend displays an analysis-service error, check:
 
 ```text
-Register
-   |
-   v
-Login
-   |
-   v
-Receive JWT
-   |
-   v
-Generate Report
-   |
-   v
-Report Saved Against User
-   |
-   v
-Retrieve User Reports
+1. ML service is running
+2. Backend is running
+3. Frontend is running
+4. ML_SERVICE_URL is correct
+5. VITE_API_BASE_URL is correct
+6. Required environment variables are configured
+7. Required ports are available
 ```
 
-Test that:
+If the configuration is correct but a service has become stale or disconnected, restarting the affected services can restore communication.
 
-* Registration succeeds
-* Duplicate registration is rejected
-* Login succeeds with correct credentials
-* Invalid credentials are rejected
-* JWT-protected endpoints reject missing tokens
-* Users can access their own reports
-* Users cannot access another user's reports
-* Users can retrieve their report history
-* Logout removes the local authentication session
+Recommended restart sequence:
+
+```text
+Stop Frontend
+Stop Backend
+Stop ML Service
+
+Start ML Service
+Start Backend
+Start Frontend
+```
+
+The ML service should use:
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
 
 ---
 
@@ -1199,9 +1694,85 @@ if the ML test suite is configured in the local environment.
 
 ---
 
+# Authentication Testing
+
+The authentication workflow should be tested in the following order:
+
+```text
+Register
+   |
+   v
+Login
+   |
+   v
+Receive JWT
+   |
+   v
+Generate Report
+   |
+   v
+Report Saved Against User
+   |
+   v
+Retrieve User Reports
+```
+
+Test that:
+
+* Registration succeeds
+* Duplicate registration is rejected
+* Login succeeds with valid credentials
+* Invalid credentials are rejected
+* Protected endpoints reject missing authentication
+* Users can access their own reports
+* Users cannot access another user's reports
+* Users can retrieve their report history
+* Users can delete their own reports
+* Logout clears the authentication session
+
+---
+
+# Two-User Security Test
+
+The application can be tested with two separate users.
+
+## User A
+
+```text
+Register User A
+       |
+       v
+Sign In
+       |
+       v
+Generate Report A
+       |
+       v
+View Report A
+```
+
+## User B
+
+```text
+Register User B
+       |
+       v
+Sign In
+       |
+       v
+Attempt to access Report A
+       |
+       v
+403 Forbidden
+```
+
+This verifies user-level report isolation.
+
+---
+
 # Complete SIH Demo Test Flow
 
-Before the SIH demonstration, the following flow should be verified:
+Before the SIH demonstration, verify:
 
 ```text
 1. Open Application
@@ -1293,15 +1864,15 @@ Valid API key configured if AI explanation is enabled
 
 ---
 
-# Deployment
+# Deployment Architecture
 
-The architecture supports separate deployment of:
+The application supports separate deployment of:
 
 1. React/Vite frontend
 2. Node/Express backend
 3. Python/FastAPI ML service
 
-A typical production architecture is:
+Typical production architecture:
 
 ```text
                   Internet
@@ -1332,7 +1903,7 @@ A typical production architecture is:
 
 # Render Deployment
 
-The project can be deployed on Render as separate services.
+UdyamSaarthi-AI can be deployed on Render as separate services.
 
 ## Frontend
 
@@ -1355,7 +1926,7 @@ Publish Directory:
 dist
 ```
 
-Set:
+Environment variable:
 
 ```env
 VITE_API_BASE_URL=https://YOUR-BACKEND-SERVICE.onrender.com/api/v1
@@ -1431,61 +2002,25 @@ The Python runtime is pinned through:
 ml_service/runtime.txt
 ```
 
-Use Python 3.12 for compatibility with the current ML dependency stack.
+The current ML dependency stack uses Python 3.12.
 
 ---
 
 # Localhost vs Render
 
-| Aspect                | Localhost                       | Render                             |
-| --------------------- | ------------------------------- | ---------------------------------- |
-| Frontend              | Vite local server               | Render Static Site                 |
-| Backend               | localhost:5000                  | Render Web Service                 |
-| ML Service            | 127.0.0.1:8000                  | Render Web Service                 |
-| Database              | Local or remote                 | Remote database                    |
-| Environment Variables | Local `.env`                    | Render Environment Variables       |
-| Best Use              | Development / Admin Laptop Demo | Online Demo / Production-like Demo |
-| Internet Required     | Depends on external APIs        | Yes                                |
+| Aspect                | Localhost                        | Render                       |
+| --------------------- | -------------------------------- | ---------------------------- |
+| Frontend              | Vite local server                | Render Static Site           |
+| Backend               | localhost:5000                   | Render Web Service           |
+| ML Service            | 127.0.0.1:8000                   | Render Web Service           |
+| Database              | Local or remote                  | Remote database              |
+| Environment Variables | Local `.env`                     | Render Environment Variables |
+| Best Use              | Development and SIH Admin Laptop | Online Demo                  |
+| Internet              | Depends on external APIs         | Required                     |
 
 The core application architecture remains the same.
 
 Only the service endpoints and environment configuration change.
-
----
-
-# Admin Laptop Deployment Statement
-
-For the SIH demonstration, UdyamSaarthi-AI is not dependent on a single development laptop.
-
-The project can be transferred to and demonstrated on the designated admin laptop.
-
-### Option 1 - Run locally
-
-The repository can be cloned on the admin laptop and the three services can be started locally:
-
-```text
-React
-+
-Node.js / Express
-+
-Python / FastAPI
-```
-
-with the appropriate `.env` configuration.
-
-### Option 2 - Use Render
-
-The admin laptop can access the deployed Render frontend and backend directly through the browser.
-
-### Requirement
-
-In both cases, the application requires the **correct environment variables and valid service credentials/endpoints**.
-
-Therefore:
-
-> **With the correct `.env` details and required dependencies, UdyamSaarthi-AI can be run locally or accessed through the Render deployment on the SIH admin laptop.**
-
-No application logic is inherently tied to the original development machine.
 
 ---
 
@@ -1508,9 +2043,7 @@ Before deployment:
 
 ---
 
-# Data & AI Design Principles
-
-UdyamSaarthi-AI follows several important principles.
+# Data and AI Design Principles
 
 ## 1. Evidence Before AI
 
@@ -1538,7 +2071,7 @@ Business Decision
 
 ---
 
-## 2. Missing Data Stays Missing
+# 2. Missing Data Stays Missing
 
 If reliable data is unavailable, the system should not silently convert it into:
 
@@ -1550,7 +2083,7 @@ or invent a value.
 
 ---
 
-## 3. Confidence is Different from Viability
+# 3. Confidence is Different from Viability
 
 A business can be:
 
@@ -1568,7 +2101,7 @@ These are different concepts and should remain separate.
 
 ---
 
-## 4. Competition is Contextual
+# 4. Competition is Contextual
 
 A competitor count represents identifiable or available market evidence.
 
@@ -1576,7 +2109,7 @@ It is not automatically a complete census of every business in the area.
 
 ---
 
-## 5. Financial Truth is Deterministic
+# 5. Financial Truth is Deterministic
 
 Financial calculations should be performed by the financial engine.
 
@@ -1588,16 +2121,20 @@ AI should explain the resulting calculations rather than inventing them.
 
 The current implementation focuses on delivering a complete core decision-support workflow.
 
-## Phase 1 - Real User + Problem + Workflow
+---
 
-### Current Implementation
+# Phase 1 - Real User + Problem + Workflow
+
+## Current Implementation
 
 * Rural and semi-urban entrepreneur use case
 * Business feasibility workflow
 * Location, business and capital as core inputs
 * Decision-oriented output
+* User authentication
+* User-specific report management
 
-### Next Update
+## Next Update
 
 * Expand user journeys
 * Add more entrepreneur personas
@@ -1607,16 +2144,16 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Phase 2 - Guided User-Centred Intake
 
-### Current Implementation
+## Current Implementation
 
 * Guided business intake
 * Location input
 * Business category selection
 * Own-capital input
 * Validation
-* English/Hindi experience
+* English and Hindi experience
 
-### Next Update
+## Next Update
 
 * Adaptive questioning
 * More business categories
@@ -1626,15 +2163,15 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Phase 3 - Government Data + Evidence
 
-### Current Implementation
+## Current Implementation
 
 * Government scheme routing
 * Scheme rule handling
 * Scheme status
 * Provisional-rule handling
-* Evidence/confidence communication
+* Evidence and confidence communication
 
-### Next Update
+## Next Update
 
 * Broader official government-scheme coverage
 * Automated official-source ingestion
@@ -1645,7 +2182,7 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Phase 4 - Location & Local Market Intelligence
 
-### Current Implementation
+## Current Implementation
 
 * Location-based analysis
 * Consumer-base indicators
@@ -1654,7 +2191,7 @@ The current implementation focuses on delivering a complete core decision-suppor
 * Geographical context
 * Local market signals
 
-### Next Update
+## Next Update
 
 * More granular village-level datasets
 * Seasonal local demand
@@ -1665,15 +2202,15 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Phase 5 - Competition + Ground Reality
 
-### Current Implementation
+## Current Implementation
 
 * Identifiable competitor mapping
 * Competition count where available
 * Competition classification
 * Interactive map
-* Evidence/confidence context
+* Evidence and confidence context
 
-### Next Update
+## Next Update
 
 * More comprehensive competitor discovery
 * Field validation
@@ -1684,7 +2221,7 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Phase 6 - Financial + Government Scheme Engine
 
-### Current Implementation
+## Current Implementation
 
 * Project cost
 * Own capital
@@ -1694,9 +2231,9 @@ The current implementation focuses on delivering a complete core decision-suppor
 * Tenure
 * Repayment planning
 * Working-capital planning
-* Scheme routing
+* Government scheme routing
 
-### Next Update
+## Next Update
 
 * More detailed cash-flow modelling
 * Break-even analysis
@@ -1708,7 +2245,7 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Phase 7 - Business Viability & Decision Engine
 
-### Current Implementation
+## Current Implementation
 
 * Viability scoring
 * Viability classification
@@ -1719,7 +2256,7 @@ The current implementation focuses on delivering a complete core decision-suppor
 * Confidence indicators
 * Recommendation gating
 
-### Next Update
+## Next Update
 
 * More granular decision models
 * Alternative business recommendations
@@ -1730,7 +2267,7 @@ The current implementation focuses on delivering a complete core decision-suppor
 
 # Future Scope
 
-The following phases represent the planned evolution of UdyamSaarthi-AI beyond the current SIH 2026 core demonstration.
+The following phases represent planned expansion beyond the current SIH 2026 core implementation.
 
 ---
 
@@ -1743,11 +2280,11 @@ Instead of stopping at:
 future versions could identify:
 
 * Underserved customer segments
-* Missing products/services
+* Missing products and services
 * Local demand gaps
 * Competitor weaknesses
 * Differentiation opportunities
-* Premium vs value positioning
+* Premium versus value positioning
 * Service-quality gaps
 
 Possible workflow:
@@ -1806,7 +2343,7 @@ The recommendation should explain why an alternative is stronger rather than sim
 
 ---
 
-# Phase 10 - Trust, Explainability & Human Override
+# Phase 10 - Trust, Explainability and Human Override
 
 Future versions could introduce stronger human-in-the-loop validation.
 
@@ -1887,7 +2424,7 @@ This could reduce the risk of making irreversible investments based only on fore
 
 ---
 
-# Phase 13 - Production & Pilot Readiness
+# Phase 13 - Production, Deployment and Pilot Readiness
 
 Future production expansion could include:
 
@@ -1951,7 +2488,7 @@ Future versions could add:
 
 # Cash-Flow Forecast
 
-Generate:
+Future versions could generate:
 
 * Monthly cash inflow
 * Monthly cash outflow
@@ -2017,11 +2554,11 @@ Future versions could map:
 * Transportation cost
 * Supplier concentration
 
-This would help entrepreneurs understand both the demand and supply sides.
+This would help entrepreneurs understand both demand and supply.
 
 ---
 
-# Logistics & Distance Analysis
+# Logistics and Distance Analysis
 
 Future versions could calculate:
 
@@ -2046,7 +2583,7 @@ Example:
 Potential components:
 
 * Speech-to-text
-* Hindi/Hinglish understanding
+* Hindi and Hinglish understanding
 * Guided voice questions
 * Voice report summary
 
@@ -2068,14 +2605,14 @@ Possible functions:
 
 ---
 
-# Document & Scheme Eligibility Assistant
+# Document and Scheme Eligibility Assistant
 
 Users could eventually upload relevant documents such as:
 
 * Business registration documents
 * Quotations
 * Bank statements
-* Land/lease documents
+* Land or lease documents
 * Existing loan information
 
 The system could help identify missing information and possible scheme requirements.
@@ -2096,7 +2633,33 @@ Potential capabilities:
 * Application checklist
 * Required documents
 * Official-source links
-* Scheme expiry/status monitoring
+* Scheme expiry and status monitoring
+
+---
+
+# Human-in-the-Loop Field Validation
+
+Future versions could allow administrators or field workers to validate important local information.
+
+Possible workflow:
+
+```text
+AI Estimate
+    |
+    v
+Field Validation
+    |
+    v
+Correction
+    |
+    v
+Verified Evidence
+    |
+    v
+Improved Recommendation
+```
+
+This can be particularly useful for rural pilot programs.
 
 ---
 
@@ -2119,7 +2682,7 @@ Predicted
 Actual
 ```
 
-and use the feedback to improve future decision-support models.
+and use this feedback to improve future decision-support models.
 
 ---
 
@@ -2326,12 +2889,30 @@ Users should independently verify important financial, legal, regulatory and gov
 
 # Security
 
-If you discover a security issue:
+Security is an important part of the platform architecture.
 
-* Do not publish credentials in an issue or Pull Request.
-* Do not commit `.env` files.
-* Rotate accidentally exposed keys immediately.
-* Report security concerns privately to the project maintainers.
+The project follows these principles:
+
+* Do not commit `.env` files
+* Do not expose API keys
+* Do not expose database credentials
+* Use strong JWT secrets
+* Hash user passwords
+* Protect user-specific API routes
+* Verify report ownership
+* Prevent cross-user report access
+* Use HTTPS in production
+* Restrict database access
+* Configure trusted CORS origins
+* Validate user inputs
+* Avoid returning internal stack traces
+
+If credentials are accidentally exposed:
+
+1. Revoke or rotate the credentials immediately.
+2. Remove the credentials from the source repository if committed.
+3. Generate replacement credentials.
+4. Update the deployment environment variables.
 
 ---
 
@@ -2345,7 +2926,9 @@ A typical workflow:
 git checkout -b feature/your-feature
 ```
 
-Make the required changes, test locally, then:
+Make the required changes and test locally.
+
+Then:
 
 ```bash
 git add .

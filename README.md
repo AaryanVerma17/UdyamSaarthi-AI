@@ -1,4 +1,3 @@
-````markdown
 # UdyamSaarthi-AI
 
 ### Hyper-Local Business Advisory & Financial Decision-Support Platform for Rural & Semi-Urban Entrepreneurs

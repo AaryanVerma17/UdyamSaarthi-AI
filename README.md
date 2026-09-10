@@ -1,794 +1,697 @@
 # UdyamSaarthi-AI
 
-### AI-Powered Rural Business Feasibility, Recommendation & Decision Support Platform
+### Hyper-Local Business Advisory & Financial Decision-Support Platform for Rural & Semi-Urban Entrepreneurs
 
-> **Smart India Hackathon 2026 | Software Solution**
+> **Idea → Evidence → Feasibility → Finance → Decision**
 
----
+UdyamSaarthi-AI is an AI-assisted business feasibility and decision-support platform designed to help rural and semi-urban entrepreneurs in India evaluate a business idea **before investing their hard-earned capital**.
 
-## 1. Project Information
+Instead of giving generic business advice, the platform combines:
 
-| Field | Details |
-|---|---|
-| **Project Title** | UdyamSaarthi-AI |
-| **Project Type** | AI-powered Decision Support Platform |
-| **Domain** | Rural Entrepreneurship / Financial Inclusion / AI |
-| **Category** | Software |
-| **Primary Users** | Rural entrepreneurs, aspiring business owners, self-help groups, small businesses and ecosystem stakeholders |
-| **Core Objective** | Help users determine whether a proposed business is suitable for a specific location and investment capacity before committing capital |
+- 📍 Location intelligence
+- 🏪 Local competition context
+- 💰 Financial modelling
+- 🏦 Government-scheme routing
+- 📊 Business viability scoring
+- 💳 Loan and repayment planning
+- 📦 Working-capital planning
+- 💵 Localized pricing
+- ⚠️ Risk analysis
+- 🧠 AI-generated explanations
+- 🌐 English + Hindi accessibility
 
----
+The central question is simple:
 
-# 2. Problem Statement
-
-Starting a small business in a rural or semi-urban location involves significant uncertainty.
-
-A prospective entrepreneur may have a business idea and some available capital, but may not know:
-
-- Whether sufficient local demand exists
-- How competitive the market is
-- Whether the location is suitable
-- What nearby businesses already operate
-- Whether the proposed business is financially viable
-- What government schemes may be applicable
-- Whether the expected cash flows can support repayment
-- What risks could affect the business
-- Whether an alternative business could provide a better opportunity
-
-Existing decision-making is often fragmented across different sources of information and may require substantial research and financial understanding.
-
-There is therefore a need for a unified, evidence-driven system that converts location, market, financial and government information into an understandable business decision.
+> **“Given this business idea, this location, and this available capital — does the business make sense, and what should I consider before investing?”**
 
 ---
 
-# 3. Proposed Solution
+## 🎥 Demo & Presentation
 
-**UdyamSaarthi-AI** is an AI-powered business feasibility and decision-support platform designed to help entrepreneurs evaluate a proposed business before investing.
+### Demo Video
 
-The platform follows a structured decision pipeline:
+**Demo Video:**  
+`[ INSERT DEMO VIDEO LINK HERE ]`
+
+> Replace the placeholder above with the YouTube / Google Drive / Loom / hosted demo URL.
+
+### Presentation / PPT
+
+**Project Presentation:**  
+`[ INSERT PPT / GOOGLE SLIDES LINK HERE ]`
+
+> Replace the placeholder above with the final SIH presentation or Google Slides link.
+
+### Live Application
+
+**Live Demo:**  
+`[ INSERT LIVE APPLICATION URL HERE ]`
+
+> If a public deployment is not available, leave this as `Coming Soon` rather than publishing an unverified URL.
+
+---
+
+# 🌱 Problem Statement
+
+Starting a small business is often a high-stakes decision for rural and semi-urban entrepreneurs.
+
+Business choices may be influenced by:
+
+- Word-of-mouth recommendations
+- Businesses that appear successful nearby
+- Generic online advice
+- Limited understanding of local competition
+- Unclear demand conditions
+- Poor financial planning
+- Lack of knowledge about government financing schemes
+- Difficulty estimating repayment capacity
+- Limited access to structured business intelligence
+
+A business that succeeds in one village, block or district may not perform equally well somewhere else.
+
+The problem is therefore not simply:
+
+> **“Which business is profitable?”**
+
+It is:
+
+> **“Which business is sensible for this entrepreneur, in this location, with this amount of capital?”**
+
+UdyamSaarthi-AI is designed around that decision.
+
+---
+
+# 💡 Our Solution
+
+The platform converts a small amount of entrepreneur input into a structured feasibility assessment.
 
 ```text
-User Business Idea
-        ↓
-Guided User Intake
-        ↓
-Location Intelligence
-        ↓
-Local Market & Competition Analysis
-        ↓
-Financial Feasibility
-        ↓
-Government Scheme Identification
-        ↓
-Repayment & Working Capital Analysis
-        ↓
-Business Viability Assessment
-        ↓
-Risk & Opportunity Analysis
-        ↓
-Recommendation
-        ↓
-Decision-Oriented Feasibility Report
-````
-
-The system is designed around an important principle:
-
-> **AI explains and assists the decision; deterministic engines calculate the financial and viability metrics.**
-
-This reduces the risk of generating unsupported financial conclusions through a purely generative AI approach.
-
----
-
-# 4. Key Features
-
-## 4.1 Guided User-Centred Intake
-
-The platform collects the information required to evaluate a business idea in a structured manner.
-
-Inputs include:
-
-* Location
-* Village
-* Block
-* District
-* State
-* Business category
-* Available own capital
-* Language preference
-* Proposed business information
-
-The system validates inputs before sending them through the feasibility pipeline.
-
----
-
-## 4.2 Location Intelligence
-
-The platform analyses the selected location using available evidence.
-
-Location intelligence can include:
-
-* Village
-* Block
-* District
-* State
-* Consumer base
-* Purchasing power indicators
-* Existing business density
-* Markets and haats
-* Distribution channels
-* Livestock indicators
-* Population information
-* Registered business information
-* Data source
-* Data confidence
-* Data freshness
-* Location-match information
-* Data limitations
-
-The system distinguishes between:
-
-```text
-Known data
-Estimated data
-Unavailable data
+Business Idea
+      +
+Location
+      +
+Available Capital
+      ↓
+┌───────────────────────────────┐
+│       UdyamSaarthi-AI         │
+│                               │
+│ Location Intelligence         │
+│ Competition Analysis          │
+│ Financial Modelling           │
+│ Government Scheme Routing     │
+│ Repayment Planning            │
+│ Pricing Intelligence          │
+│ Risk Analysis                 │
+│ AI Explanation                │
+└───────────────┬───────────────┘
+                ↓
+      Business Feasibility
+                +
+       Financial Outlook
+                +
+       Decision Guidance
 ```
 
-Unavailable information is not automatically converted into zero.
+The system is designed to distinguish between **viability** and **confidence**.
 
-For example:
+A business can receive a promising feasibility score while still having limited evidence. In such cases, the platform communicates the uncertainty instead of presenting an estimate as a fact.
+
+---
+
+# ✨ Key Features
+
+## 1. Guided Business Assessment
+
+A simple, user-friendly intake experience asks for the essential information:
+
+1. **Where is your business?**
+   - Village
+   - Block
+   - District
+   - State
+
+2. **What business are you planning?**
+   - Dairy
+   - Kirana
+   - Tailoring
+   - Food Processing
+   - Repair Shop
+   - Extensible business-category architecture
+
+3. **How much capital do you have?**
+   - Entrepreneur's available own capital
+
+The objective is to minimize cognitive load for first-time or non-technical users.
+
+---
+
+## 2. Location Intelligence
+
+The platform uses the entrepreneur's location as a core decision variable.
+
+The location layer can incorporate:
+
+- Local economic context
+- Consumer-base indicators
+- Purchasing-power indicators
+- Existing business density
+- Geographical context
+- Local market signals
+
+This prevents the system from treating the same business as equally viable everywhere.
+
+---
+
+## 3. Competition Mapping
+
+The platform can surface identifiable competitors and display available locations on an interactive map.
+
+The competition layer provides:
+
+- Competitor count where available
+- Competition classification
+- Identifiable competitor locations
+- Map-based visualization
+- Evidence/confidence context
+
+Competition information is treated as **available market evidence**, not as absolute ground truth.
+
+---
+
+## 4. Financial Feasibility
+
+The financial engine provides deterministic calculations for important business-finance decisions.
+
+It can structure:
+
+- Project cost
+- Own capital
+- Potential financing requirement
+- Loan amount
+- Interest assumptions
+- Tenure
+- Repayment planning
+- Quarterly installment estimates
+- Working-capital allocation
+
+The financial engine is deliberately separated from the AI explanation layer so that AI does not become the source of financial truth.
+
+---
+
+## 5. Government Scheme Routing
+
+The platform is designed to route entrepreneurs toward potentially relevant financing/support schemes based on business and financial context.
+
+The architecture supports:
+
+- Scheme eligibility rules
+- Financing assumptions
+- Interest-rate information
+- Tenure information
+- Scheme status
+- Provisional-rule handling
+
+Where official verification is unavailable, the platform should communicate that clearly.
+
+---
+
+## 6. Working-Capital Planning
+
+The platform can structure available capital across business requirements such as:
+
+- Inventory
+- Raw materials
+- Equipment
+- Operating expenses
+- Other working-capital needs
+
+The purpose is to move beyond:
+
+> “You need ₹X.”
+
+toward:
+
+> “Here is how the available capital could be structured.”
+
+---
+
+## 7. Localized Pricing
+
+The pricing layer provides a location-aware price range where evidence is available.
+
+It communicates:
+
+- Suggested range
+- Unit
+- Confidence
+- Whether the value is estimated
+- Data limitations
+
+Estimated pricing is explicitly differentiated from verified evidence.
+
+---
+
+## 8. Business Viability Score
+
+The decision engine combines relevant business indicators into a structured viability assessment.
+
+The report can communicate:
+
+- Viability score
+- Viability label
+- Recommendation
+- Key financial indicators
+- Competition context
+- Repayment capacity
+- Evidence limitations
+
+The system is designed so that a score is **not presented as a guarantee of success**.
+
+---
+
+## 9. Risk Analysis
+
+The platform identifies relevant risks and provides mitigation guidance.
+
+Potential risk categories include:
+
+- Market risk
+- Competition risk
+- Financial risk
+- Operational risk
+- Supply-side risk
+- Demand uncertainty
+- Repayment risk
+
+The objective is not only to say:
+
+> “There is risk.”
+
+but:
+
+> “What is the risk, why does it matter, and what can the entrepreneur do about it?”
+
+---
+
+## 10. AI-Powered Explanation
+
+AI is used primarily to make analytical outputs easier to understand.
+
+The AI explanation layer can translate complex results into:
+
+- Plain-language insights
+- Business reasoning
+- Key considerations
+- Decision summaries
+- Evidence limitations
+
+The design principle is:
+
+> **AI explains the evidence; AI does not replace the evidence.**
+
+---
+
+## 11. English + Hindi Experience
+
+The interface supports:
+
+- 🇬🇧 English
+- 🇮🇳 Hindi
+
+The same underlying business and financial data is retained while the visible user experience can be presented in the selected language.
+
+This is important for the target audience because accessibility is not only about device access — it is also about language and comprehension.
+
+---
+
+# 🧭 Decision Journey
 
 ```text
-consumerBase = null
-```
-
-means the information is unavailable.
-
-It does **not** mean:
-
-```text
-consumerBase = 0
-```
-
-This distinction is important for trustworthy decision support.
-
----
-
-# 5. Competition Analysis
-
-UdyamSaarthi-AI analyses the competitive environment surrounding the proposed business.
-
-The competition layer considers:
-
-* Existing businesses
-* Business categories
-* Competition intensity
-* Local business density
-* Identifiable competitors
-* Competitive limitations
-* Available evidence
-
-The system avoids presenting incomplete business data as absolute ground reality.
-
-For example, instead of claiming:
-
-> "There are exactly 10 competitors."
-
-the system can communicate that:
-
-> "10 identifiable competitors were found using the available data."
-
-This accounts for informal or unregistered businesses that may not be present in available datasets.
-
----
-
-# 6. Financial Feasibility Engine
-
-The financial engine provides deterministic calculations for business feasibility.
-
-It can evaluate:
-
-* Initial investment
-* Project cost
-* Own capital
-* External financing requirement
-* Revenue assumptions
-* Operating costs
-* Fixed costs
-* Variable costs
-* Contribution
-* Break-even
-* Profitability
-* Cash-flow considerations
-* Working capital
-* Loan requirement
-* Repayment capability
-
-Financial calculations are performed through deterministic business logic rather than relying on generative AI to calculate financial values.
-
----
-
-# 7. Government Scheme Router
-
-The platform includes a government-scheme recommendation layer.
-
-The system evaluates the business and user context to identify potentially relevant government support.
-
-The scheme layer can consider:
-
-* Business type
-* Funding requirement
-* Entrepreneur profile
-* Financing requirements
-* Eligibility conditions
-* Potential scheme relevance
-
-Government scheme information is treated carefully where parameters require external verification.
-
-The platform does not represent provisional scheme parameters as guaranteed benefits.
-
----
-
-# 8. Repayment Planner
-
-For businesses requiring external financing, UdyamSaarthi-AI provides repayment-oriented analysis.
-
-The repayment layer can support:
-
-* Loan amount
-* Interest assumptions
-* Tenure
-* EMI estimation
-* Repayment schedule
-* Cash-flow compatibility
-* Loan repayment considerations
-
-The objective is to move beyond simply asking:
-
-> "Is the business profitable?"
-
-and also evaluate:
-
-> "Can the business reasonably support the proposed financing?"
-
----
-
-# 9. Working Capital Planner
-
-The platform considers working-capital requirements as part of feasibility.
-
-This helps identify the amount of liquidity required to operate the business after the initial investment.
-
-Working-capital considerations can include:
-
-* Inventory requirements
-* Operating expenses
-* Cash requirements
-* Business cycle considerations
-* Initial working-capital requirements
-
-This prevents the analysis from focusing only on fixed investment.
-
----
-
-# 10. Viability & Decision Engine
-
-The viability engine combines the available business, location, competition and financial signals.
-
-The system evaluates factors such as:
-
-```text
-Location suitability
-        +
-Market conditions
-        +
-Competition
-        +
-Business economics
-        +
-Financial feasibility
-        +
-Risk
-        ↓
-Overall viability
-```
-
-Importantly:
-
-### Viability and confidence are separate.
-
-A business may have:
-
-```text
-High viability
-Low confidence
-```
-
-when the model signals a promising opportunity but the underlying evidence is limited.
-
-Similarly:
-
-```text
-Moderate viability
-High confidence
-```
-
-may indicate that the available evidence strongly supports a more cautious conclusion.
-
----
-
-# 11. Opportunity Analysis
-
-The platform identifies potential opportunities associated with the selected business and location.
-
-Opportunity analysis can consider:
-
-* Local demand
-* Available resources
-* Market conditions
-* Capital constraints
-* Business category
-* Location characteristics
-* Existing competition
-
-This helps transform raw data into actionable business opportunities.
-
----
-
-# 12. Risk Analysis
-
-The platform identifies potential risks associated with the proposed business.
-
-Risk factors can include:
-
-* Competition
-* Demand uncertainty
-* Financial risk
-* Location constraints
-* Operational challenges
-* Working-capital pressure
-* Data limitations
-* Market uncertainty
-
-The objective is not to eliminate uncertainty but to make important uncertainties visible before investment.
-
----
-
-# 13. Pricing Recommendation
-
-The platform includes a pricing-analysis component that uses the available business and location context to support pricing decisions.
-
-Pricing recommendations are intended to be interpreted alongside:
-
-* Cost structure
-* Competition
-* Local purchasing power
-* Market conditions
-* Business economics
-
----
-
-# 14. Evidence & Confidence Layer
-
-Trust is a core design principle of UdyamSaarthi-AI.
-
-The platform attempts to preserve information about:
-
-* Source
-* Year
-* Geography
-* Coverage
-* Freshness
-* Evidence availability
-* Confidence
-* Data limitations
-
-The system avoids presenting estimates as observed facts.
-
-Where information is unavailable, the platform explicitly communicates the limitation.
-
----
-
-# 15. Recommendation Gate
-
-The final recommendation is not based solely on a single numerical score.
-
-The decision layer considers:
-
-```text
-Business Viability
-        +
-Financial Feasibility
-        +
-Competition
-        +
-Risk
-        +
-Evidence Confidence
-        ↓
-Recommendation
-```
-
-Possible outcomes can include recommendations such as:
-
-* Proceed
-* Proceed with caution
-* Validate before investing
-* Consider an alternative
-* Not recommended under current assumptions
-
-The recommendation should therefore be interpreted as a decision-support output rather than a guarantee of business success.
-
----
-
-# 16. AI Explainability Layer
-
-AI is used primarily to make analytical results understandable to users.
-
-The system can transform calculated outputs into explanations covering:
-
-* Why a business received its viability assessment
-* Key strengths
-* Key weaknesses
-* Important risks
-* Financial considerations
-* Competition considerations
-* Evidence limitations
-* Recommended next actions
-
-The architecture separates:
-
-```text
-Deterministic Calculation
-        ↓
-Structured Results
-        ↓
-AI Explanation
-```
-
-This reduces dependence on generative AI for numerical truth.
-
----
-
-# 17. Current Implementation Status
-
-The current implementation covers the following development phases:
-
-### Phase 1 - Real User, Problem & Workflow
-
-* User problem definition
-* Business feasibility workflow
-* Decision-oriented architecture
-
-### Phase 2 - Guided User-Centred Intake
-
-* Structured user inputs
-* Location capture
-* Business category
-* Own-capital information
-* Input validation
-
-### Phase 3 - Government Data & Evidence
-
-* Evidence-oriented architecture
-* Data-source tracking
-* Data limitations
-* Confidence-aware outputs
-* Government scheme routing
-
-### Phase 4 - Location & Local Market Intelligence
-
-* Hierarchical location resolution
-* Location intelligence
-* Consumer-base indicators
-* Business-density indicators
-* Markets and haats
-* Distribution channels
-* Population information
-* Registered business information
-* Evidence metadata
-* Location confidence
-
-### Phase 5 - Competition & Ground Reality
-
-* Competitor mapping
-* Competition classification
-* Category-specific competition
-* Competition-aware decision making
-* Recognition of incomplete ground-level business data
-
-### Phase 6 - Financial & Government Scheme Engine
-
-* Financial calculations
-* Funding requirement
-* Government scheme routing
-* Repayment planning
-* Working-capital planning
-
-### Phase 7 - Business Viability & Decision Engine
-
-* Viability scoring
-* Risk analysis
-* Opportunity analysis
-* Pricing analysis
-* Recommendation gate
-* Confidence-aware recommendations
-* AI-assisted explanation
-* Feasibility report generation
-
----
-
-# 18. Current System Architecture
-
-```text
-                         USER
-                           |
-                           v
-                    React Frontend
-                           |
-                           v
-                    Node / Express
-                   Orchestration API
-                           |
-          +----------------+----------------+
-          |                |                |
-          v                v                v
-     Financial         Government       Persistence
-       Engine             Schemes       Layer
-          |                |                |
-          +----------------+----------------+
-                           |
-                           v
-                    Python FastAPI
-                     ML Service
-                           |
-       +-------------------+-------------------+
-       |          |          |        |        |
-       v          v          v        v        v
-   Location   Viability  Competition Risk  Opportunities
- Intelligence   Engine     Mapping   Engine   Engine
-       |
-       v
- Evidence / Confidence
-       |
-       v
-    Structured
-    Analytical
-     Results
-       |
-       v
- AI Explanation Layer
-       |
-       v
- Decision-Oriented
- Feasibility Report
+START
+  ↓
+Enter Location
+  ↓
+Select Business
+  ↓
+Enter Available Capital
+  ↓
+Analyse Local Context
+  ↓
+Assess Competition
+  ↓
+Model Financial Structure
+  ↓
+Route Relevant Schemes
+  ↓
+Estimate Repayment Capacity
+  ↓
+Assess Pricing & Risks
+  ↓
+Calculate Viability
+  ↓
+Explain Evidence & Limitations
+  ↓
+Business Feasibility Report
 ```
 
 ---
 
-# 19. Technology Stack
+# 📊 What the User Receives
+
+The final report is organized around the decision rather than simply presenting raw data.
+
+### Decision Summary
+
+- Viability score
+- Recommendation
+- Business context
+- Location context
+- Confidence
+
+### Financial Outlook
+
+- Project cost
+- Loan requirement
+- Repayment estimate
+- Scheme context
+- Working-capital structure
+
+### Market Landscape
+
+- Competition classification
+- Identifiable competitors
+- Competitor map
+- Local pricing
+
+### Opportunity & Risk
+
+- Business opportunities
+- Alternative opportunities where supported
+- Improvement suggestions
+- Key risks
+- Mitigation measures
+
+### Evidence & Limitations
+
+- Data sources/status
+- Confidence indicators
+- Missing information
+- Evidence limitations
+
+---
+
+# 🖥️ UI/UX Enhancements
+
+The interface is being designed as a **real product experience**, rather than a technical dashboard.
+
+### Landing Experience
+
+- Premium green visual identity
+- Strong hero section
+- Clear primary call-to-action
+- Decision-preview card
+- Trust/evidence indicators
+- “How it works” section
+- Responsive layout
+
+### Guided Intake
+
+- Three-step progress indicator
+- Large, clear form controls
+- Business-selection cards
+- Contextual helper text
+- Inline validation
+- Loading states
+- Mobile-friendly interaction
+- Clear back/continue actions
+
+### Report Experience
+
+- Decision-first report header
+- Prominent viability score
+- Recommendation status
+- Financial summary cards
+- Competition visualization
+- Interactive competitor map
+- Risk and mitigation presentation
+- Evidence-confidence indicators
+- Data-limitations section
+- Clear “Start Over” journey
+
+### Accessibility & Usability
+
+- Keyboard focus states
+- Clear visual hierarchy
+- Responsive breakpoints
+- Readable typography
+- High-contrast status indicators
+- English/Hindi consistency
+- Graceful empty-data states
+- Loading and error feedback
+
+---
+
+# 🏗️ System Architecture
+
+UdyamSaarthi-AI follows a three-service architecture.
+
+```text
+                         ┌──────────────────────┐
+                         │      User / Web       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                     ┌───────────────────────────┐
+                     │ React + Vite Frontend     │
+                     │                           │
+                     │ Forms                     │
+                     │ i18n                      │
+                     │ Report UI                 │
+                     │ Maps / Visualizations     │
+                     └────────────┬──────────────┘
+                                  │ REST API
+                                  ▼
+                     ┌───────────────────────────┐
+                     │ Node.js + Express Backend │
+                     │                           │
+                     │ Controllers               │
+                     │ Financial Engine           │
+                     │ Scheme Router              │
+                     │ Repayment Planner          │
+                     │ Working Capital Planner    │
+                     │ Confidence / Corrections   │
+                     │ Recommendation Gate        │
+                     └───────┬───────────┬────────┘
+                             │           │
+                       MongoDB       PostgreSQL
+                             │
+                             │
+                             ▼
+                     ┌───────────────────────────┐
+                     │ Python + FastAPI ML       │
+                     │ Service                   │
+                     │                           │
+                     │ Location Intelligence     │
+                     │ Viability                 │
+                     │ Competition Mapping       │
+                     │ Opportunity Analysis      │
+                     │ Risk Analysis             │
+                     │ Pricing                   │
+                     │ NLP Explanation           │
+                     └───────────────────────────┘
+```
+
+---
+
+# 🛠️ Technology Stack
 
 ## Frontend
 
-* React
-* Vite
-* JavaScript
-* Axios
-* SCSS / CSS
-* Bootstrap
+- React
+- Vite
+- Zustand
+- i18next / react-i18next
+- CSS
+- React Leaflet
 
 ## Backend
 
-* Node.js
-* Express.js
-* Axios
-* REST APIs
+- Node.js
+- Express.js
+- Axios
+- MongoDB / Mongoose
+- PostgreSQL
+- JWT-based authentication architecture
 
-## Machine Learning / Intelligence Service
+## ML / Intelligence Service
 
-* Python
-* FastAPI
-* Pydantic
-* NumPy
-* pandas
-* scikit-learn
-* OpenCV
-* TensorFlow
-* Transformers
-* Hugging Face ecosystem
+- Python
+- FastAPI
+- Uvicorn
+- NumPy
+- Pandas
+- SciPy
+- scikit-learn
+- Joblib
+- NLTK
+- GeoPy
+- Sentence Transformers
+- Google Gemini
 
-## Database / Persistence
+## Data & Infrastructure
 
-* MongoDB
-* PostgreSQL
-
-The application is designed to continue operating in a limited mode when optional persistence services are unavailable during development.
-
-## Development & Deployment
-
-* Git
-* GitHub
-* Docker
-* Cloud deployment infrastructure
-* Environment-based configuration
+- MongoDB
+- PostgreSQL
+- Redis-ready architecture
+- OpenStreetMap / Leaflet map layer
+- Render-compatible deployment architecture
+- GitHub Actions / CI
 
 ---
 
-# 20. Repository Structure
+# 📁 Project Structure
 
 ```text
-UDYAMSAARTHI-AI/
+UdyamSaarthi-AI/
 │
-├── README.md
-├── SUBMISSION_GUIDE.md
-├── .gitignore
-│
-├── client/
-│   ├── src/
+├── client/                         # React + Vite frontend
 │   ├── public/
-│   ├── package.json
-│   └── ...
+│   │   └── locales/
+│   │       ├── en/
+│   │       └── hi/
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── services/
+│       ├── store/
+│       ├── i18n/
+│       ├── App.jsx
+│       ├── App.css
+│       └── main.jsx
 │
-├── server/
+├── server/                         # Node + Express backend
 │   ├── src/
 │   │   ├── clients/
+│   │   ├── config/
 │   │   ├── controllers/
-│   │   ├── middleware/
+│   │   ├── data/
+│   │   ├── middlewares/
 │   │   ├── models/
 │   │   ├── routes/
-│   │   └── services/
-│   ├── tests/
-│   ├── package.json
-│   └── ...
+│   │   ├── services/
+│   │   └── server.js
+│   └── tests/
 │
-├── ml_service/
+├── ml_service/                    # Python + FastAPI service
 │   ├── app/
 │   │   ├── api/
-│   │   ├── data/
+│   │   │   └── v1/
 │   │   ├── schemas/
-│   │   ├── services/
-│   │   └── ...
-│   ├── tests/
+│   │   └── main.py
 │   ├── requirements.txt
-│   └── ...
+│   ├── runtime.txt
+│   └── Dockerfile
+│
+├── scripts/
+│   ├── data_ingestion/
+│   └── report_pdf_generator/
 │
 ├── shared/
 │   └── constants/
 │
-├── docs/
-│   ├── architecture.md
-│   └── future-scope.md
+├── .github/
+│   └── workflows/
 │
-├── assets/
-│   └── screenshots/
-│
-└── submission/
-    ├── PRESENTATION.md
-    └── DEMO.md
+├── .env.example
+├── docker-compose.yml
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-# 21. API Architecture
-
-The application follows a layered API architecture.
-
-### Frontend → Backend
-
-```text
-POST /api/v1/feasibility/generate
-```
-
-The backend orchestrates the complete feasibility workflow.
-
-### Backend → ML Service
-
-Location intelligence:
-
-```text
-POST /api/v1/location-intelligence
-```
-
-Viability:
-
-```text
-POST /api/v1/viability
-```
-
-Competition:
-
-```text
-POST /api/v1/competitor-mapping
-```
-
-Opportunities:
-
-```text
-POST /api/v1/opportunities
-```
-
-Risks:
-
-```text
-POST /api/v1/risks
-```
-
-Pricing:
-
-```text
-POST /api/v1/pricing
-```
-
-Explanation:
-
-```text
-POST /api/v1/explain
-```
-
-Health:
-
-```text
-GET /health
-```
-
----
-
-# 22. Data Integrity Principles
-
-UdyamSaarthi-AI follows several principles to improve reliability.
-
-### 22.1 Missing Data ≠ Zero
-
-Unavailable information is represented as unavailable rather than fabricated as zero.
-
-### 22.2 Viability ≠ Confidence
-
-A strong recommendation does not necessarily mean the evidence is strong.
-
-### 22.3 AI Does Not Define Financial Truth
-
-Financial calculations are performed through deterministic logic.
-
-### 22.4 Evidence Matters
-
-Recommendations should be connected to available evidence and its limitations.
-
-### 22.5 Estimates Are Labelled
-
-Estimated information should not be presented as directly observed information.
-
-### 22.6 Competition Data Has Coverage Limitations
-
-Registered or digitally discoverable businesses may not represent every informal business operating in the area.
-
----
-
-# 23. Installation
+# 🚀 Running Locally
 
 ## Prerequisites
 
-Recommended environment:
+Install:
 
-* Node.js
-* npm
-* Python 3.x
-* Git
-* MongoDB (optional for development)
-* PostgreSQL (optional depending on deployment configuration)
+- Node.js 18+ recommended
+- npm
+- Python 3.12
+- MongoDB
+- PostgreSQL if using finance/loan persistence locally
+- Git
 
----
-
-## Clone Repository
+Verify:
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd UDYAMSAARTHI-AI
+node --version
+npm --version
+python --version
+git --version
 ```
 
 ---
 
-# 24. Setup - ML Service
+## 1. Clone the Repository
 
-Navigate to:
+```bash
+git clone https://github.com/AaryanVerma17/UdyamSaarthi-AI.git
+cd UdyamSaarthi-AI
+```
+
+---
+
+# 2. Configure Environment Variables
+
+Create the required environment files from the provided examples.
+
+Never commit:
+
+```text
+.env
+```
+
+or any file containing:
+
+- API keys
+- database passwords
+- JWT secrets
+- private tokens
+- service credentials
+
+A typical backend configuration is:
+
+```env
+PORT=5000
+
+MONGO_URI=mongodb://localhost:27017/udyamsaarthi
+
+JWT_SECRET=change_this_to_a_long_random_secret
+
+ML_SERVICE_URL=http://127.0.0.1:8000
+
+GEMINI_API_KEY=
+
+POSTGRES_URL=
+REDIS_URL=
+MAP_TILE_API_KEY=
+```
+
+The frontend should point to the backend API:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api/v1
+```
+
+For production, replace the local URL with the deployed backend URL.
+
+---
+
+# 3. Start the ML Service
+
+Open a terminal:
 
 ```bash
 cd ml_service
@@ -796,783 +699,1022 @@ cd ml_service
 
 Create a virtual environment:
 
-```bash
+### Windows
+
+```powershell
 python -m venv venv
+venv\Scripts\activate
 ```
 
-Activate on Windows:
+### macOS / Linux
 
 ```bash
-venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate
 ```
 
 Install dependencies:
 
 ```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Run FastAPI:
+Start FastAPI:
 
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
-The ML service will be available at:
+The ML service should now be available at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-API documentation:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
 ---
 
-# 25. Setup - Backend
+# 4. Start the Backend
 
-Navigate to:
+Open another terminal:
 
 ```bash
 cd server
-```
-
-Install dependencies:
-
-```bash
 npm install
 ```
 
-Configure environment variables using a local `.env` file.
-
-Example:
-
-```env
-PORT=5000
-ML_SERVICE_URL=http://127.0.0.1:8000
-ML_SERVICE_TIMEOUT=30000
-MONGODB_URI=<YOUR_MONGODB_CONNECTION_STRING>
-POSTGRES_URL=<YOUR_POSTGRES_CONNECTION_STRING>
-```
-
-Do not commit the `.env` file.
-
-Run the server:
+Start the server:
 
 ```bash
 npm run dev
 ```
 
-Backend:
+If the project does not define a development script, use the project's configured start command.
+
+The backend should run on:
 
 ```text
 http://localhost:5000
 ```
 
+The API base path is:
+
+```text
+/api/v1
+```
+
 ---
 
-# 26. Setup - Frontend
+# 5. Start the Frontend
 
-Navigate to:
+Open another terminal:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Vite will provide the local development URL, typically:
+
+```text
+http://localhost:5173
+```
+
+Open that URL in your browser.
+
+---
+
+# 🔄 Local Service Communication
+
+The local system works approximately as:
+
+```text
+Browser
+   ↓
+React / Vite
+   ↓
+http://localhost:5000/api/v1
+   ↓
+Node / Express
+   ↓
+http://127.0.0.1:8000
+   ↓
+FastAPI ML Service
+   ↓
+MongoDB / PostgreSQL
+```
+
+Make sure all required services are running before testing report generation.
+
+---
+
+# 🧪 Testing
+
+## Backend Tests
+
+From:
+
+```bash
+cd server
+```
+
+run:
+
+```bash
+npm test
+```
+
+The backend contains tests for important deterministic components such as:
+
+- Financial engine
+- Scheme routing
+- Working-capital planning
+- Data confidence
+- Field corrections
+- Competition classification
+- Recommendation gating
+
+## Frontend Build
+
+From:
 
 ```bash
 cd client
 ```
 
-Install dependencies:
+run:
 
 ```bash
+npm run build
+```
+
+A successful build confirms that the production frontend bundle can be generated.
+
+## ML Service
+
+From:
+
+```bash
+cd ml_service
+```
+
+run:
+
+```bash
+pytest
+```
+
+if the ML test suite is configured in the local environment.
+
+---
+
+# ❤️ Health Checks
+
+Before testing the complete application, verify:
+
+```text
+Frontend
+   ↓
+Loads correctly
+
+Backend
+   ↓
+Running on configured PORT
+
+ML Service
+   ↓
+FastAPI responding
+
+Database
+   ↓
+Accessible
+
+Gemini
+   ↓
+Valid API key configured if AI explanation is enabled
+```
+
+---
+
+# ☁️ Deployment
+
+The architecture is designed to support separate deployment of:
+
+1. React/Vite frontend
+2. Node/Express backend
+3. Python/FastAPI ML service
+
+A typical production architecture is:
+
+```text
+                 Internet
+                    │
+                    ▼
+        ┌─────────────────────┐
+        │ React Frontend      │
+        │ Static Deployment   │
+        └──────────┬──────────┘
+                   │
+                   ▼
+        ┌─────────────────────┐
+        │ Express Backend     │
+        │ Web Service         │
+        └───────┬───────┬─────┘
+                │       │
+                ▼       ▼
+           MongoDB   PostgreSQL
+                │
+                ▼
+        ┌─────────────────────┐
+        │ FastAPI ML Service  │
+        │ Web Service         │
+        └─────────────────────┘
+```
+
+---
+
+# 🚀 Render Deployment
+
+The project can be deployed on Render as separate services.
+
+## Frontend
+
+Create a **Static Site**.
+
+Typical settings:
+
+```text
+Root Directory:
+client
+
+Build Command:
+npm install && npm run build
+
+Publish Directory:
+dist
+```
+
+Set:
+
+```env
+VITE_API_BASE_URL=https://YOUR-BACKEND-SERVICE.onrender.com/api/v1
+```
+
+---
+
+## Backend
+
+Create a **Web Service**.
+
+Typical settings:
+
+```text
+Root Directory:
+server
+
+Build Command:
 npm install
+
+Start Command:
+npm start
 ```
 
 Configure:
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api/v1
+PORT=<Render-provided PORT>
+MONGO_URI=<MongoDB connection string>
+POSTGRES_URL=<PostgreSQL connection string>
+JWT_SECRET=<strong secret>
+ML_SERVICE_URL=https://YOUR-ML-SERVICE.onrender.com
+GEMINI_API_KEY=<Gemini key>
 ```
 
-Run the frontend:
-
-```bash
-npm run dev
-```
-
-The application will be available at the URL shown by Vite.
+The backend must listen on the host/port provided by Render.
 
 ---
 
-# 27. Running the Complete System
+## ML Service
 
-Start the services in the following order.
+Create another **Web Service**.
 
-### Terminal 1 - ML Service
-
-```bash
-cd ml_service
-venv\Scripts\activate
-uvicorn app.main:app --reload --port 8000
-```
-
-### Terminal 2 - Backend
-
-```bash
-cd server
-npm run dev
-```
-
-### Terminal 3 - Frontend
-
-```bash
-cd client
-npm run dev
-```
-
-The complete architecture then operates as:
+Typical settings:
 
 ```text
-Browser
+Root Directory:
+ml_service
+
+Build Command:
+pip install -r requirements.txt
+
+Start Command:
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+The Python runtime is pinned through:
+
+```text
+ml_service/runtime.txt
+```
+
+Use Python 3.12 for compatibility with the current ML dependency stack.
+
+---
+
+# 🔐 Production Security
+
+Before deployment:
+
+- Never commit `.env`
+- Rotate previously exposed API keys
+- Use strong JWT secrets
+- Restrict database access
+- Configure CORS for trusted frontend origins
+- Validate all user inputs
+- Apply request-size limits
+- Avoid returning internal stack traces
+- Keep credentials in deployment environment variables
+- Do not expose private database URLs
+- Monitor authentication and API errors
+- Use HTTPS in production
+
+---
+
+# 🧠 Data & AI Design Principles
+
+UdyamSaarthi-AI follows several important principles.
+
+### 1. Evidence before AI
+
+```text
+Evidence
    ↓
-React
+Computation
    ↓
-Node / Express :5000
+Decision
    ↓
-FastAPI :8000
-   ↓
-Decision Engines
-   ↓
-Feasibility Result
-```
-
----
-
-# 28. Environment Variables
-
-Sensitive credentials must never be committed to GitHub.
-
-Example environment configuration:
-
-```env
-PORT=5000
-
-ML_SERVICE_URL=http://127.0.0.1:8000
-ML_SERVICE_TIMEOUT=30000
-
-MONGODB_URI=<SECRET>
-
-POSTGRES_URL=<SECRET>
-
-VITE_API_BASE_URL=http://localhost:5000/api/v1
-```
-
-For production deployment, configure these values through the hosting provider's environment-variable system.
-
----
-
-# 29. Testing
-
-The project contains backend and ML-service tests covering important components of the decision pipeline.
-
-Testing should verify:
-
-* API validation
-* Location intelligence
-* Competition analysis
-* Financial calculations
-* Viability calculations
-* Recommendation logic
-* Repayment calculations
-* Working-capital calculations
-* Error handling
-* Missing-data behaviour
-* ML-service communication
-
-Before submission, the complete workflow should be tested from:
-
-```text
-User Input
-    ↓
-API
-    ↓
-ML Service
-    ↓
-Financial Engine
-    ↓
-Recommendation
-    ↓
-Report
-```
-
----
-
-# 30. Error Handling
-
-The system uses layered error handling across:
-
-```text
-Frontend
-    ↓
-Backend
-    ↓
-ML Service
-    ↓
-Data / Calculation Layer
-```
-
-Errors from the ML service are normalized before being propagated through the backend.
-
-The platform should provide user-friendly error messages without exposing internal stack traces or sensitive configuration.
-
----
-
-# 31. Security
-
-The repository must not contain:
-
-* Passwords
-* API keys
-* Access tokens
-* Database credentials
-* Private keys
-* Production secrets
-* `.env` files containing credentials
-
-Use:
-
-```text
-.env
-```
-
-locally and environment variables in deployment environments.
-
-A `.gitignore` file should prevent accidental secret commits.
-
----
-
-# 32. Limitations
-
-UdyamSaarthi-AI is a decision-support system and does not guarantee business success.
-
-Important limitations include:
-
-* Availability of local-level data may vary.
-* Informal businesses may not appear in structured datasets.
-* Some government parameters may require official verification.
-* Market conditions can change over time.
-* Financial outputs depend on assumptions provided or available.
-* Estimated values may differ from real-world conditions.
-* Recommendations should be validated against ground reality before significant investment.
-
-Therefore:
-
-> **The platform supports decision-making; it does not replace local validation, professional financial advice or official government verification.**
-
----
-
-# 33. Future Scope
-
-The current implementation establishes the core feasibility and decision-support foundation through Phases 1–7.
-
-The following phases represent the planned future development roadmap.
-
----
-
-## Phase 8 - Market Gap & Differentiation Engine
-
-The platform can be extended to identify underserved market segments and opportunities for differentiation.
-
-Future capabilities:
-
-* Market saturation assessment
-* Market-gap detection
-* Underserved customer identification
-* Competitor differentiation
-* Product/service differentiation
-* Differentiation strategies
-* Financial impact of differentiation
-* Viability recalculation after differentiation
-
-The system should not automatically reject a business merely because the market is competitive.
-
-Instead:
-
-```text
-Proposed Business
-       ↓
-Competition Analysis
-       ↓
-Saturation Assessment
-       ↓
-Market Gap Detection
-       ↓
-Differentiation
-       ↓
-Financial Impact
-       ↓
-Recalculate Viability
-       ↓
-Final Decision
-```
-
----
-
-## Phase 9 - Alternative Business Recommendation Engine
-
-When a proposed business is not sufficiently viable, the platform can recommend alternatives.
-
-Potential inputs:
-
-* Location
-* Own capital
-* Local demand
-* Competition
-* Available resources
-* Business category
-* Financial constraints
-* Risk profile
-
-Output:
-
-```text
-Current Business
-      ↓
-Why It Is Weak
-      ↓
-Alternative Opportunities
-      ↓
-Financial Comparison
-      ↓
-Recommended Alternative
-```
-
-This would transform the system from a simple feasibility checker into a broader entrepreneurship discovery platform.
-
----
-
-## Phase 10 - Trust, Explainability & Human Override
-
-Future development can strengthen human-in-the-loop decision making through:
-
-* Field-level corrections
-* Evidence traceability
-* Explainable recommendations
-* Confidence indicators
-* Human validation
-* Correction history
-* Data-quality indicators
-* Decision audit trails
-
-This will allow users and field workers to correct information that differs from real-world conditions.
-
----
-
-## Phase 11 - Decision-Centric Flagship Report
-
-The current report-generation capability can be expanded into a comprehensive decision-oriented report.
-
-Planned report structure:
-
-1. Executive Decision
-2. Why This Decision?
-3. Location Analysis
-4. Competition Analysis
-5. Business Viability
-6. Differentiation Strategy
-7. Alternative Businesses
-8. Financial Feasibility
-9. Government Scheme
-10. Repayment Analysis
-11. Risks
-12. Evidence
-13. Confidence
-14. Human Validation
-15. Action Plan
-
-The objective is to provide a single document that can support an entrepreneur's investment decision.
-
----
-
-## Phase 12 - Test Before You Invest
-
-A future validation layer can help entrepreneurs test assumptions before making a large investment.
-
-Potential capabilities:
-
-* Demand validation
-* Customer interviews
-* Pilot testing
-* Small-scale experiments
-* Pre-launch validation
-* Local market testing
-* Feedback collection
-* Assumption tracking
-
-The objective is:
-
-```text
-Idea
- ↓
-Analyse
- ↓
-Validate
- ↓
-Pilot
- ↓
-Invest
-```
-
-rather than:
-
-```text
-Idea
- ↓
-Invest
-```
-
----
-
-## Phase 13 - Production & Pilot Readiness
-
-The final roadmap phase focuses on taking the platform from prototype to real-world pilot deployment.
-
-Potential improvements include:
-
-* Production cloud deployment
-* Scalability
-* Monitoring
-* Logging
-* Security hardening
-* Performance optimization
-* Model monitoring
-* Data refresh pipelines
-* Automated testing
-* CI/CD
-* User analytics
-* Feedback loops
-* Field-worker workflows
-* Pilot deployment
-* Continuous model improvement
-
-The goal is to establish UdyamSaarthi-AI as a scalable decision-support platform suitable for real-world rural entrepreneurship pilots.
-
----
-
-# 34. Development Roadmap
-
-```text
-                    UDYAMSAARTHI-AI
-                           |
-                           v
-                 ┌───────────────────┐
-                 │   Phase 1–2       │
-                 │ User + Intake     │
-                 └─────────┬─────────┘
-                           ↓
-                 ┌───────────────────┐
-                 │   Phase 3         │
-                 │ Evidence + Govt   │
-                 └─────────┬─────────┘
-                           ↓
-                 ┌───────────────────┐
-                 │   Phase 4         │
-                 │ Location Intel    │
-                 └─────────┬─────────┘
-                           ↓
-                 ┌───────────────────┐
-                 │   Phase 5         │
-                 │ Competition       │
-                 └─────────┬─────────┘
-                           ↓
-                 ┌───────────────────┐
-                 │   Phase 6         │
-                 │ Financial Engine  │
-                 └─────────┬─────────┘
-                           ↓
-                 ┌───────────────────┐
-                 │   Phase 7         │
-                 │ Viability + Gate  │
-                 └─────────┬─────────┘
-                           ↓
-                    CURRENT MVP
-                           |
-                           ↓
-        ┌──────────────────────────────────┐
-        │          FUTURE ROADMAP          │
-        └──────────────────────────────────┘
-                           |
-              ┌────────────┼────────────┐
-              ↓            ↓            ↓
-           Phase 8      Phase 9      Phase 10
-        Differentiation Alternatives  Trust
-              ↓            ↓            ↓
-           Phase 11     Phase 12     Phase 13
-             Report       Validate    Production
-```
-
----
-
-# 35. Expected Impact
-
-UdyamSaarthi-AI aims to reduce uncertainty for aspiring entrepreneurs by bringing multiple decision factors into a single workflow.
-
-Potential impact includes:
-
-### For Entrepreneurs
-
-* Better-informed investment decisions
-* Location-specific business insights
-* Improved understanding of competition
-* Financial feasibility analysis
-* Government scheme discovery
-* Risk identification
-* Alternative business discovery in future versions
-
-### For Rural Ecosystems
-
-* Better utilization of local resources
-* Improved entrepreneurship discovery
-* More structured business planning
-* Potential reduction in avoidable investment failures
-
-### For Decision Makers / Ecosystem Stakeholders
-
-* Structured feasibility reports
-* Evidence-backed recommendations
-* Confidence-aware decision support
-* Potential integration with entrepreneurship-support programs
-
----
-
-# 36. Key Differentiator
-
-The key differentiator of UdyamSaarthi-AI is that it is designed not merely as an AI chatbot, but as a **decision-support system**.
-
-Instead of:
-
-```text
-User Question
-     ↓
-LLM
-     ↓
-Generic Answer
-```
-
-the platform follows:
-
-```text
-User Context
-     ↓
-Location Evidence
-     ↓
-Market Intelligence
-     ↓
-Competition
-     ↓
-Deterministic Financial Analysis
-     ↓
-Government Schemes
-     ↓
-Risk & Opportunity Analysis
-     ↓
-Viability
-     ↓
-Recommendation
-     ↓
 AI Explanation
 ```
 
-This makes the system more structured, auditable and suitable for business feasibility analysis.
-
----
-
-# 37. Submission Materials
-
-The repository can contain the following SIH submission materials:
+not:
 
 ```text
-submission/
-├── PRESENTATION.md
-└── DEMO.md
+AI Guess
+   ↓
+Business Decision
 ```
 
-The presentation should explain:
+### 2. Missing data stays missing
 
-* Problem
-* Existing gap
-* Proposed solution
-* User journey
-* Architecture
-* Key features
-* Technology stack
-* Innovation
-* Impact
-* Current implementation
-* Future roadmap
-
-The demo documentation can contain the final demonstration video link.
-
----
-
-# 38. Demo Flow
-
-A recommended demonstration flow is:
+If reliable data is unavailable, the system should not silently convert it into:
 
 ```text
-1. Open UdyamSaarthi-AI
-
-2. Enter location
-
-3. Select proposed business
-
-4. Enter available own capital
-
-5. Generate feasibility assessment
-
-6. Show location intelligence
-
-7. Show competition
-
-8. Show financial feasibility
-
-9. Show government schemes
-
-10. Show repayment / working capital
-
-11. Show viability
-
-12. Show recommendation
-
-13. Show evidence and confidence
-
-14. Show final feasibility report
+0
 ```
 
-The demonstration should focus on the actual working implementation rather than future functionality.
+or invent a value.
 
----
+### 3. Confidence ≠ Viability
 
-# 39. Project Philosophy
-
-UdyamSaarthi-AI follows five core principles:
-
-### 1. Evidence Before Confidence
-
-Recommendations should reflect the quality and availability of evidence.
-
-### 2. Calculate Before Explaining
-
-Financial and analytical values should be calculated by deterministic systems before AI explains them.
-
-### 3. Missing Data Should Remain Missing
-
-The system should not fabricate precision where evidence does not exist.
-
-### 4. Competition Should Inform Strategy
-
-A competitive market should trigger differentiation analysis rather than automatically causing rejection.
-
-### 5. Decision Support, Not Decision Replacement
-
-The platform assists entrepreneurs in making better decisions while recognizing that final investment decisions require real-world validation.
-
----
-
-# 40. Future Vision
-
-The long-term vision is to evolve UdyamSaarthi-AI from a feasibility assessment tool into a complete **AI-powered rural entrepreneurship decision platform**.
-
-The envisioned journey is:
+A business can be:
 
 ```text
-                    USER
-                     |
-                     v
-              Business Idea
-                     |
-                     v
-              Location Analysis
-                     |
-                     v
-              Market Intelligence
-                     |
-                     v
-               Competition
-                     |
-                     v
-             Differentiation
-                     |
-                     v
-             Financial Analysis
-                     |
-                     v
-            Government Schemes
-                     |
-                     v
-             Repayment Planning
-                     |
-                     v
-              Risk Analysis
-                     |
-                     v
-          Alternative Opportunities
-                     |
-                     v
-            Human Validation
-                     |
-                     v
-             Pilot / Testing
-                     |
-                     v
-              Investment
-                     |
-                     v
-             Business Growth
+High viability + low evidence confidence
+```
+
+or:
+
+```text
+Moderate viability + high evidence confidence
+```
+
+These are different concepts and should remain separate.
+
+### 4. Competition is contextual
+
+A competitor count represents identifiable/available market evidence. It is not automatically a complete census of every business in the area.
+
+### 5. Financial truth is deterministic
+
+Financial calculations should be performed by the financial engine.
+
+AI should explain the resulting calculations rather than inventing them.
+
+---
+
+# 🔮 More Features That Can Be Implemented
+
+The current platform establishes the foundation for a much broader rural entrepreneurship decision system.
+
+## 1. Market Gap & Differentiation Engine
+
+Instead of stopping at:
+
+> “The market is saturated.”
+
+the system could identify:
+
+- Underserved customer segments
+- Missing products/services
+- Local demand gaps
+- Competitor weaknesses
+- Differentiation opportunities
+- Premium vs value positioning
+- Service-quality gaps
+
+Example:
+
+```text
+Existing Market
+      ↓
+Competitor Analysis
+      ↓
+Customer Need Gaps
+      ↓
+Differentiation Opportunities
+      ↓
+Recommended Positioning
 ```
 
 ---
 
-# 41. Disclaimer
+## 2. Alternative Business Recommendation
 
-UdyamSaarthi-AI is a prototype / decision-support platform developed for Smart India Hackathon 2026.
+If the selected business is weak, the platform could recommend alternatives.
 
-Its recommendations are based on available data, assumptions and analytical models.
+Example:
 
-The platform does not guarantee business success, loan approval, government-scheme eligibility or financial returns.
+```text
+Selected:
+Kirana Store
+Score: 42/100
 
-Users should verify critical information with:
+Alternative:
+Dairy Business
+Score: 74/100
 
-* Official government sources
-* Financial institutions
-* Local market participants
-* Relevant professionals
-* Ground-level business validation
+Alternative:
+Food Processing
+Score: 69/100
+```
 
-before making significant financial commitments.
+The recommendation should explain **why** the alternative is stronger rather than simply ranking it.
 
 ---
 
-# 42. Team
+## 3. “What If?” Scenario Simulator
 
-**Team:** UdyamSaarthi-AI
+Allow entrepreneurs to change assumptions interactively.
 
-**Smart India Hackathon 2026**
+Examples:
+
+```text
+What if:
+Own capital increases from ₹50,000 → ₹75,000?
+
+What if:
+Loan interest rises by 2%?
+
+What if:
+Monthly sales are 20% lower?
+
+What if:
+Raw-material costs rise by 10%?
+
+What if:
+I reduce initial equipment investment?
+```
+
+The platform could immediately show changes in:
+
+- Viability
+- Cash requirement
+- EMI/repayment
+- Break-even
+- Risk
+- Recommendation
 
 ---
 
-## Built for Better Rural Business Decisions
+## 4. Break-Even Analysis
 
-> **UdyamSaarthi-AI - From Business Idea to Evidence-Based Decision.**
+Add:
 
+- Break-even units
+- Break-even revenue
+- Fixed costs
+- Variable costs
+- Contribution margin
+- Margin of safety
+
+Visualized as:
+
+```text
+Revenue
+  │
+  │             /
+  │           /
+  │         /  Profit
+  │       /
+  │------X----------------
+  │     Break-even
+  │   /
+  │ /
+  └──────────────────────
+        Output
 ```
 
-### One important recommendation before you commit this
+---
 
-For the SIH repository, **keep the README honest about implementation status**:
+## 5. Cash-Flow Forecast
 
-> **Implemented: Phases 1–7**  
-> **Future Scope: Phases 8–13**
+Generate:
 
-That is much stronger than claiming 8–13 are implemented when they aren't. It also gives you a clean story for the judges: **you have a working feasibility engine now, with a clear path toward differentiation, alternatives, human validation, pre-investment testing, and production deployment.**
+- Monthly cash inflow
+- Monthly cash outflow
+- Working-capital requirement
+- Cash deficit periods
+- Cash surplus periods
+- Loan repayment impact
+
+This would make the financial section substantially more decision-useful.
+
+---
+
+## 6. Seasonal Business Intelligence
+
+Many rural businesses are affected by seasonality.
+
+Future analysis could incorporate:
+
+- Festival demand
+- Agricultural cycles
+- Weather
+- Tourism
+- School calendars
+- Harvest periods
+- Local events
+
+The system could then produce:
+
+```text
+High Demand
+████████████
+
+Medium Demand
+███████
+
+Low Demand
+████
 ```
+
+for different months.
+
+---
+
+## 7. Customer Persona Builder
+
+Generate location-specific customer personas using available evidence.
+
+For example:
+
+```text
+Primary Customer
+
+Age:
+25–45
+
+Location:
+Nearby villages
+
+Need:
+Affordable daily-use products
+
+Purchase Pattern:
+Frequent / low-ticket
+
+Key Decision Factor:
+Price + convenience
+```
+
+---
+
+## 8. Supplier Intelligence
+
+Future versions could map:
+
+- Local suppliers
+- Wholesale markets
+- Raw-material sources
+- Supplier distance
+- Indicative prices
+- Transportation cost
+- Supplier concentration
+
+This would help entrepreneurs understand the **supply side**, not only demand.
+
+---
+
+## 9. Logistics & Distance Analysis
+
+Calculate:
+
+- Distance to supplier
+- Distance to market
+- Transportation implications
+- Delivery radius
+- Accessibility
+
+This could be particularly valuable for rural businesses.
+
+---
+
+## 10. Voice-Based Rural Assistant
+
+A future interface could allow users to speak instead of typing.
+
+Example:
+
+> “Mere paas 70,000 rupaye hain aur main apne gaon mein dairy business shuru karna chahta hoon.”
+
+The system could convert speech into structured inputs.
+
+Potential components:
+
+- Speech-to-text
+- Hindi/Hinglish understanding
+- Guided voice questions
+- Voice report summary
+
+---
+
+## 11. WhatsApp-Based Business Assistant
+
+A future version could allow entrepreneurs to interact through familiar messaging workflows.
+
+Possible functions:
+
+- Submit business idea
+- Receive feasibility summary
+- Ask follow-up questions
+- Receive scheme information
+- Upload documents
+- Get reminders
+- Receive alerts
+
+---
+
+## 12. Document & Scheme Eligibility Assistant
+
+Users could upload documents such as:
+
+- Aadhaar-related information where legally appropriate
+- Business registration documents
+- Quotations
+- Bank statements
+- Land/lease documents
+- Existing loan information
+
+The system could help identify missing information and possible scheme requirements.
+
+Sensitive documents should be processed with strict privacy controls.
+
+---
+
+## 13. Government Scheme Discovery Engine
+
+Instead of only routing to a small fixed set of schemes, future versions could continuously ingest official scheme information.
+
+Potential capabilities:
+
+- Scheme discovery
+- Eligibility matching
+- Benefit comparison
+- Application checklist
+- Required documents
+- Official-source links
+- Scheme expiry/status monitoring
+
+---
+
+## 14. Human-in-the-Loop Field Validation
+
+A field worker or administrator could verify information locally.
+
+Workflow:
+
+```text
+AI Estimate
+    ↓
+Field Validation
+    ↓
+Correction
+    ↓
+Verified Evidence
+    ↓
+Improved Recommendation
+```
+
+This would be especially useful for rural pilot programs.
+
+---
+
+## 15. Entrepreneur Feedback Loop
+
+After starting a business, users could provide:
+
+- Actual sales
+- Actual costs
+- Actual demand
+- Loan repayment performance
+- Business challenges
+- Monthly performance
+
+The system could compare:
+
+```text
+Predicted
+    vs
+Actual
+```
+
+and continuously improve its decision-support models.
+
+---
+
+## 16. Business Progress Dashboard
+
+After launch, entrepreneurs could track:
+
+- Revenue
+- Costs
+- Profit
+- Inventory
+- Loan outstanding
+- Monthly cash flow
+- Business milestones
+
+This would turn UdyamSaarthi-AI from a **pre-investment feasibility tool** into a broader **business companion**.
+
+---
+
+## 17. Pilot / Test-Before-Invest
+
+Before making a large investment, the platform could recommend low-cost validation experiments.
+
+Example:
+
+```text
+Business Idea
+     ↓
+Customer Interviews
+     ↓
+Small Pilot
+     ↓
+Demand Test
+     ↓
+Feedback
+     ↓
+Revise Business Plan
+     ↓
+Invest
+```
+
+This can reduce the risk of making irreversible investments based only on forecasts.
+
+---
+
+## 18. PDF Business Plan Generator
+
+Generate a structured business-plan document containing:
+
+- Executive summary
+- Business concept
+- Market context
+- Competition
+- Financial plan
+- Funding requirement
+- Scheme options
+- Risks
+- Mitigation
+- Implementation plan
+
+This could be useful when approaching banks, institutions, incubators or government programs.
+
+---
+
+## 19. Bank-Ready Loan Preparation
+
+Future functionality could help users prepare:
+
+- Loan requirement summary
+- Repayment estimate
+- Project-cost structure
+- Supporting assumptions
+- Scheme match
+- Document checklist
+
+The goal would be to reduce friction between:
+
+```text
+Business Idea
+       ↓
+Feasibility
+       ↓
+Financial Plan
+       ↓
+Loan Preparation
+```
+
+---
+
+## 20. Regional Language Expansion
+
+Beyond Hindi and English:
+
+- Bengali
+- Marathi
+- Tamil
+- Telugu
+- Gujarati
+- Kannada
+- Malayalam
+- Punjabi
+- Odia
+
+could be introduced using the same translation architecture.
+
+---
+
+# 🗺️ Future Product Vision
+
+The long-term vision is to evolve UdyamSaarthi-AI from a feasibility calculator into an **end-to-end entrepreneurship decision platform**.
+
+```text
+                 IDEA
+                   │
+                   ▼
+            ┌───────────────┐
+            │ Feasibility   │
+            └───────┬───────┘
+                    ▼
+             Market Analysis
+                    │
+                    ▼
+             Financial Plan
+                    │
+                    ▼
+             Scheme Matching
+                    │
+                    ▼
+             Business Setup
+                    │
+                    ▼
+              Pilot Testing
+                    │
+                    ▼
+             Business Launch
+                    │
+                    ▼
+             Performance
+              Monitoring
+                    │
+                    ▼
+             AI Improvement
+```
+
+The eventual objective is:
+
+> **Help entrepreneurs move from “I have a business idea” to “I understand the evidence, risks, financial requirements and next steps.”**
+
+---
+
+# 🏆 Why UdyamSaarthi-AI?
+
+### Traditional approach
+
+```text
+Business idea
+     ↓
+Generic internet search
+     ↓
+Word of mouth
+     ↓
+Investment
+     ↓
+Hope
+```
+
+### UdyamSaarthi-AI approach
+
+```text
+Business idea
+     ↓
+Location-specific evidence
+     ↓
+Competition context
+     ↓
+Financial modelling
+     ↓
+Government scheme routing
+     ↓
+Risk analysis
+     ↓
+Viability assessment
+     ↓
+Explainable decision support
+     ↓
+Better-informed investment
+```
+
+---
+
+# 📌 Important Disclaimer
+
+UdyamSaarthi-AI is a **decision-support and feasibility platform**, not a guarantee of business success.
+
+Scores, estimates, pricing and recommendations depend on:
+
+- Data availability
+- Data quality
+- Location information
+- Business assumptions
+- Financial assumptions
+- Market conditions
+- Government scheme rules
+
+Users should independently verify important financial, legal, regulatory and government-scheme information before making investment or borrowing decisions.
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+A typical workflow:
+
+```bash
+git checkout -b feature/your-feature
+```
+
+Make the required changes, test locally, then:
+
+```bash
+git add .
+git commit -m "Add: your feature"
+git push origin feature/your-feature
+```
+
+Open a Pull Request with:
+
+- Problem addressed
+- Changes made
+- Screenshots where relevant
+- Testing performed
+- Known limitations
+
+---
+
+# 🔒 Security
+
+If you discover a security issue:
+
+- Do not publish credentials in an issue or Pull Request.
+- Do not commit `.env` files.
+- Rotate accidentally exposed keys immediately.
+- Report security concerns privately to the project maintainers.
+
+---
+
+# 👥 Project
+
+**UdyamSaarthi-AI**
+
+### Hyper-Local Business Advisory & Financial Decision-Support Platform for Rural Entrepreneurs
+
+Built with:
+
+**React + Node.js + Python + FastAPI + MongoDB + PostgreSQL + Gemini**
+
+---
+
+## 🔗 Project Links
+
+| Resource | Link |
+|---|---|
+| GitHub Repository | `https://github.com/AaryanVerma17/UdyamSaarthi-AI` |
+| Live Application | `https://udyamsaarthi.onrender.com` |
+| Demo Video | `[ INSERT DEMO VIDEO LINK ]` |
+| Project PPT | `[ INSERT PPT / SLIDES LINK ]` |
+| Documentation | `https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing` |
+
+---
+
+<p align="center">
+
+**UdyamSaarthi-AI**
+
+*Evidence before investment. Intelligence before action.*
+
+</p>

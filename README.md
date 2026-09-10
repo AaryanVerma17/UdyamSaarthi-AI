@@ -45,7 +45,7 @@ Project Presentation[ INSERT PPT / GOOGLE SLIDES LINK HERE ]
 ### Live Application
 
 **Live Demo:**  
-Live Demo[https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing]
+https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing
 
 > If a public deployment is not available, leave this as `Coming Soon` rather than publishing an unverified URL.
 
@@ -1703,11 +1703,11 @@ Built with:
 
 | Resource | Link |
 |---|---|
-| GitHub Repository | GitHub Repository[https://github.com/AaryanVerma17/UdyamSaarthi-AI] |
-| Live Application | Live Application[https://udyamsaarthi.onrender.com] |
+| GitHub Repository | https://github.com/AaryanVerma17/UdyamSaarthi-AI |
+| Live Application | https://udyamsaarthi.onrender.com |
 | Demo Video | Demo Video [ INSERT DEMO VIDEO LINK ] |
 | Project PPT | Project PPT[ INSERT PPT / SLIDES LINK ] |
-| Documentation | Documentation[https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing] |
+| Documentation | https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing |
 
 ---
 

@@ -33,21 +33,18 @@ The central question is simple:
 **Demo Video:**  
 Demo Video[ INSERT DEMO VIDEO LINK HERE ]
 
-> Replace the placeholder above with the YouTube / Google Drive / Loom / hosted demo URL.
 
 ### Presentation / PPT
 
 **Project Presentation:**  
 Project Presentation[ INSERT PPT / GOOGLE SLIDES LINK HERE ]
 
-> Replace the placeholder above with the final SIH presentation or Google Slides link.
 
 ### Live Application
 
 **Live Demo:**  
 https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing
 
-> If a public deployment is not available, leave this as `Coming Soon` rather than publishing an unverified URL.
 
 ---
 

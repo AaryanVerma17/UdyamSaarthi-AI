@@ -1,33 +1,3 @@
-# UdyamSaarthi-AI
-
-### Hyper-Local Business Advisory & Financial Decision-Support Platform for Rural & Semi-Urban Entrepreneurs
-
-> **Idea -> Evidence -> Feasibility -> Finance -> Decision**
-
-UdyamSaarthi-AI is an AI-assisted business feasibility and decision-support platform designed to help rural and semi-urban entrepreneurs in India evaluate a business idea before investing their hard-earned capital.
-
-Instead of providing generic business advice, UdyamSaarthi-AI combines:
-
-- Location intelligence
-- Local competition context
-- Financial modelling
-- Government scheme routing
-- Business viability scoring
-- Loan and repayment planning
-- Working-capital planning
-- Localized pricing
-- Risk analysis
-- AI-generated explanations
-- Secure user authentication
-- User-specific report management
-- English and Hindi accessibility
-
-The central question is:
-
-> **"Given this business idea, this location, and this available capital - does the business make sense, and what should I consider before investing?"**
-
----
-
 # SIH 2026 Project
 
 ## Problem Statement
@@ -85,49 +55,83 @@ https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/
 
 # SIH 2026 Demonstration Scope
 
-The current SIH 2026 implementation focuses on the complete core feasibility and decision-support workflow.
+The current SIH 2026 implementation focuses on the core business feasibility and decision-support workflow.
 
-## Current Implementation
+The current implementation covers Phases 1 to 7.
 
-### Phase 1 - Real User + Problem + Workflow
+## Phase 1 - Real User + Problem + Workflow
 
 The platform is designed around the actual decision faced by a rural or semi-urban entrepreneur.
 
-### Phase 2 - Guided User-Centred Intake
-
-The entrepreneur provides:
+The workflow begins with three core inputs:
 
 - Location
 - Business category
 - Available own capital
 
+The platform then converts these inputs into a structured feasibility assessment.
+
+## Phase 2 - Guided User-Centred Intake
+
+The entrepreneur provides:
+
+- Village
+- Block
+- District
+- State
+- Business category
+- Available own capital
+
 through a guided interface.
 
-### Phase 3 - Government Data + Evidence
+## Phase 3 - Government Data + Evidence
 
-The platform provides government-scheme routing and communicates scheme status and evidence limitations.
+The platform provides:
 
-### Phase 4 - Location & Local Market Intelligence
+- Government scheme routing
+- Scheme eligibility context
+- Financing assumptions
+- Scheme status
+- Provisional-rule handling
+- Evidence and confidence communication
 
-The platform evaluates the business in the context of the selected location.
+## Phase 4 - Location & Local Market Intelligence
 
-### Phase 5 - Competition + Ground Reality
+The platform evaluates the proposed business in the context of the selected location.
 
-The platform provides competition classification and identifiable competitor mapping where information is available.
+The location layer can consider:
 
-### Phase 6 - Financial + Government Scheme Engine
+- Consumer-base indicators
+- Purchasing-power indicators
+- Existing business density
+- Geographical context
+- Local market signals
+
+## Phase 5 - Competition + Ground Reality
+
+The platform provides:
+
+- Competition classification
+- Competitor count where available
+- Identifiable competitor locations
+- Interactive competitor mapping
+- Evidence and confidence context
+
+## Phase 6 - Financial + Government Scheme Engine
 
 The financial engine structures:
 
 - Project cost
 - Own capital
 - Financing requirement
-- Loan
-- Repayment
-- Working capital
-- Scheme context
+- Loan amount
+- Interest assumptions
+- Tenure
+- Repayment planning
+- Working-capital allocation
+- Government scheme context
 
-### Phase 7 - Business Viability & Decision Engine
+## Phase 7 - Business Viability & Decision Engine
 
 The platform combines the available analytical information into:
 
@@ -135,29 +139,15 @@ The platform combines the available analytical information into:
 - Viability label
 - Recommendation
 - Confidence
+- Key financial indicators
+- Competition context
+- Repayment context
 - Key risks
-- Financial context
 - Evidence limitations
 
----
+These phases constitute the primary functionality demonstrated for SIH 2026.
 
-# Future Development
-
-The architecture is designed to support additional functionality after the current SIH demonstration.
-
-### Phase 8 - Market Gaps + Differentiation
-
-### Phase 9 - Alternative Business Engine
-
-### Phase 10 - Trust + Explainability + Human Override
-
-### Phase 11 - Decision-Centric Flagship Report
-
-### Phase 12 - Test Before You Invest
-
-### Phase 13 - Production + Deployment + Pilot Readiness
-
-These phases are described in detail later in this README.
+> **Note:** Advanced user authentication, individual user accounts, secure report ownership, multi-user report isolation, report history and related account-management functionality are planned future enhancements and are not part of the current SIH 2026 core demonstration scope.
 
 ---
 
@@ -214,7 +204,6 @@ Available Capital
 | Pricing Intelligence          |
 | Risk Analysis                 |
 | AI Explanation                |
-| User Authentication           |
 +---------------+---------------+
                 |
                 v
@@ -225,7 +214,7 @@ Available Capital
         Decision Guidance
 ````
 
-The platform is designed to distinguish between:
+The platform distinguishes between:
 
 ## Viability
 
@@ -467,529 +456,10 @@ This is important because accessibility involves both technology and comprehensi
 
 ---
 
-# 12. User Authentication and Secure Reports
-
-UdyamSaarthi-AI includes a user authentication system so that entrepreneurs can securely create accounts, sign in and maintain their own feasibility reports.
-
-The authentication system provides:
-
-* User registration
-* User sign in
-* Password-based authentication
-* JWT authentication
-* Protected API routes
-* User-specific report ownership
-* Report history
-* Individual report retrieval
-* Report deletion
-* Logout
-* User-to-user report isolation
-
----
-
-# Sign In and Registration
-
-When the application is opened, users can either sign in to an existing account or create a new account.
-
-```text
-+-----------------------+
-|     UdyamSaarthi-AI   |
-|                       |
-|        Sign In        |
-|                       |
-| Phone Number          |
-| [___________________] |
-|                       |
-| Password              |
-| [___________________] |
-|                       |
-|      [ Sign In ]      |
-|                       |
-| Don't have an account?|
-|      Create one       |
-+-----------------------+
-```
-
-For new users:
-
-```text
-+-----------------------+
-|     Create Account    |
-|                       |
-| Name                  |
-| [___________________] |
-|                       |
-| Phone Number          |
-| [___________________] |
-|                       |
-| Password              |
-| [___________________] |
-|                       |
-|  [ Create Account ]   |
-|                       |
-| Already have account? |
-|        Sign In        |
-+-----------------------+
-```
-
----
-
-# User Registration
-
-A new user provides:
-
-* Name
-* Phone number
-* Password
-
-The backend validates the required fields before creating the account.
-
-Passwords are not stored as plain text.
-
-The registration flow is:
-
-```text
-User
-  |
-  v
-Enter Name
-  |
-  v
-Enter Phone Number
-  |
-  v
-Create Password
-  |
-  v
-Validation
-  |
-  v
-Password Hashing
-  |
-  v
-User Account Created
-  |
-  v
-JWT Generated
-  |
-  v
-Authenticated Application
-```
-
-Duplicate phone-number registration is rejected.
-
----
-
-# User Sign In
-
-Existing users can sign in using:
-
-* Phone number
-* Password
-
-The sign-in flow is:
-
-```text
-User
-  |
-  v
-Enter Phone Number
-  |
-  v
-Enter Password
-  |
-  v
-Backend Authentication
-  |
-  v
-Password Verification
-  |
-  v
-JWT Token Generated
-  |
-  v
-Authenticated Session
-```
-
-Invalid credentials are rejected.
-
----
-
-# JWT Authentication
-
-After successful registration or sign in, the backend generates a JSON Web Token.
-
-The token is used to authenticate protected API requests.
-
-```text
-Sign In
-   |
-   v
-Credentials Verified
-   |
-   v
-JWT Token
-   |
-   v
-Authenticated Session
-   |
-   v
-Protected API Requests
-```
-
-The frontend attaches the token to protected requests using:
-
-```text
-Authorization: Bearer <JWT_TOKEN>
-```
-
----
-
-# Protected API Routes
-
-Important user-specific operations require authentication.
-
-Protected functionality includes:
-
-```text
-POST   /api/v1/feasibility/generate
-
-GET    /api/v1/feasibility/user/:userId
-
-GET    /api/v1/feasibility/:reportId
-
-DELETE /api/v1/feasibility/:reportId
-```
-
-Unauthenticated requests to protected routes are rejected.
-
----
-
-# User-Specific Reports
-
-Every generated feasibility report is associated with the authenticated user.
-
-The relationship is:
-
-```text
-User Account
-     |
-     +---- Report 1
-     |
-     +---- Report 2
-     |
-     +---- Report 3
-     |
-     +---- Report 4
-```
-
-This allows users to maintain a personal history of feasibility assessments.
-
----
-
-# Report History
-
-After signing in, users can access their previously generated reports.
-
-```text
-Sign In
-   |
-   v
-User Account
-   |
-   v
-Report History
-   |
-   +---- Report 1
-   |
-   +---- Report 2
-   |
-   +---- Report 3
-```
-
-The backend verifies that the requested reports belong to the authenticated user.
-
----
-
-# Individual Report Access
-
-A user can open an individual report using its report ID.
-
-Before returning the report, the backend verifies:
-
-```text
-Authenticated User ID
-        =
-Report Owner ID
-```
-
-If the report belongs to another user, access is denied.
-
----
-
-# User-to-User Data Isolation
-
-UdyamSaarthi-AI implements ownership checks for user reports.
-
-Example:
-
-```text
-User A
-  |
-  +---- Report A1
-  +---- Report A2
-
-User B
-  |
-  +---- Report B1
-  +---- Report B2
-```
-
-User A cannot access User B's reports.
-
-User B cannot access User A's reports.
-
-An unauthorized attempt to access another user's report results in a `403 Forbidden` response.
-
----
-
-# Report Deletion
-
-Authenticated users can delete reports belonging to their own account.
-
-The deletion flow is:
-
-```text
-User
-  |
-  v
-Select Own Report
-  |
-  v
-Ownership Verification
-  |
-  v
-Delete Report
-```
-
-A user cannot delete another user's report.
-
----
-
-# Logout
-
-The application supports logout.
-
-```text
-Authenticated Session
-        |
-        v
-      Logout
-        |
-        v
-Authentication Data Cleared
-        |
-        v
-Sign-In Screen
-```
-
-The user must sign in again to access protected functionality.
-
----
-
-# Authentication Error Handling
-
-The application provides user-friendly responses for common authentication failures.
-
-## Missing Authentication
-
-The protected endpoint rejects requests without an authentication token.
-
-## Invalid Credentials
-
-Incorrect phone numbers or passwords are rejected.
-
-## Invalid or Expired Token
-
-The user is asked to sign in again.
-
-## Unauthorized Report Access
-
-The backend rejects attempts to access reports belonging to another user.
-
-## Duplicate Registration
-
-A user cannot create multiple accounts using the same registered phone number.
-
----
-
-# Authentication API
-
-## Register
-
-```text
-POST /api/v1/auth/register
-```
-
-Example request:
-
-```json
-{
-  "name": "Test User",
-  "phone": "9999999999",
-  "password": "********"
-}
-```
-
-A successful registration returns:
-
-* Authentication token
-* User ID
-* User name
-* User phone number
-
----
-
-# Sign In
-
-```text
-POST /api/v1/auth/login
-```
-
-Example request:
-
-```json
-{
-  "phone": "9999999999",
-  "password": "********"
-}
-```
-
-A successful sign in returns:
-
-* Authentication token
-* User ID
-* User name
-* User phone number
-
----
-
-# Generate Authenticated Report
-
-```text
-POST /api/v1/feasibility/generate
-```
-
-Requires:
-
-```text
-Authorization: Bearer <JWT_TOKEN>
-```
-
-The generated report is automatically associated with the authenticated user.
-
----
-
-# Get User Reports
-
-```text
-GET /api/v1/feasibility/user/:userId
-```
-
-Requires authentication.
-
-The backend verifies that the requested user ID matches the authenticated user.
-
----
-
-# Get Individual Report
-
-```text
-GET /api/v1/feasibility/:reportId
-```
-
-Requires:
-
-* Authentication
-* Report ownership verification
-
----
-
-# Delete Individual Report
-
-```text
-DELETE /api/v1/feasibility/:reportId
-```
-
-Requires:
-
-* Authentication
-* Report ownership verification
-
----
-
-# Complete Authentication and Report Flow
-
-```text
-                         START
-                           |
-                           v
-                  +----------------+
-                  | Sign In /      |
-                  | Create Account |
-                  +-------+--------+
-                          |
-              +-----------+-----------+
-              |                       |
-              v                       v
-          New User               Existing User
-              |                       |
-              v                       v
-         Registration              Sign In
-              |                       |
-              +-----------+-----------+
-                          |
-                          v
-                  JWT Authentication
-                          |
-                          v
-                  Authenticated Session
-                          |
-                          v
-                  Business Assessment
-                          |
-                          v
-                  Generate Report
-                          |
-                          v
-                 Report Linked to User
-                          |
-              +-----------+-----------+
-              |                       |
-              v                       v
-        View Report              Report History
-              |                       |
-              v                       v
-       Delete Own Report       View Own Reports
-              |                       |
-              +-----------+-----------+
-                          |
-                          v
-                        Logout
-                          |
-                          v
-                    Sign-In Screen
-```
-
----
-
-# End-to-End Decision Journey
+# Decision Journey
 
 ```text
 START
-  |
-  v
-Create Account / Login
   |
   v
 Enter Location
@@ -1026,9 +496,6 @@ Explain Evidence & Limitations
   |
   v
 Generate Feasibility Report
-  |
-  v
-Save Report to User Account
 ```
 
 ---
@@ -1102,15 +569,6 @@ The interface is designed as a real product experience rather than a technical d
 * Clear back and continue actions
 * Mobile-friendly interaction
 
-## Authentication Experience
-
-* Sign In
-* Create Account
-* Password validation
-* Authentication feedback
-* Session persistence
-* Logout
-
 ## Report Experience
 
 * Decision-first report header
@@ -1140,7 +598,6 @@ UdyamSaarthi-AI follows a three-service architecture.
                          | React + Vite Frontend     |
                          |                           |
                          | Forms                     |
-                         | Authentication            |
                          | i18n                      |
                          | Report UI                 |
                          | Maps / Visualizations     |
@@ -1152,7 +609,6 @@ UdyamSaarthi-AI follows a three-service architecture.
                          +---------------------------+
                          | Node.js + Express Backend |
                          |                           |
-                         | Authentication            |
                          | Controllers               |
                          | Financial Engine           |
                          | Scheme Router              |
@@ -1202,8 +658,6 @@ UdyamSaarthi-AI follows a three-service architecture.
 * MongoDB
 * Mongoose
 * PostgreSQL
-* JWT
-* bcrypt
 
 ## ML and Intelligence Service
 
@@ -1245,7 +699,6 @@ UdyamSaarthi-AI/
 │   │       └── hi/
 │   └── src/
 │       ├── components/
-│       │   └── auth/
 │       ├── pages/
 │       ├── services/
 │       ├── store/
@@ -1267,7 +720,7 @@ UdyamSaarthi-AI/
 │   │   └── server.js
 │   └── tests/
 |
-├── ml_service/                    # Python + FastAPI ML service
+├── ml_service/                    # Python + FastAPI service
 │   ├── app/
 │   │   ├── api/
 │   │   │   └── v1/
@@ -1332,17 +785,16 @@ cd UdyamSaarthi-AI
 
 Create the required environment files from the provided examples.
 
-Do not commit:
+Never commit:
 
 ```text
 .env
 ```
 
-Do not commit files containing:
+or any file containing:
 
 * API keys
 * Database passwords
-* JWT secrets
 * Private tokens
 * Service credentials
 
@@ -1523,9 +975,9 @@ All required services should be running before testing report generation.
 
 UdyamSaarthi-AI is designed to run on a local environment and is not tied to a single development laptop.
 
-For the SIH demonstration, the repository can be cloned and configured on the designated admin laptop.
+For the SIH demonstration, the repository can be cloned and configured on the designated SIH admin laptop.
 
-The application can be run in either of the following ways:
+The application can be demonstrated using either of the following approaches.
 
 ## Option 1 - Localhost on the Admin Laptop
 
@@ -1543,8 +995,6 @@ Python / FastAPI ML Service
        v
 Configured Databases and APIs
 ```
-
-The relevant services can run locally using the configured ports.
 
 The frontend can communicate with the backend through:
 
@@ -1625,7 +1075,7 @@ Start Backend
 Start Frontend
 ```
 
-The ML service should use:
+The ML service should be started using:
 
 ```bash
 uvicorn app.main:app --reload --port 8000
@@ -1693,82 +1143,6 @@ if the ML test suite is configured in the local environment.
 
 ---
 
-# Authentication Testing
-
-The authentication workflow should be tested in the following order:
-
-```text
-Register
-   |
-   v
-Login
-   |
-   v
-Receive JWT
-   |
-   v
-Generate Report
-   |
-   v
-Report Saved Against User
-   |
-   v
-Retrieve User Reports
-```
-
-Test that:
-
-* Registration succeeds
-* Duplicate registration is rejected
-* Login succeeds with valid credentials
-* Invalid credentials are rejected
-* Protected endpoints reject missing authentication
-* Users can access their own reports
-* Users cannot access another user's reports
-* Users can retrieve their report history
-* Users can delete their own reports
-* Logout clears the authentication session
-
----
-
-# Two-User Security Test
-
-The application can be tested with two separate users.
-
-## User A
-
-```text
-Register User A
-       |
-       v
-Sign In
-       |
-       v
-Generate Report A
-       |
-       v
-View Report A
-```
-
-## User B
-
-```text
-Register User B
-       |
-       v
-Sign In
-       |
-       v
-Attempt to access Report A
-       |
-       v
-403 Forbidden
-```
-
-This verifies user-level report isolation.
-
----
-
 # Complete SIH Demo Test Flow
 
 Before the SIH demonstration, verify:
@@ -1777,55 +1151,49 @@ Before the SIH demonstration, verify:
 1. Open Application
        |
        v
-2. Register / Login
+2. Enter Location
        |
        v
-3. Enter Location
+3. Select Business
        |
        v
-4. Select Business
+4. Enter Own Capital
        |
        v
-5. Enter Own Capital
+5. Generate Analysis
        |
        v
-6. Generate Analysis
+6. Location Intelligence
        |
        v
-7. Location Intelligence
+7. Competition Analysis
        |
        v
-8. Competition Analysis
+8. Financial Modelling
        |
        v
-9. Financial Modelling
+9. Government Scheme Routing
        |
        v
-10. Government Scheme Routing
+10. Repayment Planning
        |
        v
-11. Repayment Planning
+11. Working Capital Planning
        |
        v
-12. Working Capital Planning
+12. Pricing
        |
        v
-13. Pricing
+13. Risk Analysis
        |
        v
-14. Risk Analysis
+14. Viability Assessment
        |
        v
-15. Viability Assessment
+15. AI Explanation
        |
        v
-16. AI Explanation
-       |
-       v
-17. Final Feasibility Report
-       |
-       v
-18. Report Saved to User Account
+16. Final Feasibility Report
 ```
 
 ---
@@ -2023,250 +1391,11 @@ Only the service endpoints and environment configuration change.
 
 ---
 
-# Production Security
+# Future Updates
 
-Before deployment:
+The following phases represent planned extensions beyond the current SIH 2026 core implementation.
 
-* Never commit `.env`
-* Rotate previously exposed API keys
-* Use strong JWT secrets
-* Restrict database access
-* Configure CORS for trusted frontend origins
-* Validate all user inputs
-* Apply request-size limits
-* Avoid returning internal stack traces
-* Keep credentials in deployment environment variables
-* Do not expose private database URLs
-* Monitor authentication and API errors
-* Use HTTPS in production
-
----
-
-# Data and AI Design Principles
-
-## 1. Evidence Before AI
-
-```text
-Evidence
-   |
-   v
-Computation
-   |
-   v
-Decision
-   |
-   v
-AI Explanation
-```
-
-Not:
-
-```text
-AI Guess
-   |
-   v
-Business Decision
-```
-
----
-
-# 2. Missing Data Stays Missing
-
-If reliable data is unavailable, the system should not silently convert it into:
-
-```text
-0
-```
-
-or invent a value.
-
----
-
-# 3. Confidence is Different from Viability
-
-A business can be:
-
-```text
-High viability + low evidence confidence
-```
-
-or:
-
-```text
-Moderate viability + high evidence confidence
-```
-
-These are different concepts and should remain separate.
-
----
-
-# 4. Competition is Contextual
-
-A competitor count represents identifiable or available market evidence.
-
-It is not automatically a complete census of every business in the area.
-
----
-
-# 5. Financial Truth is Deterministic
-
-Financial calculations should be performed by the financial engine.
-
-AI should explain the resulting calculations rather than inventing them.
-
----
-
-# Current SIH 2026 Implementation
-
-The current implementation focuses on delivering a complete core decision-support workflow.
-
----
-
-# Phase 1 - Real User + Problem + Workflow
-
-## Current Implementation
-
-* Rural and semi-urban entrepreneur use case
-* Business feasibility workflow
-* Location, business and capital as core inputs
-* Decision-oriented output
-* User authentication
-* User-specific report management
-
-## Next Update
-
-* Expand user journeys
-* Add more entrepreneur personas
-* Validate workflows through pilot users
-
----
-
-# Phase 2 - Guided User-Centred Intake
-
-## Current Implementation
-
-* Guided business intake
-* Location input
-* Business category selection
-* Own-capital input
-* Validation
-* English and Hindi experience
-
-## Next Update
-
-* Adaptive questioning
-* More business categories
-* Voice-assisted input
-
----
-
-# Phase 3 - Government Data + Evidence
-
-## Current Implementation
-
-* Government scheme routing
-* Scheme rule handling
-* Scheme status
-* Provisional-rule handling
-* Evidence and confidence communication
-
-## Next Update
-
-* Broader official government-scheme coverage
-* Automated official-source ingestion
-* Application document checklists
-* Scheme status monitoring
-
----
-
-# Phase 4 - Location & Local Market Intelligence
-
-## Current Implementation
-
-* Location-based analysis
-* Consumer-base indicators
-* Purchasing-power indicators
-* Existing business density
-* Geographical context
-* Local market signals
-
-## Next Update
-
-* More granular village-level datasets
-* Seasonal local demand
-* Local economic indicators
-* Improved geospatial intelligence
-
----
-
-# Phase 5 - Competition + Ground Reality
-
-## Current Implementation
-
-* Identifiable competitor mapping
-* Competition count where available
-* Competition classification
-* Interactive map
-* Evidence and confidence context
-
-## Next Update
-
-* More comprehensive competitor discovery
-* Field validation
-* Customer-level demand signals
-* Competitor pricing intelligence
-
----
-
-# Phase 6 - Financial + Government Scheme Engine
-
-## Current Implementation
-
-* Project cost
-* Own capital
-* Financing requirement
-* Loan amount
-* Interest assumptions
-* Tenure
-* Repayment planning
-* Working-capital planning
-* Government scheme routing
-
-## Next Update
-
-* More detailed cash-flow modelling
-* Break-even analysis
-* Sensitivity analysis
-* Scenario simulation
-* Bank-ready financial summaries
-
----
-
-# Phase 7 - Business Viability & Decision Engine
-
-## Current Implementation
-
-* Viability scoring
-* Viability classification
-* Recommendation
-* Financial context
-* Competition context
-* Repayment context
-* Confidence indicators
-* Recommendation gating
-
-## Next Update
-
-* More granular decision models
-* Alternative business recommendations
-* Market-gap analysis
-* Entrepreneur-specific recommendations
-
----
-
-# Future Scope
-
-The following phases represent planned expansion beyond the current SIH 2026 core implementation.
+The objective is to progressively evolve UdyamSaarthi-AI from a feasibility and decision-support platform into a broader entrepreneurship intelligence platform.
 
 ---
 
@@ -2308,7 +1437,7 @@ Recommended Positioning
 
 # Phase 9 - Alternative Business Engine
 
-If the selected business is weak, the platform could recommend alternatives.
+If the selected business is weak, the platform could recommend alternative businesses that may be more suitable for the entrepreneur's location and available capital.
 
 Example:
 
@@ -2342,9 +1471,13 @@ The recommendation should explain why an alternative is stronger rather than sim
 
 ---
 
-# Phase 10 - Trust, Explainability and Human Override
+# Phase 10 - Trust, Explainability, Human Override & Advanced User Authentication
 
-Future versions could introduce stronger human-in-the-loop validation.
+Future versions will strengthen the trust, transparency and user-management layer of the platform.
+
+## Human-in-the-Loop Validation
+
+Administrators or field workers could validate important local information before it influences future recommendations.
 
 Possible workflow:
 
@@ -2364,7 +1497,65 @@ Verified Evidence
 Improved Recommendation
 ```
 
-Administrators or field workers could validate important local information before it influences future recommendations.
+## Advanced User Authentication
+
+A future version will introduce a complete authenticated user-management system.
+
+Potential capabilities include:
+
+* User registration
+* User sign in
+* Secure password management
+* JWT-based authentication
+* Protected API routes
+* User-specific report ownership
+* Report history
+* Individual report retrieval
+* Report deletion
+* Logout
+* User-to-user report isolation
+
+The planned authentication workflow is:
+
+```text
+User
+  |
+  v
+Create Account / Sign In
+  |
+  v
+Authentication
+  |
+  v
+Authenticated Session
+  |
+  v
+Generate Feasibility Report
+  |
+  v
+Report Linked to User
+  |
+  v
+Personal Report History
+```
+
+Future versions could also provide ownership validation so that:
+
+```text
+User A
+  |
+  +---- Report A1
+  +---- Report A2
+
+User B
+  |
+  +---- Report B1
+  +---- Report B2
+```
+
+User A would not be able to access User B's reports, and User B would not be able to access User A's reports.
+
+This would provide the foundation for a secure multi-user production deployment.
 
 ---
 
@@ -2423,7 +1614,7 @@ This could reduce the risk of making irreversible investments based only on fore
 
 ---
 
-# Phase 13 - Production, Deployment and Pilot Readiness
+# Phase 13 - Production, Deployment & Pilot Readiness
 
 Future production expansion could include:
 
@@ -2438,6 +1629,8 @@ Future production expansion could include:
 * Production-grade analytics
 * Entrepreneur feedback loops
 * Business performance tracking
+* Secure multi-user access
+* Scalable cloud deployment
 
 ---
 
@@ -2633,32 +1826,6 @@ Potential capabilities:
 * Required documents
 * Official-source links
 * Scheme expiry and status monitoring
-
----
-
-# Human-in-the-Loop Field Validation
-
-Future versions could allow administrators or field workers to validate important local information.
-
-Possible workflow:
-
-```text
-AI Estimate
-    |
-    v
-Field Validation
-    |
-    v
-Correction
-    |
-    v
-Verified Evidence
-    |
-    v
-Improved Recommendation
-```
-
-This can be particularly useful for rural pilot programs.
 
 ---
 
@@ -2888,30 +2055,22 @@ Users should independently verify important financial, legal, regulatory and gov
 
 # Security
 
-Security is an important part of the platform architecture.
+Security is an important part of the future production architecture.
 
 The project follows these principles:
 
 * Do not commit `.env` files
 * Do not expose API keys
 * Do not expose database credentials
-* Use strong JWT secrets
-* Hash user passwords
-* Protect user-specific API routes
-* Verify report ownership
-* Prevent cross-user report access
-* Use HTTPS in production
-* Restrict database access
-* Configure trusted CORS origins
+* Use strong secrets for production deployments
 * Validate user inputs
+* Restrict database access
+* Use HTTPS in production
+* Configure trusted CORS origins
 * Avoid returning internal stack traces
+* Rotate accidentally exposed credentials immediately
 
-If credentials are accidentally exposed:
-
-1. Revoke or rotate the credentials immediately.
-2. Remove the credentials from the source repository if committed.
-3. Generate replacement credentials.
-4. Update the deployment environment variables.
+Advanced user authentication, user accounts, protected report ownership and multi-user report isolation are planned future enhancements.
 
 ---
 

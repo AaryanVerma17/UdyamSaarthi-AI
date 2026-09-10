@@ -31,19 +31,19 @@ The central question is simple:
 ### Demo Video
 
 **Demo Video:**  
-Demo Video[ INSERT DEMO VIDEO LINK HERE ]
+https://drive.google.com/file/d/1SRYgfcMLP77qFkJXjmh_vgTFSUlpLlQC/view?usp=sharing
 
 
 ### Presentation / PPT
 
 **Project Presentation:**  
-Project Presentation[ INSERT PPT / GOOGLE SLIDES LINK HERE ]
+https://drive.google.com/file/d/17j9Fa3xadDd8B4djPvrSrwwE_rFIG7qE/view?usp=sharing
 
 
 ### Live Application
 
 **Live Demo:**  
-https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing
+https://udyamsaarthi.onrender.com
 
 
 ---
@@ -1702,8 +1702,8 @@ Built with:
 |---|---|
 | GitHub Repository | https://github.com/AaryanVerma17/UdyamSaarthi-AI |
 | Live Application | https://udyamsaarthi.onrender.com |
-| Demo Video | Demo Video [ INSERT DEMO VIDEO LINK ] |
-| Project PPT | Project PPT[ INSERT PPT / SLIDES LINK ] |
+| Demo Video | https://drive.google.com/file/d/1SRYgfcMLP77qFkJXjmh_vgTFSUlpLlQC/view?usp=sharing |
+| Project PPT | https://drive.google.com/file/d/17j9Fa3xadDd8B4djPvrSrwwE_rFIG7qE/view?usp=sharing |
 | Documentation | https://docs.google.com/document/d/1pjgLozCisl2lvO_ufANM0kiShyEWGxwHQZOiW4iofyg/edit?usp=sharing |
 
 ---

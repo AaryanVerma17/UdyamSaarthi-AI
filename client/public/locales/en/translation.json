@@ -1,8 +1,31 @@
 {
   "appEyebrow": "Rural Business Intelligence",
-  "appTitle": "UdyamSaarthi-AI",
-  "tagline": "Your local business advisor and financial planning companion",
-
+  "appTitle": "UdyamSaarthi AI",
+  "tagline": "Evidence-led business feasibility",
+  "nav": {
+    "howItWorks": "How it works",
+    "assessment": "Assessment",
+    "why": "Why UdyamSaarthi",
+    "startAssessment": "Start assessment",
+    "startOver": "Start over"
+  },
+  "hero": {
+    "eyebrow": "RURAL BUSINESS DECISION SUPPORT",
+    "title": "Know before you invest.",
+    "lead": "Evaluate whether your business idea makes sense for your location, market, finances and available government support.",
+    "checkBusiness": "Check my business idea",
+    "seeHow": "See how it works ↓",
+    "proofStrong": "Built for practical decisions.",
+    "proofText": "Clear evidence, visible assumptions and useful next steps.",
+    "decisionTitle": "Business decision",
+    "planning": "Planning view",
+    "promising": "Promising",
+    "proceedCaution": "Proceed with caution",
+    "market": "Market",
+    "finance": "Finance",
+    "risk": "Risk",
+    "backed": "Recommendation backed by available evidence"
+  },
   "home": {
     "heroTitle": "Make a more informed business decision.",
     "heroDescription": "Tell us where you want to operate, how much capital you have, and what business you are considering. UdyamSaarthi-AI combines available local evidence with financial planning to prepare a preliminary feasibility report.",
@@ -13,66 +36,90 @@
     "info3": "Financial structure and repayment planning",
     "info4": "Risks, alternatives and data limitations"
   },
-
+  "trust": {
+    "location": "Location",
+    "locationText": "Local market intelligence",
+    "market": "Market",
+    "marketText": "Competition & demand",
+    "finance": "Finance",
+    "financeText": "Project & repayment",
+    "schemes": "Schemes",
+    "schemesText": "Government support"
+  },
+  "assessment": {
+    "kicker": "START WITH THE ESSENTIALS",
+    "title": "Let's assess your business.",
+    "description": "A short guided assessment. Your inputs are used to build a location-specific feasibility report.",
+    "guided": "Guided assessment",
+    "profile": "Build your feasibility profile",
+    "time": "About 2 minutes",
+    "what": "WHAT YOU'LL GET",
+    "decision": "Not just a score. A decision.",
+    "decisionText": "The report brings the important pieces together so you can see what looks attractive, where caution is needed and what evidence is still unavailable.",
+    "viability": "Viability",
+    "viabilityText": "Overall business viability",
+    "marketView": "Market view",
+    "marketViewText": "Local demand and competition",
+    "financialView": "Financial view",
+    "financialViewText": "Funding and repayment plan",
+    "risks": "Risks & opportunities",
+    "risksText": "What to watch before investing"
+  },
+  "how": {
+    "kicker": "SIMPLE & CLEAR",
+    "title": "Three steps from idea to decision.",
+    "description": "You provide the context. UdyamSaarthi does the analysis.",
+    "one": "Tell us about your idea",
+    "oneText": "Share your location, business category and available capital.",
+    "two": "We analyse the market",
+    "twoText": "Local evidence, competition, pricing and financial information are evaluated.",
+    "three": "Get your decision",
+    "threeText": "Receive a viability score, risks, opportunities and next steps."
+  },
+  "footer": {
+    "tag": "Evidence-led entrepreneurship support.",
+    "text": "Built for informed decisions."
+  },
   "form": {
     "heading": "Tell us about your business idea",
-    "description": "Use your best available information. More accurate location and capital inputs improve the usefulness of the assessment.",
-
+    "description": "Enter the best information you have. More precise location and capital information makes the assessment more useful.",
     "steps": {
       "location": "Location",
       "business": "Business",
       "capital": "Capital"
     },
-
     "step1Label": "Step 1",
-    "locationTitle": "Where is your business?",
-    "locationDescription": "Tell us where you plan to operate so we can understand the local business environment.",
-
+    "locationTitle": "Where will your business be?",
+    "locationDescription": "Tell us where you want to operate so the local business environment can be assessed.",
     "village": "Village",
     "villagePlaceholder": "Enter village name",
-
     "block": "Block",
     "blockPlaceholder": "Enter block name",
-    "blockHint": "Optional — leave blank if you are not sure.",
-
+    "blockHint": "Optional — leave blank if you're not sure.",
     "district": "District",
     "districtPlaceholder": "Enter district name",
-
     "state": "State",
     "statePlaceholder": "Enter state name",
-
-    "locationEvidenceNote": "Your location helps us connect the assessment with available local and regional evidence.",
-
+    "locationEvidenceNote": "Your location helps connect the assessment with available local and regional evidence.",
     "step2Label": "Step 2",
     "businessTitle": "What business do you want to start?",
     "businessDescription": "Choose the business you are considering.",
-
-    "businessCategory": "Business You Want to Start",
-
-    "businessEvidenceNote": "Business-specific analysis will use the selected category together with available location evidence.",
-
+    "businessEvidenceNote": "Business-specific analysis will use the selected category and available location evidence.",
     "step3Label": "Step 3",
-    "capitalTitle": "What capital do you have?",
-    "capitalDescription": "Enter the amount of your own money that you can invest in the business.",
-
-    "ownCapital": "Your Available Capital (₹)",
-    "capitalPlaceholder": "e.g. 100000",
+    "capitalTitle": "How much capital do you have?",
+    "capitalDescription": "Enter the amount you can invest in the business from your own funds.",
+    "ownCapital": "Your available capital (₹)",
+    "capitalPlaceholder": "Example: 100000",
     "capitalHelp": "Enter the amount of your own capital available for the business.",
-
-    "capitalHint": "Enter a positive whole-number amount in Indian rupees.",
-
+    "capitalHint": "Enter a positive whole number in Indian rupees.",
     "capitalExampleTitle": "Example",
-    "capitalExampleText": "If you can invest ₹50,000 from your own funds, enter 50000.",
-
-    "capitalEvidenceNote": "Your own capital helps determine the financial structure and feasibility of the business.",
-
+    "capitalExampleText": "If you can invest ₹50,000 yourself, enter 50000.",
+    "capitalEvidenceNote": "Your own capital helps determine the financial structure and viability of the business.",
     "continue": "Continue",
     "back": "Back",
     "requiredFields": "Required fields",
-
-    "submit": "Generate My Report",
-    "generating": "Preparing your report…",
-
+    "submit": "Generate my report",
+    "generating": "Generating report…",
     "errors": {
       "village": "Village is required.",
       "district": "District is required.",
@@ -83,93 +130,176 @@
       "capitalInteger": "Capital must be a whole number."
     }
   },
-
-  "validation": {
-    "villageRequired": "Village is required.",
-    "districtRequired": "District is required.",
-    "stateRequired": "State is required.",
-    "businessRequired": "Please select a business category.",
-    "capitalRequired": "Own capital is required.",
-    "capitalPositive": "Capital must be greater than ₹0.",
-    "capitalInteger": "Capital must be a whole number."
-  },
-
   "businessCategories": {
     "Dairy": "Dairy",
     "DairyDescription": "Milk, livestock and dairy-related activities.",
-
     "Kirana": "Kirana",
     "KiranaDescription": "Local grocery and everyday household products.",
-
     "Tailoring": "Tailoring",
-    "TailoringDescription": "Clothing alteration, stitching and tailoring services.",
-
+    "TailoringDescription": "Clothing stitching, alterations and tailoring services.",
     "Food Processing": "Food Processing",
     "Food ProcessingDescription": "Processing, packaging and value addition of food products.",
-
     "Repair Shop": "Repair Shop",
     "Repair ShopDescription": "Repair and maintenance services for common products or equipment."
   },
-
   "report": {
     "title": "Business Feasibility Report",
-    "viability": "Business Viability",
-
-    "financialStructure": "Financial Structure",
-    "projectCost": "Project Cost",
-    "loanAmount": "Potential Loan",
-    "scheme": "Configured Scheme",
-    "interestRate": "Interest Rate",
+    "location": "Location",
+    "description": "Your business idea has been evaluated using available location, market, competition and financial evidence.",
+    "feasibility": "Feasibility report",
+    "planningView": "Data-led planning view",
+    "decisionKicker": "DECISION AT A GLANCE",
+    "decisionTitle": "What should you know before investing?",
+    "dataLed": "Data-led planning view",
+    "businessViability": "Business viability",
+    "overallViability": "Overall viability",
+    "planningEstimate": "Planning estimate",
+    "overallScore": "Overall score",
+    "competitionContext": "Competition context",
+    "competitionHelper": "Context based on identifiable competitor data",
+    "repaymentCapacity": "Repayment capacity",
+    "viabilityAssessment": "Viability assessment",
+    "financialStructure": "Financial structure",
+    "projectCost": "Project cost",
+    "ownCapital": "Your capital",
+    "financingNeed": "Financing need",
+    "loanAmount": "Potential loan",
+    "quarterlyInstallment": "Quarterly installment",
+    "totalPlanned": "Total planned investment",
+    "availableFunds": "Available own capital",
+    "borrowingNeed": "Indicative borrowing need",
+    "plannedRepayment": "Planned repayment",
+    "governmentScheme": "Government scheme",
+    "scheme": "Configured scheme",
+    "interestRate": "Interest rate",
     "tenure": "Tenure",
-    "quarterlyInstallment": "Quarterly Installment",
-    "repaymentCapacity": "Repayment Capacity",
-
-    "financingRuleStatus": "Financing Rule Status",
+    "years": "years",
+    "financialNote": "Financial and planning parameters are for planning only. Verify them against current official guidelines before borrowing.",
     "provisionalFinancialWarning": "Current financial scheme parameters are provisional and must be verified against the applicable official government guideline.",
-
-    "workingCapitalAllocation": "Working Capital Allocation",
-
-    "competitorMapping": "Competition Mapping",
-    "identifiableCompetitors": "identifiable competitors found",
-    "classifiedAs": "Market classification:",
-
-    "fieldVerified": "Field verified",
+    "financingRuleStatus": "Financing rule status",
+    "localCompetition": "Local competition",
+    "competitorMapping": "Competition mapping",
+    "identifiableCompetition": "Identifiable competition",
+    "identifiableCompetitors": "Identifiable competitors",
+    "businessesFound": "Businesses found in available data",
+    "competitorsFound": "Identifiable competitors found",
+    "noReliableCount": "No reliable count available",
     "identifiableData": "Identifiable data",
+    "fieldVerified": "Field verified",
     "dataUnavailable": "Data unavailable",
-
-    "opportunityFinder": "Opportunity Finder",
+    "category": "Category",
+    "classification": "Classification",
+    "classifiedAs": "Market classification:",
+    "coverage": "Coverage",
+    "competitionNote": "Competition reflects businesses identified in available data. Informal or unlisted businesses may not be included.",
+    "opportunityFinder": "Opportunity finder",
+    "requestedBusiness": "Requested business",
     "requested": "Requested",
-    "alternatives": "Potential Alternatives",
+    "compare": "Compare",
+    "alternatives": "Alternative opportunities",
+    "improve": "Ways to improve the business idea",
     "improvementSuggestions": "Ways to strengthen your chosen business",
-
-    "localizedPricing": "Localized Pricing",
+    "pricing": "Local pricing",
+    "localizedPricing": "Localized pricing",
+    "indicativeRange": "Indicative price range",
+    "perUnit": "per unit",
     "confidence": "Confidence",
+    "estimatedValue": "Estimated value",
     "estimatedPrice": "Estimated pricing",
     "estimatedPriceDescription": "Local verified pricing was not available, so the displayed range is a development estimate and should be validated locally.",
-
-    "riskAnalysis": "Risk Analysis",
+    "workingCapital": "Working capital plan",
+    "workingCapitalAllocation": "Working capital allocation",
+    "planningNote": "Planning note",
+    "note": "Note",
+    "risks": "Key risks",
+    "riskAnalysis": "Risk analysis",
     "mitigation": "Mitigation",
-
-    "evidence": "Evidence & Data Coverage",
+    "evidence": "Evidence & data coverage",
     "locationSource": "Location data source",
+    "competitionCoverage": "Competitor data coverage",
     "competitorCoverage": "Competitor data coverage",
     "pricingStatus": "Pricing evidence",
     "schemeRuleStatus": "Scheme-rule status",
     "dataLimitations": "Important data limitations",
-
-    "recommendation": "Final Recommendation",
+    "limitations": "Data limitations",
+    "nextStep": "Next step",
+    "validate": "Use the report for validation, not as a guarantee.",
+    "validateText": "Recheck the most important assumptions before committing capital.",
+    "backSummary": "Back to summary ↑",
+    "recommendation": "Final recommendation",
+    "unknown": "Unknown",
+    "limitedEvidence": "Limited evidence",
+    "keyRisks": "Key risks",
+    "locationsMapped": "Identified locations mapped",
     "proceed": "Proceed",
-    "proceed_with_caution": "Proceed with Caution",
-    "not_recommended": "Not Recommended",
-
+    "proceed_with_caution": "Proceed with caution",
+    "not_recommended": "Not recommended",
     "saturationTitle": "This market shows strong competition.",
     "saturationDescription": "Competition is a signal to investigate differentiation, not proof that the business cannot work.",
-
-    "note": "Note",
-    "startOver": "Start Over"
+    "estimated": "Estimated value",
+    "overallConfidence": "Confidence",
+    "startOver": "Start over",
+    "generic": "Something went wrong while generating the report. Please try again.",
+    "outOf100": "out of 100"
   },
-
+  "recommendationStatus": {
+    "proceed": "Proceed",
+    "proceed_with_caution": "Proceed with caution",
+    "not_recommended": "Not recommended"
+  },
+  "status": {
+    "verified": "Verified",
+    "identified": "Identified",
+    "unavailable": "Unavailable",
+    "unknown": "Unknown",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "strong": "Strong",
+    "moderate": "Moderate",
+    "weak": "Weak",
+    "available": "Available",
+    "limited": "Limited",
+    "estimate": "Estimate"
+  },
+  "classificationValues": {
+    "high": "High",
+    "moderate": "Moderate",
+    "low": "Low",
+    "saturated": "Saturated",
+    "underserved": "Underserved",
+    "unknown": "Unknown"
+  },
+  "riskTypes": {
+    "seasonal_demand": "Seasonal demand",
+    "single_buyer_dependency": "Single buyer dependency",
+    "competition_data_gap": "Competition data gap",
+    "competition": "Competition",
+    "data_confidence": "Data confidence",
+    "price_volatility": "Price volatility"
+  },
+  "workingCapital": {
+    "inventory": "Inventory",
+    "raw_material": "Raw material",
+    "raw_materials": "Raw materials",
+    "labour": "Labour",
+    "labor": "Labour",
+    "utilities": "Utilities",
+    "marketing": "Marketing",
+    "rent": "Rent",
+    "transport": "Transport",
+    "contingency": "Contingency",
+    "equipment": "Equipment",
+    "other": "Other"
+  },
   "errors": {
     "generic": "Something went wrong while generating the report. Please try again."
+  },
+  "map": {
+    "noLocationsTitle": "No identifiable competitor locations are available.",
+    "noLocationsText": "Available data does not currently contain businesses in this category that can be displayed on the map.",
+    "noLocationsNote": "This does not mean no competitors exist. Informal, unregistered or unlisted businesses may not be included.",
+    "noCoordinatesTitle": "Competitors were identified, but their locations are not available for mapping.",
+    "ariaLabel": "Competitor location map"
   }
 }

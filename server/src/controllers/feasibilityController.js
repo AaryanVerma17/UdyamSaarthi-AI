@@ -57,37 +57,83 @@ const {
 /**
  * Preserve useful ML-service diagnostics.
  */
-function logMlFailure(
-  operation,
-  error
-) {
+/**
+ * Preserve useful ML-service diagnostics.
+ *
+ * The ML client normalises FastAPI errors into useful
+ * MlServiceError objects. Keep those details so that
+ * Render logs identify the exact failing stage.
+ */
+function logMlFailure(operation, error) {
+  const details = {
+    message:
+      error?.message ||
+      "Unknown ML service error",
+
+    name:
+      error?.name ||
+      "Error",
+
+    code:
+      error?.code ||
+      null,
+
+    status:
+      error?.status ??
+      error?.response?.status ??
+      null,
+
+    operation:
+      error?.operation ||
+      operation,
+
+    path:
+      error?.path ??
+      error?.config?.url ??
+      null,
+
+    url:
+      error?.url ||
+      null,
+
+    responseData:
+      error?.responseData ??
+      error?.response?.data ??
+      null,
+  };
+
   console.error(
     `[feasibility] ${operation} failed:`,
-    {
-      message:
-        error?.message,
+    details
+  );
 
-      name:
-        error?.name,
+  return details;
+}
 
-      code:
-        error?.code,
 
-      status:
-        error?.status ??
-        error?.response?.status ??
-        null,
+/**
+ * Convert an ML-service failure into an AppError
+ * while preserving the useful diagnostic message.
+ *
+ * We intentionally do not expose stack traces or internal
+ * implementation details to the frontend.
+ */
+function mlStageError(operation, error) {
+  const details =
+    logMlFailure(
+      operation,
+      error
+    );
 
-      path:
-        error?.path ??
-        error?.config?.url ??
-        null,
+  const message =
+    details.message &&
+    details.message !== "Request failed"
+      ? details.message
+      : `ML service failed during ${operation}`;
 
-      responseData:
-        error?.responseData ??
-        error?.response?.data ??
-        null,
-    }
+  return new AppError(
+    `${operation}: ${message}`,
+    502
   );
 }
 
@@ -151,20 +197,31 @@ async function generate(
 
     let geoContext;
 
+    // try {
+    //   geoContext =
+    //     await mlClient.getLocationIntelligence(
+    //       location
+    //     );
+    // } catch (mlErr) {
+    //   logMlFailure(
+    //     "Location intelligence",
+    //     mlErr
+    //   );
+
+    //   throw new AppError(
+    //     "ml_service failed during location intelligence",
+    //     502
+    //   );
+    // }
     try {
       geoContext =
-        await mlClient.getLocationIntelligence(
-          location
-        );
+      await mlClient.getLocationIntelligence(
+        location
+      );
     } catch (mlErr) {
-      logMlFailure(
+      throw mlStageError(
         "Location intelligence",
         mlErr
-      );
-
-      throw new AppError(
-        "ml_service failed during location intelligence",
-        502
       );
     }
 
@@ -183,25 +240,28 @@ async function generate(
     // 3. CATEGORY-SPECIFIC COMPETITION
     // ===============================================================
 
-    let competitorMapping;
+let competitorMapping;
 
-    try {
-      competitorMapping =
-        await mlClient.mapCompetitors(
-          geoContext,
-          normalizedBusinessCategory
-        );
-    } catch (mlErr) {
-      logMlFailure(
-        "Competition mapping",
-        mlErr
-      );
+try {
+  competitorMapping = await mlClient.mapCompetitors(
+    geoContext,
+    normalizedBusinessCategory
+  );
+} catch (mlErr) {
+  throw mlStageError(
+    "Competition mapping",
+    mlErr
+  );
+}
 
-      throw new AppError(
-        "ml_service failed during competition mapping",
-        502
-      );
-    }
+// geoContext.competition = {
+//   ...(geoContext.competition || {}),
+//   ...(competitorMapping || {}),
+//   businessCategory:
+//     competitorMapping?.businessCategory ||
+//     geoContext.competition?.businessCategory ||
+//     normalizedBusinessCategory,
+// };
 
     if (
       !competitorMapping ||
@@ -443,43 +503,47 @@ async function generate(
     // 7. ATTACH COMPETITION TO GEO CONTEXT
     // ===============================================================
 
-    geoContext.competition = {
-      count:
-        competitorMapping.count,
+geoContext.competition = {
+  businessCategory:
+    competitorMapping.businessCategory ||
+    normalizedBusinessCategory,
 
-      classification:
-        competitorMapping.classification,
+  count:
+    competitorMapping.count,
 
-      available:
-        competitionAvailable,
+  classification:
+    competitorMapping.classification,
 
-      identifiable:
-        competitionAvailable,
+  available:
+    competitionAvailable,
 
-      confidence:
-        competitorCountMetric.confidence,
+  identifiable:
+    competitionAvailable,
 
-      source:
-        competitorMapping.source,
+  confidence:
+    competitorCountMetric.confidence,
 
-      sourceTier:
-        competitorMapping.sourceTier,
+  source:
+    competitorMapping.source,
 
-      dataYear:
-        competitorMapping.dataYear,
+  sourceTier:
+    competitorMapping.sourceTier,
 
-      lastUpdated:
-        competitorMapping.lastUpdated,
+  dataYear:
+    competitorMapping.dataYear,
 
-      coverage:
-        competitorMapping.coverage,
+  lastUpdated:
+    competitorMapping.lastUpdated,
 
-      geographicMatch:
-        competitorMapping.geographicMatch,
+  coverage:
+    competitorMapping.coverage,
 
-      note:
-        competitorMapping.dataConfidenceNote,
-    };
+  geographicMatch:
+    competitorMapping.geographicMatch,
+
+  note:
+    competitorMapping.dataConfidenceNote,
+};
 
 
     // ===============================================================
@@ -488,23 +552,18 @@ async function generate(
 
     let viability;
 
-    try {
-      viability =
-        await mlClient.scoreViability(
-          geoContext,
-          normalizedBusinessCategory
-        );
-    } catch (mlErr) {
-      logMlFailure(
-        "Viability calculation",
-        mlErr
-      );
-
-      throw new AppError(
-        "ml_service failed during viability calculation",
-        502
-      );
-    }
+try {
+  viability =
+    await mlClient.scoreViability(
+      geoContext,
+      normalizedBusinessCategory
+    );
+} catch (mlErr) {
+  throw mlStageError(
+    "Viability calculation",
+    mlErr
+  );
+}
 
     if (
       !viability ||
@@ -523,24 +582,19 @@ async function generate(
 
     let opportunities;
 
-    try {
-      opportunities =
-        await mlClient.rankOpportunities(
-          geoContext,
-          ownCapital,
-          normalizedBusinessCategory
-        );
-    } catch (mlErr) {
-      logMlFailure(
-        "Opportunity ranking",
-        mlErr
-      );
-
-      throw new AppError(
-        "ml_service failed during opportunity analysis",
-        502
-      );
-    }
+try {
+  opportunities =
+    await mlClient.rankOpportunities(
+      geoContext,
+      ownCapital,
+      normalizedBusinessCategory
+    );
+} catch (mlErr) {
+  throw mlStageError(
+    "Opportunity analysis",
+    mlErr
+  );
+}
 
     if (
       opportunities?.requestedBusiness
@@ -556,23 +610,18 @@ async function generate(
 
     let risks;
 
-    try {
-      risks =
-        await mlClient.analyzeRisks(
-          geoContext,
-          normalizedBusinessCategory
-        );
-    } catch (mlErr) {
-      logMlFailure(
-        "Risk analysis",
-        mlErr
-      );
-
-      throw new AppError(
-        "ml_service failed during risk analysis",
-        502
-      );
-    }
+try {
+  risks =
+    await mlClient.analyzeRisks(
+      geoContext,
+      normalizedBusinessCategory
+    );
+} catch (mlErr) {
+  throw mlStageError(
+    "Risk analysis",
+    mlErr
+  );
+}
 
 
     // ===============================================================
